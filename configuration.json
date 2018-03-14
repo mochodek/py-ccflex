@@ -1,3 +1,177 @@
 {
-  "test": [1,2,3]
+  "train": {
+    "baseline_dir": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
+    "locations": [
+      {
+        "path": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
+        "include": [
+          ".+[.]cpp",
+          ".+[.]c",
+          ".+[.]h"
+        ],
+        "exclude": []
+      }
+    ]
+  },
+  "classify": [],
+  "storage_dir": {
+    "path": "../ccflex_tmp",
+    "erase": true
+  },
+  "csv_sep": ",",
+  "classes": {
+    "marked": [
+      {
+        "line_prefix": "@",
+        "name": "count",
+        "value": 1
+      }
+    ],
+    "default": {
+      "name": "ignore",
+      "value": 0
+    }
+  },
+  "manual_string_counting_features": [
+    {
+      "name": "lbracket",
+      "string": "("
+    },
+    {
+      "name": "rbracket",
+      "string": ")"
+    },
+    {
+      "name": "lcbracket",
+      "string": "{"
+    },
+    {
+      "name": "rcbracket",
+      "string": "}"
+    },
+    {
+      "name": "lsbracket",
+      "string": "["
+    },
+    {
+      "name": "rsbracket",
+      "string": "]"
+    },
+    {
+      "name": "semicolon",
+      "string": ";"
+    },
+    {
+      "name": "colon",
+      "string": ":"
+    },
+    {
+      "name": "comma",
+      "string": ","
+    },
+    {
+      "name": "minus",
+      "string": "-"
+    },
+    {
+      "name": "plus",
+      "string": "-"
+    },
+    {
+      "name": "dot",
+      "string": "."
+    },
+    {
+      "name": "slash",
+      "string": "/"
+    },
+    {
+      "name": "bslash",
+      "string": "\\"
+    },
+    {
+      "name": "question",
+      "string": "?"
+    },
+    {
+      "name": "quote",
+      "string": "\""
+    },
+    {
+      "name": "sqoute",
+      "string": "'"
+    },
+    {
+      "name": "star",
+      "string": "*"
+    },
+    {
+      "name": "amp",
+      "string": "&"
+    },
+    {
+      "name": "piple",
+      "string": "|"
+    },
+    {
+      "name": "at",
+      "string": "@"
+    },
+    {
+      "name": "dollar",
+      "string": "$"
+    },
+    {
+      "name": "space",
+      "string": " "
+    },
+    {
+      "name": "hash",
+      "string": "#"
+    },
+    {
+      "name": "equal",
+      "string": "=="
+    }
+  ],
+  "manual_whole_word_counting_features": [
+    {
+      "name": "for",
+      "string": "for"
+    },
+    {
+      "name": "if",
+      "string": "if"
+    },
+    {
+      "name": "case",
+      "string": "case"
+    },
+    {
+      "name": "exception",
+      "string": "exception"
+    },
+    {
+      "name": "class",
+      "string": "class"
+    },
+    {
+      "name": "while",
+      "string": "while"
+    },
+    {
+      "name": "try",
+      "string": "try"
+    },
+    {
+      "name": "catch",
+      "string": "catch"
+    },
+    {
+      "name": "expect",
+      "string": "expect"
+    }
+  ]
 }
+
+
