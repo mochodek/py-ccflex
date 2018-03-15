@@ -23,7 +23,7 @@ class BaseCaseExtractor(abc.ABC):
         self.baseline_dir = code_location.get("baseline_dir", "/")
 
     def extract(self):
-        with open(self.output_file_path, "wt") as output_file:
+        with open(self.output_file_path, "w", newline='') as output_file:
             writer = csv.writer(output_file, delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
             self._save_header(writer)
@@ -107,5 +107,5 @@ class LinesCaseExtractor(BaseCaseExtractor):
                                      line.replace("\"", "\"\"").replace("\n", ""),
                                      decision_class_name,
                                      str(decision_class_value),
-                                     file_path]
+                                     file_path.replace("\n", "")]
                 writer.writerow(row)

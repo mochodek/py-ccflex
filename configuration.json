@@ -1,24 +1,37 @@
 {
   "train": {
-    "baseline_dir": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
+    "baseline_dir": "C:/Users/miroslaw/Box Sync/CCFlex/ccflex_20",
     "locations": [
       {
-        "path": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
+        "path": "C:/Users/miroslaw/Box Sync/CCFlex/ccflex_20",
         "include": [
           ".+[.]cpp",
-          ".+[.]c",
+          ".+[.]c$",
           ".+[.]h"
         ],
         "exclude": []
       }
     ]
   },
-  "classify": [],
+  "classify": {
+    "baseline_dir": "C:/Users/miroslaw/Box Sync/CCFlex/classify",
+    "locations": [
+      {
+        "path": "C:/Users/miroslaw/Box Sync/CCFlex/ccflex_20",
+        "include": [
+          ".+[.]cpp",
+          ".+[.]c$",
+          ".+[.]h"
+        ],
+        "exclude": []
+      }
+    ]
+  },
   "storage_dir": {
-    "path": "../ccflex_tmp",
+    "path": "../../../ccflex_tmp",
     "erase": true
   },
-  "csv_sep": ",",
+  "csv_sep": "$",
   "classes": {
     "marked": [
       {
