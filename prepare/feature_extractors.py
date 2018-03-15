@@ -30,7 +30,7 @@ class LineFeaturesExtractionController(object):
     def extract(self):
         with open(self.input_file, 'rt') as in_file:
             reader = csv.DictReader(in_file,  delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            with open(self.output_file, 'wt') as out_file:
+            with open(self.output_file, 'w', newline='') as out_file:
                 writer = csv.DictWriter(out_file, fieldnames=self.feature_names,
                                         delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 writer.writeheader()
