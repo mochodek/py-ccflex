@@ -107,5 +107,5 @@ class LinesCaseExtractor(BaseCaseExtractor):
                                      line.replace("\"", "\"\"").replace("\n", ""),
                                      decision_class_name,
                                      str(decision_class_value),
-                                     file_path]
+                                     file_path.replace("\n", "")]
                 writer.writerow(row)

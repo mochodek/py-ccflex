@@ -11,3 +11,4 @@ basic-manual-features "train" --add_decision_class true --add_contents true --lo
 lines2csv "classify" --locations_config $LOCATIONS_CONFIG --classes_config $CLASSES_CONFIG --files_format_config $FILES_FORMAT_CONFIG
 basic-manual-features "classify" --add_decision_class true --add_contents true --locations_config $LOCATIONS_CONFIG --manual_features_config $MANUAL_FEATURES_CONFIG
 classify "train-basic-manual.csv" "classify-basic-manual.csv" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+
