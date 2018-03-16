@@ -18,7 +18,11 @@ logger.addHandler(ch)
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config_file", help="Path to configuration file", type=str, required=False)
+    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
+    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
+                        required=False)
+    parser.add_argument("--manual_features_config", help="Path to manual features configuration file", type=str,
+                        required=False)
     parser.add_argument("--add_decision_class", help="Shall the decision class be added to output?",
                         type=bool, required=False)
     parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
@@ -27,20 +31,30 @@ if __name__ == '__main__':
                         help="Name of the node in configuration defining path to code", type=str)
     args = vars(parser.parse_args())
 
-    config_file_path = "./configuration.json" if args['config_file'] is None else args['config_file']
+    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
+    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
+    manual_features_file_path = "./manual_features.json" if args['manual_features_config'] is None else args[
+        'manual_features_config']
 
     try:
-        config = ConfigurationHandler(config_file_path)
+        locations_config = ConfigurationHandler(locations_file_path)
     except Exception as e:
-        logger.error("Couldn't load configuration file {}".format(config_file_path))
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
         exit(1)
 
-    storage_dir_conf = config.get('storage_dir', None)
+    try:
+        manual_features_config = ConfigurationHandler(manual_features_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(manual_features_file_path))
+        exit(1)
+
+
+    storage_dir_conf = locations_config.get('storage_dir', None)
     storage_dir_path = storage_dir_conf.get("path", "")
     storage_dir = FileStorageHandler(storage_dir_path)
 
     code_loc_config_key = args['code_location_config_key']
-    code_loc = config.get(code_loc_config_key, None)
+    code_loc = locations_config.get(code_loc_config_key, None)
 
     add_decision_class = args['add_decision_class']
     add_contents = args['add_contents']
@@ -48,8 +62,8 @@ if __name__ == '__main__':
     input_file_path = storage_dir.get_file_path("{}-lines.csv".format(code_loc_config_key))
     output_file_path = storage_dir.get_file_path("{}-basic-manual.csv".format(code_loc_config_key))
 
-    manual_string_counting_features = config.get('manual_string_counting_features', [])
-    manual_whole_word_counting_features = config.get('manual_whole_word_counting_features', [])
+    manual_string_counting_features = manual_features_config.get('manual_string_counting_features', [])
+    manual_whole_word_counting_features = manual_features_config.get('manual_whole_word_counting_features', [])
 
     substring_counting_extractor = SubstringCountingFeatureExtraction(manual_string_counting_features)
     manual_whole_word_counting_exractor = WholeWordCountingFeatureExtraction(manual_whole_word_counting_features)
@@ -63,9 +77,15 @@ if __name__ == '__main__':
                   no_words_extractor,
                   no_chars_extractor]
 
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
     controller = LineFeaturesExtractionController(extractors,
                                                   input_file_path, output_file_path,
-                                                  sep=config.get("csv_sep", ","),
+                                                  sep=files_format_config.get("csv_sep", ","),
                                                   add_decision_class=add_decision_class,
                                                   add_contents=add_contents)
     controller.extract()

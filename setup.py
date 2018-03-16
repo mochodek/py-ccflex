@@ -10,10 +10,13 @@ setup(name='pyccflex',
       packages=['common', 'prepare'],
       install_requires=[
           'pandas',
-          'numpy'
+          'numpy',
+          'graphviz',
+          'scikit-learn'
       ],
       scripts=[
-            'bin/create-storage',
-            'bin/extract-lines2csv',
-            'bin/basic-manual-features'],
+          'bin/create-storage',
+          'bin/lines2csv',
+          'bin/basic-manual-features',
+          'bin/classify'],
       zip_safe=False)

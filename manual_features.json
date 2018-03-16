@@ -1,37 +1,4 @@
 {
-  "train": {
-    "baseline_dir": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
-    "locations": [
-      {
-        "path": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
-        "include": [
-          ".+[.]cpp",
-          ".+[.]c",
-          ".+[.]h"
-        ],
-        "exclude": []
-      }
-    ]
-  },
-  "classify": [],
-  "storage_dir": {
-    "path": "../ccflex_tmp",
-    "erase": true
-  },
-  "csv_sep": ",",
-  "classes": {
-    "marked": [
-      {
-        "line_prefix": "@",
-        "name": "count",
-        "value": 1
-      }
-    ],
-    "default": {
-      "name": "ignore",
-      "value": 0
-    }
-  },
   "manual_string_counting_features": [
     {
       "name": "lbracket",

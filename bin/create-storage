@@ -18,15 +18,15 @@ logger.addHandler(ch)
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config_file", help="Path to configuration file", type=str, required=False)
+    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
     args = vars(parser.parse_args())
 
-    config_file_path = "./configuration.json" if args['config_file'] is None else args['config_file']
+    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
 
     try:
-        config = ConfigurationHandler(config_file_path)
+        config = ConfigurationHandler(locations_file_path)
     except Exception as e:
-        logger.error("Couldn't load configuration file {}".format(config_file_path))
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
         exit(1)
 
     # create storage folder

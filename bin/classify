@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+
+# Extracts basic manual features
+import argparse
+import logging
+
+from common.configuration import ConfigurationHandler
+from common.storage import FileStorageHandler
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+import graphviz
+from sklearn import tree
+
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
+    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
+                        required=False)
+    parser.add_argument("train_input_csv",
+                        help="Path to input train csv file", type=str)
+    parser.add_argument("classify_input_csv",
+                        help="Path to input classify csv file", type=str)
+    args = vars(parser.parse_args())
+
+    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
+    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
+
+
+    try:
+        locations_config = ConfigurationHandler(locations_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
+        exit(1)
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
+
+    storage_dir_conf = locations_config.get('storage_dir', None)
+    storage_dir_path = storage_dir_conf.get("path", "")
+    storage_dir = FileStorageHandler(storage_dir_path)
+
+    train_input_file = storage_dir.get_file_path(args['train_input_csv'])
+    classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
+
+    output_file_path = storage_dir.get_file_path("classify-output.csv")
+    output_tree_file_path = storage_dir.get_file_path("classify-output-tree")
+
+    # read and transform input
+    input_raw = pd.read_csv(train_input_file, sep=files_format_config.get("csv_sep", ","))
+    classify_raw = pd.read_csv(classify_input_file, sep=files_format_config.get("csv_sep", ","))
+
+    input_data = input_raw.drop(['id', 'class_value', 'contents'], inplace=False, axis=1)
+    classify_data = classify_raw.drop(['id', 'class_value', 'class_name', 'contents'], inplace=False, axis=1)
+
+    # train model
+    model = DecisionTreeClassifier(class_weight="balanced")
+
+    X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
+    Y = input_data['class_name']
+
+    model.fit(X, Y)
+
+    predY = model.predict(classify_data)
+
+    # report
+    output = classify_raw[['id', 'contents']]
+    output = output.assign(pred_class=predY)
+
+    output.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False)
+
+    dot_data = tree.export_graphviz(model, out_file=None,
+                                    feature_names=list(X.columns),
+                                    class_names=list(Y.unique()),
+                                    filled=True, rounded=True,
+                                    special_characters=True)
+
+    graph = graphviz.Source(dot_data, format='pdf')
+    graph.render(output_tree_file_path)
+
+
+
+
+
+
+
+
+
