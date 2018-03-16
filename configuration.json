@@ -17,7 +17,7 @@
     "baseline_dir": "C:/Users/miroslaw/Box Sync/CCFlex/classify",
     "locations": [
       {
-        "path": "C:/Users/miroslaw/Box Sync/CCFlex/ccflex_20",
+        "path": "C:/Users/miroslaw/Box Sync/CCFlex/classify",
         "include": [
           ".+[.]cpp",
           ".+[.]c$",
