@@ -5,9 +5,9 @@
       {
         "path": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
         "include": [
-          ".+[.]cpp",
-          ".+[.]c",
-          ".+[.]h"
+          ".+[.]cpp$",
+          ".+[.]c$",
+          ".+[.]h$"
         ],
         "exclude": []
       }
@@ -15,14 +15,14 @@
   },
 
   "classify": {
-    "baseline_dir": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
+    "baseline_dir": "/Users/mochodek/git/open_dataset/CANdevStudio",
     "locations": [
       {
-        "path": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
+        "path": "/Users/mochodek/git/open_dataset/CANdevStudio",
         "include": [
-          ".+[.]cpp",
-          ".+[.]c",
-          ".+[.]h"
+          ".+[.]cpp$",
+          ".+[.]c$",
+          ".+[.]h$"
         ],
         "exclude": []
       }
