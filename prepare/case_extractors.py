@@ -91,7 +91,7 @@ class LinesCaseExtractor(BaseCaseExtractor):
             for number, line in enumerate(input_file, 1):
                 decision_class_name = None
                 decision_class_value = None
-                for c in self.decision_classes.get("marked", []):
+                for c in self.decision_classes.get("labeled", []):
                     if line.startswith(c['line_prefix']):
                         decision_class_name = c['name']
                         decision_class_value = c['value']

@@ -1,0 +1,17 @@
+{
+  "classes": {
+    "labeled": [
+      {
+        "line_prefix": "@",
+        "name": "count",
+        "value": 1
+      }
+    ],
+    "default": {
+      "name": "ignore",
+      "value": 0
+    }
+  }
+}
+
+
