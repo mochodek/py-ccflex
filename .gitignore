@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# local config
+configuration_ms.json
+locations_ms.json
+run_ms.sh
+
 # Distribution / packaging
 .Python
 env/
