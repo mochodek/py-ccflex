@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Extracts basic manual features
+# Trains a classifier and classifies new instances
 import argparse
 import logging
 

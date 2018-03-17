@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Creates temporary folder
+# Creates a temporary folder
 
 import argparse
 import logging
