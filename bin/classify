@@ -17,7 +17,7 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-print(">>> Starting classification: ")
+logger.info(">>> Starting classification: ")
 
 if __name__ == '__main__':
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
     files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
 
-    print(">>>> Setting up paths complete!")
+    logger.info(">>>> Setting up paths complete!")
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     output.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False)
 
-    print(">>>> Export to csv successful!")
+    logger.info(">>>> Export to csv successful!")
 
     dot_data = tree.export_graphviz(model, out_file=None,
                                     feature_names=list(X.columns),
@@ -90,7 +90,7 @@ if __name__ == '__main__':
                                     filled=True, rounded=True,
                                     special_characters=True)
 
-    print(">>>> Tree rendering complete! ")
+    logger.info(">>>> Tree rendering complete! ")
     
     graph = graphviz.Source(dot_data, format='pdf')
     graph.render(output_tree_file_path)
