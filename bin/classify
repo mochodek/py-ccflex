@@ -83,13 +83,15 @@ if __name__ == '__main__':
     output.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False)
 
     print(">>>> Export to csv successful!")
-    
+
     dot_data = tree.export_graphviz(model, out_file=None,
                                     feature_names=list(X.columns),
                                     class_names=list(Y.unique()),
                                     filled=True, rounded=True,
                                     special_characters=True)
 
+    print(">>>> Tree rendering complete! ")
+    
     graph = graphviz.Source(dot_data, format='pdf')
     graph.render(output_tree_file_path)
 
