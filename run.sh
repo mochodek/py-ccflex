@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LOCATIONS_CONFIG="./locations_ms.json"
+LOCATIONS_CONFIG="./locations.json"
 CLASSES_CONFIG="./classes.json"
 FILES_FORMAT_CONFIG="./files_format.json"
 MANUAL_FEATURES_CONFIG="./manual_features.json"
