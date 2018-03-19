@@ -60,8 +60,8 @@ if __name__ == '__main__':
     output_tree_file_path = storage_dir.get_file_path("classify-output-tree")
 
     # read and transform input
-    input_raw = pd.read_csv(train_input_file, sep=files_format_config.get("csv_sep", ","))
-    classify_raw = pd.read_csv(classify_input_file, sep=files_format_config.get("csv_sep", ","))
+    input_raw = pd.read_csv(train_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
+    classify_raw = pd.read_csv(classify_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
 
     input_data = input_raw.drop(['id', 'class_value', 'contents'], inplace=False, axis=1)
     classify_data = classify_raw.drop(['id', 'class_value', 'class_name', 'contents'], inplace=False, axis=1)
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     output = classify_raw[['id', 'contents']]
     output = output.assign(pred_class=predY)
 
-    output.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False)
+    output.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
 
     logger.info(">>>> Export to csv successful!")
 
