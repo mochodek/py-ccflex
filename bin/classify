@@ -59,6 +59,8 @@ if __name__ == '__main__':
     classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
 
     output_file_path = storage_dir.get_file_path("classify-output.csv")
+    output_file_path_count = storage_dir.get_file_path("classify-output-count.csv")
+    output_file_path_ignore = storage_dir.get_file_path("classify-output-ignore.csv")
     output_tree_file_path = storage_dir.get_file_path("classify-output-tree")
 
 
@@ -86,12 +88,14 @@ if __name__ == '__main__':
     pred_knn = model_knn.predict(classify_data)
 
     # report
-    output_tree = classify_raw[['id', 'contents']]
-    output_tree = output_tree.assign(pred_tree=pred_tree)
-    output_tree = output_tree.assign(pred_rf=pred_rf)
-    output_tree = output_tree.assign(pred_knn=pred_knn)
-    output_tree.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+    output_full = classify_raw[['id', 'contents']]
+    output_full = output_full.assign(pred_tree=pred_tree)
+    output_full = output_full.assign(pred_rf=pred_rf)
+    output_full = output_full.assign(pred_knn=pred_knn)
+    output_full.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
 
+    output_count = output_full[(output_full['pred_tree'] == 1) | (output_full['pred_rf'] == 1) | (output_full['pred_knn'] == 1)]
+    output_count.to_csv(output_file_path_count, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
 
     logger.info(">>>> Export to csv successful!")
 
