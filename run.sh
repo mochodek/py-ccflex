@@ -11,4 +11,5 @@ basic-manual-features "train" --add_decision_class true --add_contents true --lo
 lines2csv "classify" --locations_config $LOCATIONS_CONFIG --classes_config $CLASSES_CONFIG --files_format_config $FILES_FORMAT_CONFIG
 basic-manual-features "classify" --add_decision_class true --add_contents true --locations_config $LOCATIONS_CONFIG --manual_features_config $MANUAL_FEATURES_CONFIG
 classify "train-basic-manual.csv" "classify-basic-manual.csv" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+/Library/Frameworks/R.framework/Versions/3.4/Resources/bin/Rscript ./bin/classify_c5.R "/Users/mochodek/Development/Jupyter/ccflex_tmp/train-basic-manual.csv" "/Users/mochodek/Development/Jupyter/ccflex_tmp/classify-basic-manual.csv" "/Users/mochodek/Development/Jupyter/ccflex_tmp/r-out.csv" "$"
 
