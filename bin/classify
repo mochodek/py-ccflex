@@ -63,14 +63,14 @@ if __name__ == '__main__':
     input_raw = pd.read_csv(train_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
     classify_raw = pd.read_csv(classify_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
 
-    input_data = input_raw.drop(['id', 'class_value', 'contents'], inplace=False, axis=1)
+    input_data = input_raw.drop(['id', 'class_name', 'contents'], inplace=False, axis=1)
     classify_data = classify_raw.drop(['id', 'class_value', 'class_name', 'contents'], inplace=False, axis=1)
 
     # train model
     model = DecisionTreeClassifier(class_weight="balanced")
 
     X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
-    Y = input_data['class_name']
+    Y = input_data['class_value']
 
     model.fit(X, Y)
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     dot_data = tree.export_graphviz(model, out_file=None,
                                     feature_names=list(X.columns),
-                                    class_names=list(Y.unique()),
+                                    class_names=list([str(y) for y in Y.unique()]),
                                     filled=True, rounded=True,
                                     special_characters=True)
 
