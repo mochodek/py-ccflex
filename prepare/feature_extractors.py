@@ -28,9 +28,9 @@ class LineFeaturesExtractionController(object):
             self.feature_names.append("contents")
 
     def extract(self):
-        with open(self.input_file, 'rt', encoding="cp1252") as in_file:
+        with open(self.input_file, 'rt', encoding="utf-8") as in_file:
             reader = csv.DictReader(in_file,  delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            with open(self.output_file, 'w', newline='', encoding="cp1252") as out_file:
+            with open(self.output_file, 'w', newline='', encoding="utf-8") as out_file:
                 writer = csv.DictWriter(out_file, fieldnames=self.feature_names,
                                         delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 writer.writeheader()

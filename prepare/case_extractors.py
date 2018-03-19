@@ -23,7 +23,7 @@ class BaseCaseExtractor(abc.ABC):
         self.baseline_dir = code_location.get("baseline_dir", "/")
 
     def extract(self):
-        with open(self.output_file_path, "w", newline='', encoding="cp1252") as output_file:
+        with open(self.output_file_path, "w", newline='', encoding="utf-8") as output_file:
             writer = csv.writer(output_file, delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
             self._save_header(writer)
@@ -86,26 +86,28 @@ class LinesCaseExtractor(BaseCaseExtractor):
 
         file_relative_path = os.path.relpath(file_path, self.baseline_dir)
 
-        with open(file_path, "r", encoding="cp1252") as input_file:
+        with open(file_path, "r", encoding="utf-8") as input_file:
+            try:
+                for number, line in enumerate(input_file, 1):
+                    decision_class_name = None
+                    decision_class_value = None
+                    for c in self.decision_classes.get("labeled", []):
+                        if line.startswith(c['line_prefix']):
+                            decision_class_name = c['name']
+                            decision_class_value = c['value']
+                            line = line[len(c['line_prefix']):]
+                            break
+                    if decision_class_name is None:
+                        default_class = self.decision_classes.get('default')
+                        decision_class_name = default_class['name']
+                        decision_class_value = default_class['value']
 
-            for number, line in enumerate(input_file, 1):
-                decision_class_name = None
-                decision_class_value = None
-                for c in self.decision_classes.get("labeled", []):
-                    if line.startswith(c['line_prefix']):
-                        decision_class_name = c['name']
-                        decision_class_value = c['value']
-                        line = line[len(c['line_prefix']):]
-                        break
-                if decision_class_name is None:
-                    default_class = self.decision_classes.get('default')
-                    decision_class_name = default_class['name']
-                    decision_class_value = default_class['value']
-
-                row = ["{}:{}".format(file_relative_path, number),
-                                     str(number),
-                                     line.replace("\"", "\"\"").replace("\n", ""),
-                                     decision_class_name,
-                                     str(decision_class_value),
-                                     file_path.replace("\n", "")]
-                writer.writerow(row)
+                    row = ["{}:{}".format(file_relative_path, number),
+                                         str(number),
+                                         line.replace("\"", "\"\"").replace("\n", ""),
+                                         decision_class_name,
+                                         str(decision_class_value),
+                                         file_path.replace("\n", "")]
+                    writer.writerow(row)
+            except Exception as e:
+                self.logger.info("Skipping file because of wrong encoding in thefile {}".format(file_path))
