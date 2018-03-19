@@ -23,7 +23,7 @@ class BaseCaseExtractor(abc.ABC):
         self.baseline_dir = code_location.get("baseline_dir", "/")
 
     def extract(self):
-        with open(self.output_file_path, "w", newline='', encoding="utf-8") as output_file:
+        with open(self.output_file_path, "w", newline='', encoding="cp1252") as output_file:
             writer = csv.writer(output_file, delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
             self._save_header(writer)
@@ -86,7 +86,7 @@ class LinesCaseExtractor(BaseCaseExtractor):
 
         file_relative_path = os.path.relpath(file_path, self.baseline_dir)
 
-        with open(file_path, "r", encoding="utf-8") as input_file:
+        with open(file_path, "r", encoding="cp1252") as input_file:
 
             for number, line in enumerate(input_file, 1):
                 decision_class_name = None
