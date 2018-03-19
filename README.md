@@ -7,7 +7,12 @@ Since this project is modular, we can use R to make some more advanced classific
 
 * bin - components, each component is a script
 
-** basic-manual-feature - extracting features like number of brackets, for, etc.
-** create-storage - creates a folder where each component can store sub-results
-** extract-linces2csv - extracts all kinds of information from the file
+* basic-manual-feature - extracting features like number of brackets, for, etc.
+* create-storage - creates a folder where each component can store sub-results
+* extract-linces2csv - extracts all kinds of information from the file
 
+
+The idea is described in the following paper:
+* Ochodek, M., Staron, M., Bargowski, D., Meding, W., & Hebig, R. (2017, February). Using machine learning to design a flexible LOC counter. In Machine Learning Techniques for Software Quality Evaluation (MaLTeSQuE), IEEE Workshop on (pp. 14-20). IEEE.
+
+* available at: [IEEE Xplore](http://ieeexplore.ieee.org/abstract/document/7882011/)
