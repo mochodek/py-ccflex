@@ -11,6 +11,7 @@ from sklearn.tree import DecisionTreeClassifier
 import graphviz
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -57,10 +58,8 @@ if __name__ == '__main__':
     train_input_file = storage_dir.get_file_path(args['train_input_csv'])
     classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
 
-    output_file_path_tree = storage_dir.get_file_path("classify-output-tree.csv")
+    output_file_path = storage_dir.get_file_path("classify-output.csv")
     output_tree_file_path = storage_dir.get_file_path("classify-output-tree")
-
-    output_file_path_rf = storage_dir.get_file_path("classify-output-rf.csv")
 
 
     # read and transform input
@@ -73,24 +72,26 @@ if __name__ == '__main__':
     # train model
     model_tree = DecisionTreeClassifier(class_weight="balanced", max_depth=5)
     model_rf =  RandomForestClassifier(class_weight="balanced", max_depth=5, n_estimators=10, max_features=1, n_jobs=4)
+    model_knn = KNeighborsClassifier(3)
 
     X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
     Y = input_data['class_value']
 
     model_tree.fit(X, Y)
     model_rf.fit(X, Y)
+    model_knn.fit(X, Y)
 
     pred_tree = model_tree.predict(classify_data)
     pred_rf = model_rf.predict(classify_data)
+    pred_knn = model_knn.predict(classify_data)
 
     # report
     output_tree = classify_raw[['id', 'contents']]
-    output_tree = output_tree.assign(pred_class=pred_tree)
-    output_tree.to_csv(output_file_path_tree, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+    output_tree = output_tree.assign(pred_tree=pred_tree)
+    output_tree = output_tree.assign(pred_rf=pred_rf)
+    output_tree = output_tree.assign(pred_knn=pred_knn)
+    output_tree.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
 
-    output_rf = classify_raw[['id', 'contents']]
-    output_rf = output_rf.assign(pred_class=pred_rf)
-    output_rf.to_csv(output_file_path_rf, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
 
     logger.info(">>>> Export to csv successful!")
 
