@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 import graphviz
 from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -56,8 +57,11 @@ if __name__ == '__main__':
     train_input_file = storage_dir.get_file_path(args['train_input_csv'])
     classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
 
-    output_file_path = storage_dir.get_file_path("classify-output.csv")
+    output_file_path_tree = storage_dir.get_file_path("classify-output-tree.csv")
     output_tree_file_path = storage_dir.get_file_path("classify-output-tree")
+
+    output_file_path_rf = storage_dir.get_file_path("classify-output-rf.csv")
+
 
     # read and transform input
     input_raw = pd.read_csv(train_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
@@ -67,24 +71,30 @@ if __name__ == '__main__':
     classify_data = classify_raw.drop(['id', 'class_value', 'class_name', 'contents'], inplace=False, axis=1)
 
     # train model
-    model = DecisionTreeClassifier(class_weight="balanced")
+    model_tree = DecisionTreeClassifier(class_weight="balanced", max_depth=5)
+    model_rf =  RandomForestClassifier(class_weight="balanced", max_depth=5, n_estimators=10, max_features=1, n_jobs=4)
 
     X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
     Y = input_data['class_value']
 
-    model.fit(X, Y)
+    model_tree.fit(X, Y)
+    model_rf.fit(X, Y)
 
-    predY = model.predict(classify_data)
+    pred_tree = model_tree.predict(classify_data)
+    pred_rf = model_rf.predict(classify_data)
 
     # report
-    output = classify_raw[['id', 'contents']]
-    output = output.assign(pred_class=predY)
+    output_tree = classify_raw[['id', 'contents']]
+    output_tree = output_tree.assign(pred_class=pred_tree)
+    output_tree.to_csv(output_file_path_tree, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
 
-    output.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+    output_rf = classify_raw[['id', 'contents']]
+    output_rf = output_rf.assign(pred_class=pred_rf)
+    output_rf.to_csv(output_file_path_rf, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
 
     logger.info(">>>> Export to csv successful!")
 
-    dot_data = tree.export_graphviz(model, out_file=None,
+    dot_data = tree.export_graphviz(model_tree, out_file=None,
                                     feature_names=list(X.columns),
                                     class_names=list([str(y) for y in Y.unique()]),
                                     filled=True, rounded=True,
