@@ -1,0 +1,120 @@
+#!/usr/bin/env python
+
+# Generates a HTML page from the .csv files
+# the files are output from the classifiers
+import argparse
+import logging
+
+from common.configuration import ConfigurationHandler
+from common.storage import FileStorageHandler
+import pandas as pd
+
+#
+#   Handling the logging; now it logs to console
+#   to change that to a file, change the stream handler
+#
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+logger.info(">>> Starting HTML export: ")
+
+if __name__ == '__main__':
+
+    #
+    #   Parsing parameters from the files
+    #
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
+    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
+                        required=False)
+    parser.add_argument("input_csv",
+                        help="Path to input csv file", type=str)
+    parser.add_argument("output_html",
+                        help="Path to output html file", type=str)
+    parser.add_argument("--all", help="Include all columns in html output", type=str,
+                        required=False)
+    args = vars(parser.parse_args())
+
+    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
+    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
+    bAll = False if args['all'] is None else True
+
+    logger.info(">>>> Setting up paths complete!")
+
+    try:
+        locations_config = ConfigurationHandler(locations_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
+        exit(1)
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
+
+    storage_dir_conf = locations_config.get('storage_dir', None)
+    storage_dir_path = storage_dir_conf.get("path", "")
+    storage_dir = FileStorageHandler(storage_dir_path)
+
+    input_file = storage_dir.get_file_path(args['input_csv'])
+    
+    output_file = storage_dir.get_file_path(args['output_html'])
+        
+    # read the csv file
+    df = pd.read_csv(input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
+
+    # get the names of the columns
+    column_names = df.iloc[0]
+    df.rename(columns = column_names)
+
+    # printing to HTML
+    if not bAll: 
+        html_string = df[['id','contents','class_name']].to_html()
+    else: 
+        html_string = df.to_html()
+
+    # and now printing to file
+    output_html_file = open(output_file, 'w')
+    output_html_file.write(html_string)
+    output_html_file.close()
+
+
+    logger.info(">>>> Export to HTML successful!")
+
+    # # report
+    # output_full = classify_raw[['id', 'contents']]
+    # output_full = output_full.assign(pred_tree=pred_tree)
+    # output_full = output_full.assign(pred_rf=pred_rf)
+    # output_full = output_full.assign(pred_knn=pred_knn)
+    # output_full.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+
+    # output_count = output_full[(output_full['pred_tree'] == 1) | (output_full['pred_rf'] == 1) | (output_full['pred_knn'] == 1)]
+    # output_count.to_csv(output_file_path_count, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+
+    # logger.info(">>>> Export to csv successful!")
+
+    # dot_data = tree.export_graphviz(model_tree, out_file=None,
+    #                                 feature_names=list(X.columns),
+    #                                 class_names=list([str(y) for y in Y.unique()]),
+    #                                 filled=True, rounded=True,
+    #                                 special_characters=True)
+
+    # logger.info(">>>> Tree rendering complete! ")
+    
+    # graph = graphviz.Source(dot_data, format='pdf')
+    # graph.render(output_tree_file_path)
+
+
+
+
+
+
+
+
+
