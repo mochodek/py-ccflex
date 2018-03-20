@@ -71,6 +71,7 @@ colnames(testDataSmall)[colnames(testDataSmall) == "while"] <- "whileloop"
 
 print(">>>> Classifying the data")
 result_tree <- cbind(testData, data.frame(pred_c5=predict(fit_tree, testDataSmall)))
+result_tree <- result_tree %>% select(-class_value, -class_name)
 
 print(">>>> Saving the results")
 write.table(result_tree, file=output_file, row.names=FALSE, sep=separator)

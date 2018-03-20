@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+#
+#   This file is a wrapper for executing R's decision trees
+#   What it does: takes the configuration in json 
+#   sets the parameters of the R script and executes the script
+#   the R script is in the same folder; but the path is hard-coded
+#   To change path: see section with MAGIC with R
+#
+
 # Trains a classifier and classifies new instances
 import argparse
 import logging
@@ -7,11 +15,8 @@ import logging
 from common.configuration import ConfigurationHandler
 from common.storage import FileStorageHandler
 import pandas as pd
-from sklearn.tree import DecisionTreeClassifier
-import graphviz
-from sklearn import tree
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
+
+from subprocess import call
 
 # 
 #   This section sets up the paths for logging and output
@@ -29,6 +34,7 @@ logger.info(">>> Starting classification: ")
 if __name__ == '__main__':
     #
     #   This section parses the json file with the parameters
+    #   and sets the appropriate paths and variables
     #
     parser = argparse.ArgumentParser()
     parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
@@ -65,71 +71,16 @@ if __name__ == '__main__':
     train_input_file = storage_dir.get_file_path(args['train_input_csv'])
     classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
 
-    output_file_path = storage_dir.get_file_path("classify-output.csv")
-    output_file_path_count = storage_dir.get_file_path("classify-output-count.csv")
-    output_file_path_ignore = storage_dir.get_file_path("classify-output-ignore.csv")
-    output_tree_file_path = storage_dir.get_file_path("classify-output-tree")
-
+    output_file_path = storage_dir.get_file_path("classify-output_c50_r.csv")
+    
     r_script_exec = locations_config.get("rscript_executable_path", "RScript.exe")
 
-    
-    # "C:/Program Files/R/bin/Rscript.exe" ./bin/classify_c5.R "H:/results/2018_ccflex_guidelines/train-basic-manual.csv" "H:/results/2018_ccflex_guidelines/classify-basic-manual.csv" "H:/results/2018_ccflex_guidelines/r-out.csv" "$"
-
     #
-    #   The lines below are from the original classifier, found in the file classify.py
+    # This is where the magic with R begins
     #
 
-    # read and transform input
-    # input_raw = pd.read_csv(train_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
-    # classify_raw = pd.read_csv(classify_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
-
-    # input_data = input_raw.drop(['id', 'class_name', 'contents'], inplace=False, axis=1)
-    # classify_data = classify_raw.drop(['id', 'class_value', 'class_name', 'contents'], inplace=False, axis=1)
-
-    # # train model
-    # model_tree = DecisionTreeClassifier(class_weight="balanced", max_depth=5)
-    # model_rf =  RandomForestClassifier(class_weight="balanced", max_depth=5, n_estimators=10, max_features=1, n_jobs=4)
-    # model_knn = KNeighborsClassifier(3)
-
-    # X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
-    # Y = input_data['class_value']
-
-    # model_tree.fit(X, Y)
-    # model_rf.fit(X, Y)
-    # model_knn.fit(X, Y)
-
-    # pred_tree = model_tree.predict(classify_data)
-    # pred_rf = model_rf.predict(classify_data)
-    # pred_knn = model_knn.predict(classify_data)
-
-    # # report
-    # output_full = classify_raw[['id', 'contents']]
-    # output_full = output_full.assign(pred_tree=pred_tree)
-    # output_full = output_full.assign(pred_rf=pred_rf)
-    # output_full = output_full.assign(pred_knn=pred_knn)
-    # output_full.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
-
-    # output_count = output_full[(output_full['pred_tree'] == 1) | (output_full['pred_rf'] == 1) | (output_full['pred_knn'] == 1)]
-    # output_count.to_csv(output_file_path_count, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
-
-    # logger.info(">>>> Export to csv successful!")
-
-    # dot_data = tree.export_graphviz(model_tree, out_file=None,
-    #                                 feature_names=list(X.columns),
-    #                                 class_names=list([str(y) for y in Y.unique()]),
-    #                                 filled=True, rounded=True,
-    #                                 special_characters=True)
-
-    # logger.info(">>>> Tree rendering complete! ")
+    call([r_script_exec, "./bin/classify_c5.R", train_input_file, classify_input_file, output_file_path, files_format_config.get("csv_sep", ",")])
     
-    # graph = graphviz.Source(dot_data, format='pdf')
-    # graph.render(output_tree_file_path)
-
-
-
-
-
-
-
-
-
+    #
+    # ####### END MAGIC R ########
+    #

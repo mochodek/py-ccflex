@@ -18,5 +18,6 @@ setup(name='pyccflex',
           'bin/create-storage',
           'bin/lines2csv',
           'bin/basic-manual-features',
-          'bin/classify'],
+          'bin/classify',
+          'bin/classify_c50_r'],
       zip_safe=False)
