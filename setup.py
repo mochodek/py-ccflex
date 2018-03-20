@@ -19,5 +19,6 @@ setup(name='pyccflex',
           'bin/lines2csv',
           'bin/basic-manual-features',
           'bin/classify',
+          'bin/generate_html',
           'bin/classify_c50_r'],
       zip_safe=False)
