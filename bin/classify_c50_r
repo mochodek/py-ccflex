@@ -1,0 +1,135 @@
+#!/usr/bin/env python
+
+# Trains a classifier and classifies new instances
+import argparse
+import logging
+
+from common.configuration import ConfigurationHandler
+from common.storage import FileStorageHandler
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+import graphviz
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+
+# 
+#   This section sets up the paths for logging and output
+#   The standard logging is to write things to the console, 
+#   but we can redirect it to a file
+# 
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+logger.info(">>> Starting classification: ")
+
+if __name__ == '__main__':
+    #
+    #   This section parses the json file with the parameters
+    #
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
+    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
+                        required=False)
+    parser.add_argument("train_input_csv",
+                        help="Path to input train csv file", type=str)
+    parser.add_argument("classify_input_csv",
+                        help="Path to input classify csv file", type=str)
+    args = vars(parser.parse_args())
+
+    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
+    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
+
+    logger.info(">>>> Setting up paths complete!")
+
+    try:
+        locations_config = ConfigurationHandler(locations_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
+        exit(1)
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
+
+    storage_dir_conf = locations_config.get('storage_dir', None)
+    storage_dir_path = storage_dir_conf.get("path", "")
+    storage_dir = FileStorageHandler(storage_dir_path)
+
+    train_input_file = storage_dir.get_file_path(args['train_input_csv'])
+    classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
+
+    output_file_path = storage_dir.get_file_path("classify-output.csv")
+    output_file_path_count = storage_dir.get_file_path("classify-output-count.csv")
+    output_file_path_ignore = storage_dir.get_file_path("classify-output-ignore.csv")
+    output_tree_file_path = storage_dir.get_file_path("classify-output-tree")
+
+    r_script_exec = locations_config.get("rscript_executable_path", "RScript.exe")
+
+    
+    # "C:/Program Files/R/bin/Rscript.exe" ./bin/classify_c5.R "H:/results/2018_ccflex_guidelines/train-basic-manual.csv" "H:/results/2018_ccflex_guidelines/classify-basic-manual.csv" "H:/results/2018_ccflex_guidelines/r-out.csv" "$"
+
+    #
+    #   The lines below are from the original classifier, found in the file classify.py
+    #
+
+    # read and transform input
+    # input_raw = pd.read_csv(train_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
+    # classify_raw = pd.read_csv(classify_input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
+
+    # input_data = input_raw.drop(['id', 'class_name', 'contents'], inplace=False, axis=1)
+    # classify_data = classify_raw.drop(['id', 'class_value', 'class_name', 'contents'], inplace=False, axis=1)
+
+    # # train model
+    # model_tree = DecisionTreeClassifier(class_weight="balanced", max_depth=5)
+    # model_rf =  RandomForestClassifier(class_weight="balanced", max_depth=5, n_estimators=10, max_features=1, n_jobs=4)
+    # model_knn = KNeighborsClassifier(3)
+
+    # X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
+    # Y = input_data['class_value']
+
+    # model_tree.fit(X, Y)
+    # model_rf.fit(X, Y)
+    # model_knn.fit(X, Y)
+
+    # pred_tree = model_tree.predict(classify_data)
+    # pred_rf = model_rf.predict(classify_data)
+    # pred_knn = model_knn.predict(classify_data)
+
+    # # report
+    # output_full = classify_raw[['id', 'contents']]
+    # output_full = output_full.assign(pred_tree=pred_tree)
+    # output_full = output_full.assign(pred_rf=pred_rf)
+    # output_full = output_full.assign(pred_knn=pred_knn)
+    # output_full.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+
+    # output_count = output_full[(output_full['pred_tree'] == 1) | (output_full['pred_rf'] == 1) | (output_full['pred_knn'] == 1)]
+    # output_count.to_csv(output_file_path_count, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+
+    # logger.info(">>>> Export to csv successful!")
+
+    # dot_data = tree.export_graphviz(model_tree, out_file=None,
+    #                                 feature_names=list(X.columns),
+    #                                 class_names=list([str(y) for y in Y.unique()]),
+    #                                 filled=True, rounded=True,
+    #                                 special_characters=True)
+
+    # logger.info(">>>> Tree rendering complete! ")
+    
+    # graph = graphviz.Source(dot_data, format='pdf')
+    # graph.render(output_tree_file_path)
+
+
+
+
+
+
+
+
+

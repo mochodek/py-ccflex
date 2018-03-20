@@ -32,7 +32,9 @@
   "storage_dir": {
     "path": "../ccflex_tmp",
     "erase": true
-  }
+  },
+
+  "rscript_executable_path": "C:/Program Files/R/bin/RScript.exe" 
 }
 
 
