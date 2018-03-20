@@ -97,6 +97,38 @@
       "string": "#"
     },
     {
+      "name": "assignment",
+      "string": "="
+    },
+    {
+      "name": "numeric_int",
+      "string": "int"
+    },
+    {
+      "name": "numeric_long",
+      "string": "long"
+    },
+    {
+      "name": "numeric_signed",
+      "string": "signed"
+    },    
+    {
+      "name": "text_string",
+      "string": "string"
+    },
+    {
+      "name": "const",
+      "string": "const"
+    },
+    {
+      "name": "inClass",
+      "string": "::"
+    },
+    {
+      "name": "underscore",
+      "string": "_"
+    },
+    {
       "name": "equal",
       "string": "=="
     }
@@ -133,6 +165,38 @@
     {
       "name": "catch",
       "string": "catch"
+    },
+    {
+      "name": "virtual",
+      "string": "virtual"
+    },
+    {
+      "name": "static",
+      "string": "static"
+    },
+    {
+      "name": "void",
+      "string": "void"
+    },
+    {
+      "name": "bool",
+      "string": "bool"
+    },
+    {
+      "name": "new",
+      "string": "new"
+    },
+    {
+      "name": "public",
+      "string": "public"
+    },
+    {
+      "name": "private",
+      "string": "private"
+    },
+    {
+      "name": "key_new",
+      "string": "new"
     },
     {
       "name": "expect",
