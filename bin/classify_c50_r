@@ -72,6 +72,7 @@ if __name__ == '__main__':
     classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
 
     output_file_path = storage_dir.get_file_path("classify-output_c50_r.csv")
+    output_file_count_path = storage_dir.get_file_path("classify-output_c50_r_count.csv")
     
     r_script_exec = locations_config.get("rscript_executable_path", "RScript.exe")
 
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     # This is where the magic with R begins
     #
 
-    call([r_script_exec, "./bin/classify_c5.R", train_input_file, classify_input_file, output_file_path, files_format_config.get("csv_sep", ",")])
+    call([r_script_exec, "./bin/classify_c5.R", train_input_file, classify_input_file, output_file_path, output_file_count_path, files_format_config.get("csv_sep", ",")])
     
     #
     # ####### END MAGIC R ########
