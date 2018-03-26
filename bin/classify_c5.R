@@ -1,6 +1,10 @@
 #!/usr/bin/env Rscript
 # script for decision trees for the new CCFlex
 
+oldw <- getOption("warn")
+options(warn = -1)
+
+
 # Handle input parameters
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
@@ -77,3 +81,5 @@ print(">>>> Saving the results")
 write.table(result_tree, file=output_file, row.names=FALSE, sep=separator)
 
 
+
+options(warn = oldw)

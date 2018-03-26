@@ -79,8 +79,10 @@ if __name__ == '__main__':
     else: 
         html_string = df.to_html()
 
+    html_string = html_string.encode(encoding='UTF-8',errors='ignore')
+
     # and now printing to file
-    output_html_file = open(output_file, 'w')
+    output_html_file = open(output_file, 'wb')
     output_html_file.write(html_string)
     output_html_file.close()
 
