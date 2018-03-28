@@ -23,5 +23,6 @@ setup(name='pyccflex',
           'bin/classify_CART',
           'bin/classify_RandomForest',
           'bin/classify_KNN',
-          'bin/classify_MultinomialNB'],
+          'bin/classify_MultinomialNB',
+          'bin/merge_results'],
       zip_safe=False)

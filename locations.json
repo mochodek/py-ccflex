@@ -1,9 +1,9 @@
 {
   "train": {
-    "baseline_dir": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
+    "baseline_dir": "path to main dir for the training code base",
     "locations": [
       {
-        "path": "/Users/mochodek/git/open_dataset/candev-conf/train_double-assignment",
+        "path": "A path to some location withing a baseline_dir - could be the same as baseline_dir",
         "include": [
           ".+[.]cpp$",
           ".+[.]c$",
@@ -15,10 +15,10 @@
   },
 
   "classify": {
-    "baseline_dir": "/Users/mochodek/git/open_dataset/CANdevStudio",
+    "baseline_dir": "path to main dir for the code base to classify",
     "locations": [
       {
-        "path": "/Users/mochodek/git/open_dataset/CANdevStudio",
+        "path": "A path to some location withing a baseline_dir - could be the same as baseline_dir",
         "include": [
           ".+[.]cpp$",
           ".+[.]c$",
