@@ -81,10 +81,10 @@ if (classifier_options$weights == T){
 
 trainDataSmall$class_value <- factor(trainDataSmall$class_value)
 
-control <- C50::C5.0Control(label="class_value", earlyStopping=F)
+control <- C50::C5.0Control(label="class_value", earlyStopping=T)
 
 fit_tree <- C50::C5.0(class_value ~ ., data=trainDataSmall, rules = classifier_options$rules,
-                      weights = model_weights, control=control)
+                      weights = model_weights, control=control, trials=classifier_options$trials)
 
 print(">>>> Trained the following model:")
 summary_fit_tree <- summary(fit_tree)
