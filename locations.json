@@ -29,7 +29,7 @@
     ]
   },
 
-  "storage_dir": {
+  "workspace_dir": {
     "path": "../ccflex_tmp",
     "erase": true
   },

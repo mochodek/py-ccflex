@@ -6,7 +6,7 @@ import argparse
 import logging
 
 from common.configuration import ConfigurationHandler
-from common.storage import FileStorageHandler
+from common.workspace import WorkspaceHandler
 import pandas as pd
 
 #
@@ -62,13 +62,13 @@ if __name__ == '__main__':
         exit(1)
 
 
-    storage_dir_conf = locations_config.get('storage_dir', None)
-    storage_dir_path = storage_dir_conf.get("path", "")
-    storage_dir = FileStorageHandler(storage_dir_path)
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
 
-    input_file = storage_dir.get_file_path(args['input_csv'])
+    input_file = workspace_dir.get_file_path(args['input_csv'])
     
-    output_file = storage_dir.get_file_path(args['output_html'])
+    output_file = workspace_dir.get_file_path(args['output_html'])
         
     # read the csv file
     df = pd.read_csv(input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")

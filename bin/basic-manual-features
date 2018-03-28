@@ -5,7 +5,7 @@ import argparse
 import logging
 
 from common.configuration import ConfigurationHandler
-from common.storage import FileStorageHandler
+from common.workspace import WorkspaceHandler
 from prepare.feature_extractors import SubstringCountingFeatureExtraction, WholeWordCountingFeatureExtraction, \
     LineFeaturesExtractionController, CommentFeatureExtraction, WordCountFeatureExtraction, CharCountFeatureExtraction
 
@@ -51,9 +51,9 @@ if __name__ == '__main__':
         exit(1)
 
 
-    storage_dir_conf = locations_config.get('storage_dir', None)
-    storage_dir_path = storage_dir_conf.get("path", "")
-    storage_dir = FileStorageHandler(storage_dir_path)
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
 
     code_loc_config_key = args['code_location_config_key']
     code_loc = locations_config.get(code_loc_config_key, None)
@@ -61,8 +61,8 @@ if __name__ == '__main__':
     add_decision_class = args['add_decision_class']
     add_contents = args['add_contents']
 
-    input_file_path = storage_dir.get_file_path("{}-lines.csv".format(code_loc_config_key))
-    output_file_path = storage_dir.get_file_path("{}-basic-manual.csv".format(code_loc_config_key))
+    input_file_path = workspace_dir.get_file_path("{}-lines.csv".format(code_loc_config_key))
+    output_file_path = workspace_dir.get_file_path("{}-basic-manual.csv".format(code_loc_config_key))
 
     manual_string_counting_features = manual_features_config.get('manual_string_counting_features', [])
     manual_whole_word_counting_features = manual_features_config.get('manual_whole_word_counting_features', [])

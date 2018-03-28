@@ -7,7 +7,7 @@ import logging
 import os
 
 from common.configuration import ConfigurationHandler
-from common.storage import FileStorageHandler
+from common.workspace import WorkspaceHandler
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -32,18 +32,18 @@ if __name__ == '__main__':
         exit(1)
 
     # create storage folder
-    storage_dir_conf = config.get('storage_dir', None)
-    if storage_dir_conf is None:
+    workspace_dir_conf = config.get('workspace_dir', None)
+    if workspace_dir_conf is None:
         logger.info("Storage folder is required, please update your configuration file")
         exit(1)
 
-    storage_dir_conf = config.get('storage_dir', None)
-    storage_dir_path = storage_dir_conf.get("path", "")
-    storage_dir = FileStorageHandler(storage_dir_path)
+    workspace_dir_conf = config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
 
-    if os.path.exists(storage_dir_path) and storage_dir_conf.get("erase", False):
-        storage_dir.remove_storage_dir()
-    storage_dir.create_storage_dir()
+    if os.path.exists(workspace_dir_path) and workspace_dir_conf.get("erase", False):
+        workspace_dir.remove_workspace_dir()
+    workspace_dir.create_workspace_dir()
 
 
 

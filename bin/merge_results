@@ -8,7 +8,7 @@ import os
 import pandas as pd
 
 from common.configuration import ConfigurationHandler
-from common.storage import FileStorageHandler
+from common.workspace import WorkspaceHandler
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -64,13 +64,13 @@ if __name__ == '__main__':
 
     csv_separator = files_format_config.get("csv_sep", ",")
 
-    storage_dir_conf = locations_config.get('storage_dir', None)
-    storage_dir_path = storage_dir_conf.get("path", "")
-    storage_dir = FileStorageHandler(storage_dir_path)
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
 
     logger.info(">>>> Starting to merge the result csv files...")
 
-    output_file_path = storage_dir.get_results_file_path("classify-output-ALL.csv")
+    output_file_path = workspace_dir.get_results_file_path("classify-output-ALL.csv")
 
     merged_df = None
     pred_colnames = []
@@ -81,7 +81,7 @@ if __name__ == '__main__':
         if classifier_name in ("INFO"):
             continue
 
-        classifier_output_file = storage_dir.get_results_file_path("classify-output-{}.csv".format(classifier_name))
+        classifier_output_file = workspace_dir.get_results_file_path("classify-output-{}.csv".format(classifier_name))
 
         if os.path.exists(classifier_output_file):
             res_df = pd.read_csv(classifier_output_file, sep=csv_separator, encoding="utf-8")
@@ -97,13 +97,13 @@ if __name__ == '__main__':
     merged_df.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
 
     for decision_class in decision_classes["labeled"]:
-        output_file_path_class = storage_dir.get_results_file_path(
+        output_file_path_class = workspace_dir.get_results_file_path(
             "classify-output-ALL-{}.csv".format(decision_class['name']))
         output_class = merged_df[merged_df[pred_colnames].apply(
             lambda x: list(x).count(decision_class['value']) > 0, axis=1)]
         output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
 
-    output_file_path_class = storage_dir.get_results_file_path(
+    output_file_path_class = workspace_dir.get_results_file_path(
         "classify-output-ALL-{}.csv".format(decision_classes["default"]['name']))
     output_class = merged_df[merged_df[pred_colnames].apply(
         lambda x: list(x).count(decision_classes["default"]['value']) > 0, axis=1)]

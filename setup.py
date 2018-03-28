@@ -15,7 +15,7 @@ setup(name='pyccflex',
           'scikit-learn'
       ],
       scripts=[
-          'bin/create-storage',
+          'bin/create-workspace',
           'bin/lines2csv',
           'bin/basic-manual-features',
           'bin/generate_html',

@@ -1,10 +1,10 @@
 import logging
 import os, shutil
 
-module_logger = logging.getLogger('pyccflex.common.storage')
+module_logger = logging.getLogger('pyccflex.common.workspace')
 
 
-class FileStorageHandler(object):
+class WorkspaceHandler(object):
     """
     Handles storage and reading from temporary folder
     """
@@ -15,13 +15,13 @@ class FileStorageHandler(object):
         self.output_dir_name = output_dir_name
         self.results_path = self.get_file_path(self.output_dir_name)
 
-    def create_storage_dir(self):
+    def create_workspace_dir(self):
         os.makedirs(self.path)
         self.logger.info("Creating storage folder {}".format(self.path))
         os.makedirs(self.results_path)
         self.logger.info("Creating results folder {}".format(self.results_path))
 
-    def remove_storage_dir(self):
+    def remove_workspace_dir(self):
         shutil.rmtree(self.path)
         self.logger.info("Removing storage folder {}".format(self.path))
 

@@ -6,8 +6,8 @@ FILES_FORMAT_CONFIG="./files_format.json"
 MANUAL_FEATURES_CONFIG="./manual_features.json"
 CLASSIFIERS_CONFIG="./classifiers_options.json"
 
-# create storage
-create-storage --locations_config $LOCATIONS_CONFIG
+# create workspace
+create-workspace --locations_config $LOCATIONS_CONFIG
 
 # read codebases, transform them to CSV, and extract features
 lines2csv "train" --locations_config $LOCATIONS_CONFIG --classes_config $CLASSES_CONFIG --files_format_config $FILES_FORMAT_CONFIG

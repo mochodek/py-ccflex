@@ -7,7 +7,7 @@ import logging
 import os
 
 from common.configuration import ConfigurationHandler
-from common.storage import FileStorageHandler
+from common.workspace import WorkspaceHandler
 from prepare.case_extractors import LinesCaseExtractor
 
 logger = logging.getLogger('pyccflex')
@@ -38,14 +38,14 @@ if __name__ == '__main__':
         logger.error("Couldn't load configuration file {}".format(locations_file_path))
         exit(1)
 
-    storage_dir_conf = locations_config.get('storage_dir', None)
-    storage_dir_path = storage_dir_conf.get("path", "")
-    storage_dir = FileStorageHandler(storage_dir_path)
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
 
     code_loc_config_key = args['code_location_config_key']
     code_loc = locations_config.get(code_loc_config_key, None)
 
-    output_file_path = storage_dir.get_file_path("{}-lines.csv".format(code_loc_config_key))
+    output_file_path = workspace_dir.get_file_path("{}-lines.csv".format(code_loc_config_key))
 
     try:
         classes_config = ConfigurationHandler(classes_file_path)

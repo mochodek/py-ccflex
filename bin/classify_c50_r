@@ -13,7 +13,7 @@ import argparse
 import logging
 
 from common.configuration import ConfigurationHandler
-from common.storage import FileStorageHandler
+from common.workspace import WorkspaceHandler
 import pandas as pd
 
 from subprocess import call
@@ -79,14 +79,14 @@ if __name__ == '__main__':
     decision_classes = classes_config.get("classes", {})
 
 
-    storage_dir_conf = locations_config.get('storage_dir', None)
-    storage_dir_path = storage_dir_conf.get("path", "")
-    storage_dir = FileStorageHandler(storage_dir_path)
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
 
-    train_input_file = storage_dir.get_file_path(args['train_input_csv'])
-    classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
+    train_input_file = workspace_dir.get_file_path(args['train_input_csv'])
+    classify_input_file = workspace_dir.get_file_path(args['classify_input_csv'])
 
-    output_file_prefix = storage_dir.get_results_file_path("classify-output-{}".format(CLASSIFIER_NAME))
+    output_file_prefix = workspace_dir.get_results_file_path("classify-output-{}".format(CLASSIFIER_NAME))
 
     r_script_exec = locations_config.get("rscript_executable_path", "RScript.exe")
 
@@ -107,12 +107,12 @@ if __name__ == '__main__':
     output_full = pd.read_csv("{}.csv".format(output_file_prefix), sep=csv_separator, encoding="utf-8")
 
     for decision_class in decision_classes["labeled"]:
-        output_file_path_class = storage_dir.get_results_file_path(
+        output_file_path_class = workspace_dir.get_results_file_path(
             "classify-output-{}-{}.csv".format(CLASSIFIER_NAME, decision_class['name']))
         output_class = output_full[(output_full['pred_class'] == decision_class['value'])]
         output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
 
-    output_file_path_class = storage_dir.get_results_file_path(
+    output_file_path_class = workspace_dir.get_results_file_path(
         "classify-output-{}-{}.csv".format(CLASSIFIER_NAME, decision_classes["default"]['name']))
     output_class = output_full[(output_full['pred_class'] == decision_classes["default"]['value'])]
     output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
