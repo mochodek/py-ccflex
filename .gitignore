@@ -8,16 +8,15 @@ __pycache__/
 
 # local config
 configuration_ms.json
-<<<<<<< HEAD
 locations_ms_ifdefs.json
 run_ms.sh
 run_ms_ifdefs.sh
-=======
 locations_ms.json
 locations_ms_objects.json
 run_ms.sh
 run_ms_objects.sh
->>>>>>> 9ab29e621c07f41fdc055df4e4482ed3cb22c573
+run_mo.sh
+locations_mo.json
 
 # Distribution / packaging
 .Python

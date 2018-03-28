@@ -7,9 +7,8 @@ import logging
 from common.configuration import ConfigurationHandler
 from common.storage import FileStorageHandler
 import pandas as pd
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree import _tree
-import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -18,35 +17,10 @@ ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
 
-def tree_to_code(tree, feature_names):
-    result = ""
-    tree_ = tree.tree_
-    feature_name = [
-        feature_names[i] if i != _tree.TREE_UNDEFINED else "undefined!"
-        for i in tree_.feature
-    ]
-    result += "def tree({}):\n".format(", ".join(feature_names))
-
-    def recurse(node, depth, result):
-        indent = "  " * depth
-        if tree_.feature[node] != _tree.TREE_UNDEFINED:
-            name = feature_name[node]
-            threshold = tree_.threshold[node]
-            result += "{}if {} <= {}:\n".format(indent, name, threshold)
-            result = recurse(tree_.children_left[node], depth + 1, result)
-            result += "{}else:  # if {} > {}\n".format(indent, name, threshold)
-            result = recurse(tree_.children_right[node], depth + 1, result)
-        else:
-            result += "{}return {}\n".format(indent, np.argmax(tree_.value[node][0]), result)
-        return result
-
-    result = recurse(0, 1, result)
-    return result
-
 
 if __name__ == '__main__':
 
-    CLASSIFIER_NAME = "CART"
+    CLASSIFIER_NAME = "RandomForest"
 
     logger.info("#### Running: {} ####".format(__file__))
 
@@ -122,7 +96,7 @@ if __name__ == '__main__':
     logger.info(">>>> Training classifier")
     model_options = classifiers_options_config.get(CLASSIFIER_NAME, {})
 
-    model = DecisionTreeClassifier(**model_options)
+    model = RandomForestClassifier(**model_options)
 
     X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
     Y = input_data['class_value']
@@ -149,8 +123,3 @@ if __name__ == '__main__':
 
     logger.info(">>>> Export to csv successful!")
 
-    tree_text = tree_to_code(model, X.columns)
-    with open(output_tree_file_path, "wt") as tree_file:
-        tree_file.write(tree_text)
-
-    logger.info(">>>> Tree rendering complete! ")

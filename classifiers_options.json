@@ -1,5 +1,9 @@
 {
-  "CART_info": "http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+  "INFO": {
+    "CART": "http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+    "RandomForest": "http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html",
+    "KNN": "http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html"
+  },
   "CART": {
     "criterion": "gini",
     "splitter": "best",
@@ -13,5 +17,38 @@
     "min_impurity_decrease": 0,
     "class_weight": "balanced",
     "presort": false
+  },
+  "RandomForest": {
+    "n_estimators": 10,
+    "criterion": "gini",
+    "max_features": "auto",
+    "max_depth": 5,
+    "min_samples_split": 2,
+    "min_samples_leaf": 1,
+    "min_weight_fraction_leaf": 0,
+    "max_leaf_nodes": null,
+    "min_impurity_decrease": 0,
+    "bootstrap": true,
+    "oob_score": false,
+    "n_jobs": -1,
+    "verbose": 0,
+    "warm_start": false,
+    "class_weight": "balanced"
+  },
+  "KNN": {
+    "n_neighbors": 5,
+    "weights": "uniform",
+    "algorithm": "auto",
+    "leaf_size": 30,
+    "p": 2,
+    "metric": "minkowski",
+    "metric_params": null,
+    "n_jobs": -1
+  },
+  "MultinomialNB": {
+    "alpha": 1,
+    "fit_prior": true,
+    "class_prior": null
+
   }
 }
