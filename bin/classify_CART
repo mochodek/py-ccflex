@@ -106,7 +106,7 @@ if __name__ == '__main__':
     classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
 
     output_file_path = storage_dir.get_results_file_path("classify-output-{}.csv".format(CLASSIFIER_NAME))
-    output_tree_file_path = storage_dir.get_results_file_path("classify-tree-{}.txt".format(CLASSIFIER_NAME))
+    output_tree_file_path = storage_dir.get_results_file_path("classify-output-{}-model.txt".format(CLASSIFIER_NAME))
 
     logger.info(">>>> Setting up paths complete!")
 
