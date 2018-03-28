@@ -33,26 +33,30 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
 
+    CLASSIFIER_NAME = "C50"
+
     logger.info("#### Running: {} ####".format(__file__))
-    logger.info(">>> Starting classification: ")
-    #
-    #   This section parses the json file with the parameters
-    #   and sets the appropriate paths and variables
-    #
+
+    # Parse input parameters
     parser = argparse.ArgumentParser()
     parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
     parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
                         required=False)
+    parser.add_argument("--classes_config", help="Path to classes configuration file", type=str, required=False)
+    parser.add_argument("--classifiers_options", help="Path to classifiers options file", type=str, required=False)
     parser.add_argument("train_input_csv",
                         help="Path to input train csv file", type=str)
     parser.add_argument("classify_input_csv",
                         help="Path to input classify csv file", type=str)
+
     args = vars(parser.parse_args())
 
     locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
-    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
-
-    logger.info(">>>> Setting up paths complete!")
+    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args[
+        'files_format_config']
+    classifiers_options_file_path = "./classifiers_options.json" if args['classifiers_options'] is None else args[
+        'classifiers_options']
+    classes_file_path = "./classes.json" if args['classes_config'] is None else args['classes_config']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -65,6 +69,14 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error("Couldn't load configuration file {}".format(files_format_file_path))
         exit(1)
+    csv_separator = files_format_config.get("csv_sep", ",")
+
+    try:
+        classes_config = ConfigurationHandler(classes_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(classes_file_path))
+        exit(1)
+    decision_classes = classes_config.get("classes", {})
 
 
     storage_dir_conf = locations_config.get('storage_dir', None)
@@ -74,17 +86,33 @@ if __name__ == '__main__':
     train_input_file = storage_dir.get_file_path(args['train_input_csv'])
     classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
 
-    output_file_path = storage_dir.get_file_path("classify-output_c50_r.csv")
-    output_file_count_path = storage_dir.get_file_path("classify-output_c50_r_count.csv")
-    
+    output_file_prefix = storage_dir.get_results_file_path("classify-output-{}".format(CLASSIFIER_NAME))
+
     r_script_exec = locations_config.get("rscript_executable_path", "RScript.exe")
 
     #
     # This is where the magic with R begins
     #
 
-    call([r_script_exec, "./bin/classify_c5.R", train_input_file, classify_input_file, output_file_path, output_file_count_path, files_format_config.get("csv_sep", ",")])
+    logger.info(">>>> Running R script")
+
+    call([r_script_exec, "./bin/classify_c5.R", train_input_file, classify_input_file, output_file_prefix,
+          classifiers_options_file_path, classes_file_path, csv_separator])
     
     #
     # ####### END MAGIC R ########
     #
+
+    # create filtered output files for different classes
+    output_full = pd.read_csv("{}.csv".format(output_file_prefix), sep=csv_separator, encoding="utf-8")
+
+    for decision_class in decision_classes["labeled"]:
+        output_file_path_class = storage_dir.get_results_file_path(
+            "classify-output-{}-{}.csv".format(CLASSIFIER_NAME, decision_class['name']))
+        output_class = output_full[(output_full['pred_class'] == decision_class['value'])]
+        output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
+
+    output_file_path_class = storage_dir.get_results_file_path(
+        "classify-output-{}-{}.csv".format(CLASSIFIER_NAME, decision_classes["default"]['name']))
+    output_class = output_full[(output_full['pred_class'] == decision_classes["default"]['value'])]
+    output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
