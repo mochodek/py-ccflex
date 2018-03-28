@@ -22,5 +22,8 @@ classify_KNN "train-basic-manual.csv" "classify-basic-manual.csv" --locations_co
 classify_MultinomialNB "train-basic-manual.csv" "classify-basic-manual.csv" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 classify_c50_r "train-basic-manual.csv" "classify-basic-manual.csv" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
+# merge results to a single csv file
+merge_results --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+
 generate_html "train-basic-manual.csv" "training-lines-html.html" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-#generate_html "classify-output.csv" "classified-lines-html.html" --all OK --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+generate_html "results/classify-output-ALL.csv" "classified-lines-ALL.html" --all OK --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
