@@ -20,5 +20,6 @@ setup(name='pyccflex',
           'bin/basic-manual-features',
           'bin/classify',
           'bin/generate_html',
-          'bin/classify_c50_r'],
+          'bin/classify_c50_r',
+          'bin/classify_CART'],
       zip_safe=False)

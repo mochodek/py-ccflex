@@ -1,0 +1,17 @@
+{
+  "CART_info": "http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html",
+  "CART": {
+    "criterion": "gini",
+    "splitter": "best",
+    "max_depth": 5,
+    "min_samples_split": 2,
+    "min_samples_leaf": 1,
+    "min_weight_fraction_leaf": 0,
+    "max_features": null,
+    "random_state": null,
+    "max_leaf_nodes": null,
+    "min_impurity_decrease": 0,
+    "class_weight": "balanced",
+    "presort": false
+  }
+}

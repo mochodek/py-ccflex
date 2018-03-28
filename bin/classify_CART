@@ -1,0 +1,150 @@
+#!/usr/bin/env python
+
+# Trains a classifier and classifies new instances
+import argparse
+import logging
+
+from common.configuration import ConfigurationHandler
+from common.storage import FileStorageHandler
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import _tree
+import numpy as np
+
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+def tree_to_code(tree, feature_names):
+    result = ""
+    tree_ = tree.tree_
+    feature_name = [
+        feature_names[i] if i != _tree.TREE_UNDEFINED else "undefined!"
+        for i in tree_.feature
+    ]
+    result += "def tree({}):\n".format(", ".join(feature_names))
+
+    def recurse(node, depth, result):
+        indent = "  " * depth
+        if tree_.feature[node] != _tree.TREE_UNDEFINED:
+            name = feature_name[node]
+            threshold = tree_.threshold[node]
+            result += "{}if {} <= {}:\n".format(indent, name, threshold)
+            result = recurse(tree_.children_left[node], depth + 1, result)
+            result += "{}else:  # if {} > {}\n".format(indent, name, threshold)
+            result = recurse(tree_.children_right[node], depth + 1, result)
+        else:
+            result += "{}return {}\n".format(indent, np.argmax(tree_.value[node][0]), result)
+        return result
+
+    result = recurse(0, 1, result)
+    return result
+
+
+if __name__ == '__main__':
+
+    logger.info("#### Running: {} ####" .format(__file__))
+
+    # Parse input parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
+    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
+                        required=False)
+    parser.add_argument("--classifiers_options", help="Path to classifiers options file", type=str, required=False)
+    parser.add_argument("train_input_csv",
+                        help="Path to input train csv file", type=str)
+    parser.add_argument("classify_input_csv",
+                        help="Path to input classify csv file", type=str)
+
+    args = vars(parser.parse_args())
+
+    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
+    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
+    classifiers_options_file_path = "./classifiers_options.json" if args['classifiers_options'] is None else args[
+        'classifiers_options']
+
+
+    try:
+        locations_config = ConfigurationHandler(locations_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
+        exit(1)
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
+    try:
+        classifiers_options_config = ConfigurationHandler(classifiers_options_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(classifiers_options_file_path))
+        exit(1)
+
+    csv_separator = files_format_config.get("csv_sep", ",")
+
+    storage_dir_conf = locations_config.get('storage_dir', None)
+    storage_dir_path = storage_dir_conf.get("path", "")
+    storage_dir = FileStorageHandler(storage_dir_path)
+
+    train_input_file = storage_dir.get_file_path(args['train_input_csv'])
+    classify_input_file = storage_dir.get_file_path(args['classify_input_csv'])
+
+    output_file_path = storage_dir.get_file_path("classify-output.csv")
+    output_file_path_count = storage_dir.get_file_path("classify-output-count.csv")
+    output_file_path_ignore = storage_dir.get_file_path("classify-output-ignore.csv")
+    output_tree_file_path = storage_dir.get_file_path("classify-output-tree.txt")
+
+    logger.info(">>>> Setting up paths complete!")
+
+
+    # read and transform inputs
+    logger.info(">>>> Loading and transforming inputs")
+    input_raw = pd.read_csv(train_input_file, sep=csv_separator, encoding="utf-8")
+    classify_raw = pd.read_csv(classify_input_file, sep=csv_separator, encoding="utf-8")
+
+    input_data = input_raw.drop(['id', 'class_name', 'contents'], inplace=False, axis=1)
+    classify_data = classify_raw.drop(['id', 'class_value', 'class_name', 'contents'], inplace=False, axis=1)
+
+    # train model
+    logger.info(">>>> Training classifier")
+    model_options = classifiers_options_config.get("CART", {})
+
+    model = DecisionTreeClassifier(**model_options)
+
+    X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
+    Y = input_data['class_value']
+    model.fit(X, Y)
+
+    logger.info(">>>> Starting classification")
+    pred = model.predict(classify_data)
+
+
+    # report
+    output_full = classify_raw[['id', 'contents']]
+    output_full = output_full.assign(pred=pred)
+    output_full.to_csv(output_file_path, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+
+    output_count = output_full[(output_full['pred'] == 1)]
+    output_count.to_csv(output_file_path_count, sep=files_format_config.get("csv_sep", ","), index=False, encoding="utf-8")
+
+    logger.info(">>>> Export to csv successful!")
+
+    tree_text = tree_to_code(model, X.columns)
+    with open(output_tree_file_path, "wt") as tree_file:
+        tree_file.write(tree_text)
+
+    logger.info(">>>> Tree rendering complete! ")
+
+
+
+
+
+
+
+
+
+
