@@ -19,9 +19,13 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-logger.info(">>> Starting HTML export: ")
+
 
 if __name__ == '__main__':
+
+    logger.info("#### Running: {} ####".format(__file__))
+
+    logger.info(">>> Starting HTML export: ")
 
     #
     #   Parsing parameters from the files

@@ -19,9 +19,13 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-logger.info(">>> Starting classification: ")
+
 
 if __name__ == '__main__':
+
+    logger.info("#### Running: {} ####" .format(__file__))
+
+    logger.info(">>> Starting classification: ")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)

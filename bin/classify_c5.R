@@ -32,19 +32,19 @@ print(paste("separator: ", separator))
 # Load / install packages
 print(">>>> Loading and installing packages")
 if (require(readr) == F){
-  install.packages("readr")
+  install.packages("readr", repos='http://cran.us.r-project.org')
   library(readr)
 }
-if (require(caret) == F){
-  install.packages("caret")
-  library(caret)
-}
+#if (require(caret) == F){
+#  install.packages("caret", repos='http://cran.us.r-project.org')
+#  library(caret)
+#}
 if (require(dplyr) == F){
-  install.packages("dplyr")
+  install.packages("dplyr", repos='http://cran.us.r-project.org')
   library(dplyr)
 }
 if (require(C50) == F){
-  install.packages("C50")
+  install.packages("C50", repos='http://cran.us.r-project.org')
   library(C50)
 }
 
