@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     input_file = workspace_dir.get_file_path(args['input_csv'])
     
-    output_file = workspace_dir.get_file_path(args['output_html'])
+    output_file = workspace_dir.get_reports_file_path(args['output_html'])
         
     # read the csv file
     df = pd.read_csv(input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")

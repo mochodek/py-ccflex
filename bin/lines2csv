@@ -45,7 +45,7 @@ if __name__ == '__main__':
     code_loc_config_key = args['code_location_config_key']
     code_loc = locations_config.get(code_loc_config_key, None)
 
-    output_file_path = workspace_dir.get_file_path("{}-lines.csv".format(code_loc_config_key))
+    output_file_path = workspace_dir.get_processing_file_path("{}-lines.csv".format(code_loc_config_key))
 
     try:
         classes_config = ConfigurationHandler(classes_file_path)

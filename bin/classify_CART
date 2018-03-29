@@ -102,8 +102,8 @@ if __name__ == '__main__':
     workspace_dir_path = workspace_dir_conf.get("path", "")
     workspace_dir = WorkspaceHandler(workspace_dir_path)
 
-    train_input_file = workspace_dir.get_file_path(args['train_input_csv'])
-    classify_input_file = workspace_dir.get_file_path(args['classify_input_csv'])
+    train_input_file = workspace_dir.get_processing_file_path(args['train_input_csv'])
+    classify_input_file = workspace_dir.get_processing_file_path(args['classify_input_csv'])
 
     output_file_path = workspace_dir.get_results_file_path("classify-output-{}.csv".format(CLASSIFIER_NAME))
     output_tree_file_path = workspace_dir.get_results_file_path("classify-output-{}-model.txt".format(CLASSIFIER_NAME))
