@@ -11,7 +11,6 @@ setup(name='pyccflex',
       install_requires=[
           'pandas',
           'numpy',
-          'graphviz',
           'scikit-learn'
       ],
       scripts=[
@@ -24,5 +23,6 @@ setup(name='pyccflex',
           'bin/classify_RandomForest',
           'bin/classify_KNN',
           'bin/classify_MultinomialNB',
-          'bin/merge_results'],
+          'bin/merge_results',
+          'bin/vocabulary-extractor'],
       zip_safe=False)
