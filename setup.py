@@ -16,7 +16,7 @@ setup(name='pyccflex',
       scripts=[
           'bin/create_workspace',
           'bin/lines2csv',
-          'bin/basic_manual_features',
+          'bin/predefined_manual_features',
           'bin/generate_html',
           'bin/classify_c50_r',
           'bin/classify_CART',
