@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     CLASSIFIER_NAME = "CART"
 
-    logger.info("#### Running: {} ####".format(__file__))
+    logger.info("\n#### Running: {} ####".format(__file__))
 
     # Parse input parameters
     parser = argparse.ArgumentParser()

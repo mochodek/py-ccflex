@@ -7,7 +7,9 @@ import os
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
-from prepare.vocabularies import VocabularyExtractor
+from prepare.vocabularies import VocabularyExtractor, code_stop_words_tokenizer, token_signature
+from sklearn.feature_extraction.text import CountVectorizer
+import pandas as pd
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -17,19 +19,25 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
 
-    logger.info("#### Running: {} ####".format(__file__))
+    logger.info("\n#### Running: {} ####".format(__file__))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
-    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
-                        required=False)
-    parser.add_argument("--include_statistics", help="Shall the result include frequency statistics", type=bool,
-                        required=False)
     parser.add_argument("lines_file",
                         help="CSV file with the extracted lines - either path or name of the file "
                              "that will be searched in the processing directory of the workspace", type=str)
     parser.add_argument("vocabulary_file_name",
                         help="Name of the vocabulary file", type=str)
+    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
+    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
+                        required=False)
+    parser.add_argument("--include_statistics", help="Shall the result include frequency statistics",
+                        default=False, action='store_true')
+    parser.add_argument("--camel_case_for_missing", help="Shall the content of the line be added to output?",
+                        default=False, action='store_true')
+    parser.add_argument("--top_words_threshold", help="How many most frequent words to take",
+                        type=int, required=False)
+    parser.add_argument("--min_ngrams", help="Min. number of n-grams", type=int, required=False, default=1)
+    parser.add_argument("--max_ngrams", help="Max. number of n-grams", type=int, required=False, default=1)
     args = vars(parser.parse_args())
 
     locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
@@ -56,23 +64,65 @@ if __name__ == '__main__':
     vocabulary_file_name = args['vocabulary_file_name']
     include_statistics = args['include_statistics'] if args['include_statistics'] is not None else False
 
+    top_words_threshold = args['top_words_threshold'] if args['top_words_threshold'] is not None else -1
+    camel_case_for_missing = args['camel_case_for_missing'] if args['camel_case_for_missing'] is not None else True
+    min_ngrams = args['min_ngrams'] if args['min_ngrams'] is not None else 1
+    max_ngrams = args['max_ngrams'] if args['max_ngrams'] is not None else 1
+
 
     if os.path.exists(lines_file):
         input_file_path = lines_file
     else:
         input_file_path = workspace_dir.get_processing_file_path(lines_file)
     output_file_path = workspace_dir.get_processing_file_path(vocabulary_file_name)
+    base_output_file_path = workspace_dir.get_processing_file_path("base-"+vocabulary_file_name)
 
-    logger.info(">>>> Extracting vocabulary")
+    logger.info(">>>> Extracting initial vocabulary to create tokenizer")
 
     vocab_extractor = VocabularyExtractor(input_file_path, separator)
     vocab_extractor.extract()
 
     vocab = vocab_extractor.vocab
+    if top_words_threshold > 0:
+        logger.info(">>>> Taking {} most frequent words".format(top_words_threshold))
+        vocab = vocab.head(top_words_threshold)
+
     if include_statistics:
-        vocab.to_csv(output_file_path, sep=separator, index=False, encoding="utf-8")
+        vocab.to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
     else:
-        vocab[['token']].to_csv(output_file_path, sep=separator, index=False, encoding="utf-8")
+        vocab[['token']].to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
+
+    logger.info(">>>> Creating final vocabulary")
+
+    tokenizer = code_stop_words_tokenizer
+
+    if camel_case_for_missing:
+        internal_tokenizer = code_stop_words_tokenizer
+        vocab_tokens = set(vocab.token)
+
+        def frequency_based_tokenizer(s):
+            tokenized = internal_tokenizer(s)
+            result = []
+            for token in tokenized:
+                if token in vocab_tokens:
+                    result.append(token)
+                else:
+                    result.append(token_signature(token))
+            return result
+
+
+        tokenizer = frequency_based_tokenizer
+
+    count_vect = CountVectorizer(ngram_range=(min_ngrams, max_ngrams), tokenizer=tokenizer)
+    lines_data = pd.read_csv(input_file_path, sep=separator, encoding="utf-8")
+    lines_data.contents = lines_data.contents.fillna("")
+    contents = list(lines_data.contents)
+    count_vect.fit(contents)
+
+    tokens = sorted(count_vect.vocabulary_.keys(), key=count_vect.vocabulary_.get)
+    result_vocab = pd.DataFrame({"token":tokens})
+
+    result_vocab.to_csv(output_file_path, sep=separator, index=False, encoding="utf-8")
 
     logger.info(">>>> Vocabulary saved to {}".format(output_file_path))
 
