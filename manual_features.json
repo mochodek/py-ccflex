@@ -2,205 +2,205 @@
   "manual_string_counting_features": [
     {
       "name": "lbracket",
-      "string": "("
+      "string": ["("]
     },
     {
       "name": "rbracket",
-      "string": ")"
+      "string": [")"]
     },
     {
       "name": "lcbracket",
-      "string": "{"
+      "string": ["{"]
     },
     {
       "name": "rcbracket",
-      "string": "}"
+      "string": ["}"]
     },
     {
       "name": "lsbracket",
-      "string": "["
+      "string": ["["]
     },
     {
       "name": "rsbracket",
-      "string": "]"
+      "string": ["]"]
     },
     {
       "name": "semicolon",
-      "string": ";"
+      "string": [";"]
     },
     {
       "name": "colon",
-      "string": ":"
+      "string": [":"]
     },
     {
       "name": "comma",
-      "string": ","
+      "string": [","]
     },
     {
       "name": "minus",
-      "string": "-"
+      "string": ["-"]
     },
     {
       "name": "plus",
-      "string": "-"
+      "string": ["-"]
     },
     {
       "name": "dot",
-      "string": "."
+      "string": ["."]
     },
     {
       "name": "slash",
-      "string": "/"
+      "string": ["/"]
     },
     {
       "name": "bslash",
-      "string": "\\"
+      "string": ["\\"]
     },
     {
       "name": "question",
-      "string": "?"
+      "string": ["?"]
     },
     {
       "name": "quote",
-      "string": "\""
+      "string": ["\""]
     },
     {
       "name": "sqoute",
-      "string": "'"
+      "string": ["'"]
     },
     {
       "name": "star",
-      "string": "*"
+      "string": ["*"]
     },
     {
       "name": "amp",
-      "string": "&"
+      "string": ["&"]
     },
     {
       "name": "piple",
-      "string": "|"
+      "string": ["|"]
     },
     {
       "name": "at",
-      "string": "@"
+      "string": ["@"]
     },
     {
       "name": "dollar",
-      "string": "$"
+      "string": ["$"]
     },
     {
       "name": "space",
-      "string": " "
+      "string": [" "]
     },
     {
       "name": "hash",
-      "string": "#"
+      "string": ["#"]
     },
     {
       "name": "assignment",
-      "string": "="
+      "string": ["="]
     },
     {
       "name": "numeric_int",
-      "string": "int"
+      "string": ["int"]
     },
     {
       "name": "numeric_long",
-      "string": "long"
+      "string": ["long"]
     },
     {
       "name": "numeric_signed",
-      "string": "signed"
+      "string": ["signed"]
     },    
     {
       "name": "text_string",
-      "string": "string"
+      "string": ["string"]
     },
     {
       "name": "const",
-      "string": "const"
+      "string": ["const"]
     },
     {
       "name": "inClass",
-      "string": "::"
+      "string": ["::"]
     },
     {
       "name": "underscore",
-      "string": "_"
+      "string": ["_"]
     },
     {
       "name": "equal",
-      "string": "=="
+      "string": ["=="]
     }
   ],
   "manual_whole_word_counting_features": [
     {
       "name": "for",
-      "string": "for"
+      "string": ["for"]
     },
     {
       "name": "if",
-      "string": "if"
+      "string": ["if"]
     },
     {
       "name": "case",
-      "string": "case"
+      "string": ["case"]
     },
     {
       "name": "exception",
-      "string": "exception"
+      "string": ["exception"]
     },
     {
       "name": "class",
-      "string": "class"
+      "string": ["class"]
     },
     {
       "name": "while",
-      "string": "while"
+      "string": ["while"]
     },
     {
       "name": "try",
-      "string": "try"
+      "string": ["try"]
     },
     {
       "name": "catch",
-      "string": "catch"
+      "string": ["catch"]
     },
     {
       "name": "virtual",
-      "string": "virtual"
+      "string": ["virtual"]
     },
     {
       "name": "static",
-      "string": "static"
+      "string": ["static"]
     },
     {
       "name": "void",
-      "string": "void"
+      "string": ["void"]
     },
     {
       "name": "bool",
-      "string": "bool"
+      "string": ["bool"]
     },
     {
       "name": "new",
-      "string": "new"
+      "string": ["new"]
     },
     {
       "name": "public",
-      "string": "public"
+      "string": ["public"]
     },
     {
       "name": "private",
-      "string": "private"
+      "string": ["private"]
     },
     {
       "name": "key_new",
-      "string": "new"
+      "string": ["new"]
     },
     {
       "name": "expect",
-      "string": "expect"
+      "string": ["expect"]
     }
   ]
 }

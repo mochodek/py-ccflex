@@ -4,6 +4,7 @@ import re
 
 module_logger = logging.getLogger('pyccflex.prepare')
 
+
 class LineFeaturesExtractionController(object):
     """
     Reads a csv file with lines and manages features extraction for each line.
@@ -29,12 +30,13 @@ class LineFeaturesExtractionController(object):
 
     def extract(self):
         with open(self.input_file, 'rt', encoding="utf-8") as in_file:
-            reader = csv.DictReader(in_file,  delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            reader = csv.DictReader(in_file, delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
             with open(self.output_file, 'w', newline='', encoding="utf-8") as out_file:
                 writer = csv.DictWriter(out_file, fieldnames=self.feature_names,
                                         delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 writer.writeheader()
                 for row in reader:
+                    self.logger.info("Extracting features from {}".format(row['id']))
                     features = {"id": row['id']}
                     if self.add_contents:
                         features["contents"] = row['contents']
@@ -60,7 +62,9 @@ class SubstringCountingFeatureExtraction(object):
     def extract(self, text):
         features = {}
         for feature in self.feature_desc:
-            features[feature['name']] = text.count(feature['string'])
+            features[feature['name']] = 0
+            for feature_string in feature['string']:
+                features[feature['name']] += text.count(feature_string)
         return features
 
 
@@ -73,13 +77,18 @@ class WholeWordCountingFeatureExtraction(object):
         self.logger = logging.getLogger('pyccflex.common.configuration.WholeWordCountingFeatureExtraction')
         self.feature_desc = features_desc
         for feature in features_desc:
-            feature['re'] = re.compile("(?<!\\w)"+feature['string']+"(?!\\w)")
+            feature['re'] = []
+            for feature_string in feature['string']:
+                feature['re'].append(re.compile("(?<!\\w)" + feature_string + "(?!\\w)"))
+
         self.feature_names = [f['name'] for f in features_desc]
 
     def extract(self, text):
         features = {}
         for feature in self.feature_desc:
-            features[feature['name']] = len(feature['re'].findall(text))
+            features[feature['name']] = 0
+            for feature_re in feature['re']:
+                features[feature['name']] += len(feature_re.findall(text))
         return features
 
 
@@ -87,6 +96,7 @@ class CommentFeatureExtraction(object):
     """
        Extracts number of comments in the text
        """
+
     def __init__(self):
         self.logger = logging.getLogger('pyccflex.common.configuration.CommentFeatureExtraction')
         self.feature_names = ['comment']
@@ -95,7 +105,7 @@ class CommentFeatureExtraction(object):
         feature = text.count("//") + text.count("/*")
         if text.strip().startswith("* "):
             feature += 1
-        return {'comment':feature}
+        return {'comment': feature}
 
 
 class WordCountFeatureExtraction(object):
@@ -122,3 +132,19 @@ class CharCountFeatureExtraction(object):
 
     def extract(self, text):
         return {'no_chars': len(text)}
+
+
+class CountVectorizerBasedFeatureExtraction(object):
+    """
+    Extracts features using the provided CountVectorizer.
+    """
+
+    def __init__(self, count_vect, separator, to_replace):
+        self.logger = logging.getLogger('pyccflex.common.configuration.CountVectorizerBasedFeatureExtraction')
+        self.count_vect = count_vect
+        self.feature_names = sorted(count_vect.vocabulary_.keys(), key=count_vect.vocabulary_.get)
+        self.feature_names = [x if x != separator else to_replace for x in self.feature_names]
+
+    def extract(self, text):
+        features = self.count_vect.transform([text]).todense().tolist()[0]
+        return dict(zip(self.feature_names, features))
