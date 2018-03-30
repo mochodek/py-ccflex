@@ -62,7 +62,6 @@ class BaseCaseExtractor(abc.ABC):
 
     def _save_header(self, writer):
         header_row = self.header()
-        print(header_row)
         writer.writerow(header_row)
 
     @abc.abstractmethod
@@ -87,8 +86,13 @@ class LinesCaseExtractor(BaseCaseExtractor):
         file_relative_path = os.path.relpath(file_path, self.baseline_dir)
 
         with open(file_path, "r", encoding="utf-8") as input_file:
-            try:
-                for number, line in enumerate(input_file, 1):
+            number = 0
+            while True:
+                number += 1
+                try:
+                    line = input_file.readline()
+                    if not line:
+                        break
                     decision_class_name = None
                     decision_class_value = None
                     for c in self.decision_classes.get("labeled", []):
@@ -103,11 +107,12 @@ class LinesCaseExtractor(BaseCaseExtractor):
                         decision_class_value = default_class['value']
 
                     row = ["{}:{}".format(file_relative_path, number),
-                                         str(number),
-                                         line.replace("\"", "\"\"").replace("\n", ""),
-                                         decision_class_name,
-                                         str(decision_class_value),
-                                         file_path.replace("\n", "")]
+                           str(number),
+                           line.replace("\"", "\"\"").replace("\n", ""),
+                           decision_class_name,
+                           str(decision_class_value),
+                           file_path.replace("\n", "")]
                     writer.writerow(row)
-            except Exception as e:
-                self.logger.info("Skipping file because of wrong encoding in thefile {}".format(file_path))
+
+                except Exception as e:
+                    self.logger.info("Skipping line {} because of wrong encoding".format(number))
