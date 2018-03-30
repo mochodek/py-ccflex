@@ -224,7 +224,7 @@ scanned for the code
 the decision classes and how to identify them in the code
 
 *Output:* 
-* <location key>-lines.csv is produced in the processing folder of the workspace
+* \<location key>-lines.csv is produced in the processing folder of the workspace
 
 
 ### predefined_manual_features
@@ -239,7 +239,7 @@ scanned for the code
 in the code)
 
 *Output:* 
-* <location key>-basic-manual.csv - a file containing extracted features that could be used to train a classifer
+* \<location key>-basic-manual.csv - a file containing extracted features that could be used to train a classifer
 
 ### vocabulary_extractor
 This script can be used to automatically build a vocabulary, which then can be used to automatically
@@ -262,9 +262,9 @@ This option allows to provide the minimal and maximum number of consecutive word
 form a feature.
 
 *Output:* 
-* <vocabulary name>.csv - the final vocabulary
-* base-<vocabulary name>.csv - the base vocabulary consisting only 1-grams
-* base-<vocabulary name>.json - the base vocabulary file in the same format as used to define manual 
+* \<vocabulary name>.csv - the final vocabulary
+* base-\<vocabulary name>.csv - the base vocabulary consisting only 1-grams
+* base-\<vocabulary name>.json - the base vocabulary file in the same format as used to define manual 
 features (you can use it to configure your manual feature extractor) 
 
 ### bag_of_words
@@ -282,7 +282,7 @@ This option allows to provide the minimal and maximum number of consecutive word
 form a feature.
 
 *Output:* 
-* <location key>-bag-of-words.csv - a file containing extracted features that could be used to train a classifer
+* \<location key>-bag-of-words.csv - a file containing extracted features that could be used to train a classifer
 
 ### merge_results
 This script is used to merge the results provided by different classifiers into a single file.
@@ -293,7 +293,7 @@ the workspace is located
 
 *Output:* 
 * classify-output-ALL.csv - merges all results file found in results folder of the workspace
-* classify-output-ALL-<class>.csv - merges all results file found in results folder of the workspace
+* classify-output-ALL-\<class>.csv - merges all results file found in results folder of the workspace
 but filtered to contain only classification to a given class
 
 ### Classifiers: classify_\<NAME> 
@@ -306,6 +306,6 @@ This is a family of scripts that use different algorithms to classify lines.
 the name of the classifier its contents will be used to configure the classification algorithm
 
 *Output:* 
-* classify-output-<NAME>.csv - result of classification stored in results folder of the workspace
-* classify-output-<NAME>-<class>.csv - results filtered for a given class
+* classify-output-\<NAME>.csv - result of classification stored in results folder of the workspace
+* classify-output-\<NAME>-\<class>.csv - results filtered for a given class
 
