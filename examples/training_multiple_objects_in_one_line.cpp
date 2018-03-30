@@ -1,11 +1,11 @@
-@object.method().invocationa_returning_object().get()
-@object.method().invocationb_returning_object().set()
-@object.method().invocationcObject().x()
-@object.method().invocationc().invocationa().invocationg().invocationz()
+@objecta.methoda().invocationa_returning_object().get()
+@objectb.methodb().invocationb_returning_object().set()
+@objectc.methodc().invocationcObject().x()
+@objectd.methodd().invocationc().invocationa().invocationg().invocationz()
 
-@object.method().invocationk().invocationw().invocationl().invocationd().invocatione()
+@objecte.methode().invocationk().invocationw().invocationl().invocationd().invocatione()
 
-@object.method().invocationp().invocationqq().invocationaa().x
+@objectf.methodf().invocationp().invocationqq().invocationaa().x
 
 @pNppParams->writeHistory(_lrfl.at(i)._name.c_str());
 @if (!lstrcmpi(_lrfl.at(i)._name.c_str(), fn))
