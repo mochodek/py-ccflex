@@ -59,12 +59,10 @@ classes_config =  fromJSON(classes_file_path)
 print(">>>> Preparing training data")
 trainingData <- read_delim(train_file, separator, escape_double = FALSE, trim_ws = TRUE)
 trainDataSmall <- trainingData %>% select(-contents, -id, -class_name)
-colnames(trainDataSmall)[colnames(trainDataSmall) == "for"] <- "forloop"
-colnames(trainDataSmall)[colnames(trainDataSmall) == "if"] <- "ifcond"
-colnames(trainDataSmall)[colnames(trainDataSmall) == "while"] <- "whileloop"
-
 
 print(paste(">>>> Train data set size: ", nrow(trainDataSmall)))
+
+
 
 # C5.0 Decision Tree
 print(">>>> Building C5.0 classifier model")
@@ -79,26 +77,29 @@ if (classifier_options$weights == T){
   model_weights <- NULL
 }
 
-trainDataSmall$class_value <- factor(trainDataSmall$class_value)
+X <- trainDataSmall %>% select(-class_value)
+feature_names <- colnames(X)
+colnames(X)  <- paste(rep("f",length(colnames(X))), seq(length(colnames(X))), sep="_")
+Y <- factor((trainDataSmall %>% select(class_value))$class_value)
 
-control <- C50::C5.0Control(label="class_value", earlyStopping=T)
-
-fit_tree <- C50::C5.0(class_value ~ ., data=trainDataSmall, rules = classifier_options$rules,
-                      weights = model_weights, control=control, trials=classifier_options$trials)
+control <- C50::C5.0Control(label="class_value", earlyStopping=F)
+fit_tree <- C50::C5.0(X, Y, data=trainDataSmall, rules = classifier_options$rules,
+                      weights = model_weights, control=control)
 
 print(">>>> Trained the following model:")
 summary_fit_tree <- summary(fit_tree)
 print(summary_fit_tree)
+print(data.frame(f=colnames(X), feature=feature_names))
 
 print(">>>> Preparing classify data")
 testData <- read_delim(classify_file, separator, escape_double = FALSE, trim_ws = TRUE)
-testDataSmall <- testData %>% select(-contents, -id, -class_name, -class_value)
-colnames(testDataSmall)[colnames(testDataSmall) == "for"] <- "forloop"
-colnames(testDataSmall)[colnames(testDataSmall) == "if"] <- "ifcond"
-colnames(testDataSmall)[colnames(testDataSmall) == "while"] <- "whileloop"
+testDataSmall <- testData %>% select(-id)
 
 print(">>>> Classifying the data")
-result_tree <- cbind(testData, data.frame(pred_class=predict(fit_tree, testDataSmall, type="class")))
+X_pred <- testDataSmall
+colnames(X_pred)  <- paste(rep("f",length(colnames(X_pred))), seq(length(colnames(X_pred))), sep="_")
+
+result_tree <- cbind(testData, data.frame(pred_class=predict(fit_tree, X_pred, type="class")))
 result_tree <- result_tree %>% select(id, contents, pred_class)
 
 print(">>>> Saving the results")
@@ -106,5 +107,9 @@ write.table(result_tree, file=paste(output_file_prefix, ".csv", sep=""),
             row.names=FALSE, sep=separator)
 
 cat(as.character(summary_fit_tree), file=paste(output_file_prefix, "-model.txt", sep="") ,sep="\n")
+a <- data.frame(f=colnames(X), feature=feature_names)
+b <- capture.output(a)
+c <- paste(b, "\n", sep="")
+cat("\n The features mapping is as follows:\n", c, "\n", file=paste(output_file_prefix, "-model.txt", sep=""), append=T)
 
 options(warn = oldw)
