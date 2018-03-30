@@ -19,11 +19,9 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-
-
 if __name__ == '__main__':
 
-    logger.info("\n#### Running: {} ####".format(__file__))
+    logger.info("\n#### Running: {}".format(__file__))
 
     logger.info(">>> Starting HTML export: ")
 
@@ -32,20 +30,22 @@ if __name__ == '__main__':
     #
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
-    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
-                        required=False)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
     parser.add_argument("input_csv",
                         help="Path to input csv file", type=str)
     parser.add_argument("output_html",
                         help="Path to output html file", type=str)
-    parser.add_argument("--all", help="Include all columns in html output", type=str,
-                        required=False)
+    parser.add_argument("--all", help="Include all columns in html output",
+                        default=False, action='store_true')
     args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
 
-    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
-    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
-    bAll = False if args['all'] is None else True
+    locations_file_path = args['locations_config']
+    files_format_file_path = args['files_format_config']
+    all_columns = args['all']
 
     logger.info(">>>> Setting up paths complete!")
 
@@ -61,34 +61,32 @@ if __name__ == '__main__':
         logger.error("Couldn't load configuration file {}".format(files_format_file_path))
         exit(1)
 
-
     workspace_dir_conf = locations_config.get('workspace_dir', None)
     workspace_dir_path = workspace_dir_conf.get("path", "")
     workspace_dir = WorkspaceHandler(workspace_dir_path)
 
     input_file = workspace_dir.get_file_path(args['input_csv'])
-    
+
     output_file = workspace_dir.get_reports_file_path(args['output_html'])
-        
+
     # read the csv file
     df = pd.read_csv(input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
 
     # get the names of the columns
     column_names = df.iloc[0]
-    df.rename(columns = column_names)
+    df.rename(columns=column_names)
 
     # printing to HTML
-    if not bAll: 
-        html_string = df[['id','contents','class_name']].to_html()
-    else: 
+    if not all_columns:
+        html_string = df[['id', 'contents', 'class_name']].to_html()
+    else:
         html_string = df.to_html()
 
-    html_string = html_string.encode(encoding='UTF-8',errors='ignore')
+    html_string = html_string.encode(encoding='UTF-8', errors='ignore')
 
     # and now printing to file
     output_html_file = open(output_file, 'wb')
     output_html_file.write(html_string)
     output_html_file.close()
-
 
     logger.info(">>>> Export to HTML successful!")

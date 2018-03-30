@@ -17,26 +17,28 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
 
-    logger.info("\n#### Running: {} ####".format(__file__))
+    logger.info("\n#### Running: {}".format(__file__))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
-    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
-                        required=False)
-    parser.add_argument("--manual_features_config", help="Path to manual features configuration file", type=str,
-                        required=False)
-    parser.add_argument("--add_decision_class", help="Shall the decision class be added to output?",
-                        type=bool, required=False)
-    parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
-                        type=bool, required=False)
     parser.add_argument("code_location_config_key",
-                        help="Name of the node in configuration defining path to code", type=str)
+                        help="Name of the node in configuration defining path to code",
+                        type=str)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
+    parser.add_argument("--manual_features_config", help="Path to manual features configuration file",
+                        type=str, required=False, default="./manual_features.json")
+    parser.add_argument("--add_decision_class", help="Shall the decision class be added to output?",
+                        default=False, action='store_true')
+    parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
+                        default=False, action='store_true')
     args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
 
-    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
-    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
-    manual_features_file_path = "./manual_features.json" if args['manual_features_config'] is None else args[
-        'manual_features_config']
+    locations_file_path = args['locations_config']
+    files_format_file_path = args['files_format_config']
+    manual_features_file_path = args['manual_features_config']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -49,6 +51,13 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error("Couldn't load configuration file {}".format(manual_features_file_path))
         exit(1)
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+    separator = files_format_config.get("csv_sep", ",")
 
 
     workspace_dir_conf = locations_config.get('workspace_dir', None)
@@ -67,6 +76,8 @@ if __name__ == '__main__':
     manual_string_counting_features = manual_features_config.get('manual_string_counting_features', [])
     manual_whole_word_counting_features = manual_features_config.get('manual_whole_word_counting_features', [])
 
+    logger.info(">>> Preparing basic feature extractors")
+
     substring_counting_extractor = SubstringCountingFeatureExtraction(manual_string_counting_features)
     manual_whole_word_counting_exractor = WholeWordCountingFeatureExtraction(manual_whole_word_counting_features)
     comment_extractor = CommentFeatureExtraction()
@@ -79,20 +90,16 @@ if __name__ == '__main__':
                   no_words_extractor,
                   no_chars_extractor]
 
-    try:
-        files_format_config = ConfigurationHandler(files_format_file_path)
-    except Exception as e:
-        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
-        exit(1)
+    logger.info(">>> Extracting features")
 
     controller = LineFeaturesExtractionController(extractors,
                                                   input_file_path, output_file_path,
-                                                  sep=files_format_config.get("csv_sep", ","),
+                                                  sep=separator,
                                                   add_decision_class=add_decision_class,
                                                   add_contents=add_contents)
     controller.extract()
 
-
+    logger.info(">>> Features stored in the file {}".format(output_file_path))
 
 
 

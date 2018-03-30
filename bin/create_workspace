@@ -17,14 +17,15 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
 
-    logger.info("\n#### Running: {} ####".format(__file__))
+    logger.info("\n#### Running: {}".format(__file__))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
 
-    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
+    locations_file_path = args['locations_config']
 
     try:
         config = ConfigurationHandler(locations_file_path)

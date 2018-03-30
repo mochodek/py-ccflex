@@ -18,19 +18,23 @@ logger.addHandler(ch)
 
 if __name__ == '__main__':
 
-    logger.info("\n#### Running: {} ####".format(__file__))
+    logger.info("\n#### Running: {}".format(__file__))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--locations_config", help="Path to locations configuration file", type=str, required=False)
-    parser.add_argument("--classes_config", help="Path to classes configuration file", type=str, required=False)
-    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str, required=False)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
+    parser.add_argument("--classes_config", help="Path to classes configuration file",
+                        type=str, required=False, default="./classes.json")
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
     parser.add_argument("code_location_config_key",
                         help="Name of the node in configuration defining path to code", type=str)
     args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
 
-    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
-    classes_file_path = "./classes.json" if args['classes_config'] is None else args['classes_config']
-    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args['files_format_config']
+    locations_file_path = args['locations_config']
+    classes_file_path = args['classes_config']
+    files_format_file_path = args['files_format_config']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)

@@ -48,28 +48,30 @@ if __name__ == '__main__':
 
     CLASSIFIER_NAME = "CART"
 
-    logger.info("\n#### Running: {} ####".format(__file__))
+    logger.info("\n#### Running: {}".format(__file__))
 
     # Parse input parameters
     parser = argparse.ArgumentParser()
-    parser.add_argument("--locations_config", help="Path to locations file", type=str, required=False)
-    parser.add_argument("--files_format_config", help="Path to files format configuration file", type=str,
-                        required=False)
-    parser.add_argument("--classes_config", help="Path to classes configuration file", type=str, required=False)
-    parser.add_argument("--classifiers_options", help="Path to classifiers options file", type=str, required=False)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
+    parser.add_argument("--classes_config", help="Path to classes configuration file",
+                        type=str, required=False, default="./classes.json")
+    parser.add_argument("--classifiers_options", help="Path to classifiers options file",
+                        type=str, required=False, default="./classifiers_options.json")
     parser.add_argument("train_input_csv",
                         help="Path to input train csv file", type=str)
     parser.add_argument("classify_input_csv",
                         help="Path to input classify csv file", type=str)
 
     args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
 
-    locations_file_path = "./locations.json" if args['locations_config'] is None else args['locations_config']
-    files_format_file_path = "./files_format.json" if args['files_format_config'] is None else args[
-        'files_format_config']
-    classifiers_options_file_path = "./classifiers_options.json" if args['classifiers_options'] is None else args[
-        'classifiers_options']
-    classes_file_path = "./classes.json" if args['classes_config'] is None else args['classes_config']
+    locations_file_path = args['locations_config']
+    files_format_file_path = args['files_format_config']
+    classes_file_path = args['classes_config']
+    classifiers_options_file_path = args['classifiers_options']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -115,8 +117,18 @@ if __name__ == '__main__':
     input_raw = pd.read_csv(train_input_file, sep=csv_separator, encoding="utf-8")
     classify_raw = pd.read_csv(classify_input_file, sep=csv_separator, encoding="utf-8")
 
-    input_data = input_raw.drop(['id', 'class_name', 'contents'], inplace=False, axis=1)
-    classify_data = classify_raw.drop(['id', 'class_value', 'class_name', 'contents'], inplace=False, axis=1)
+    collumns_to_drop = ['id', 'class_name']
+    if 'contents' in list(input_raw.columns):
+        collumns_to_drop.append('contents')
+    input_data = input_raw.drop(collumns_to_drop, inplace=False, axis=1)
+
+    collumns_to_drop = ['id']
+    columns = list(classify_raw.columns)
+    if 'class_value' in columns:
+        collumns_to_drop.append('class_value', 'class_name')
+    if 'contents' in columns:
+        collumns_to_drop.append('contents')
+    classify_data = classify_raw.drop(collumns_to_drop, inplace=False, axis=1)
 
     # train model
     logger.info(">>>> Training classifier")
