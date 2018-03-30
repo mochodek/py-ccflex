@@ -1,9 +1,22 @@
 import pandas as pd
 import collections
 import re
+import string
 
-CODE_STOP_DELIM = "([\s\t\(\)\[\]\{\}!@#$%^&*\/\+\-=;:\\|`'\"~,.<>/?\n])"
 
+def token_signature(t):
+    trans_upper = str.maketrans(string.ascii_letters+string.digits,
+                                'a'*len(string.ascii_uppercase)+'A'*len(string.ascii_uppercase)+'0'*len(string.digits))
+    res = t.translate(trans_upper)
+    res = re.sub(r'(.)\1{1,}', r'\1', res)
+    res = re.sub(r'(Aa)\1{1,}', r'\1', res)
+    res = re.sub(r'(Aa0)\1{1,}', r'\1', res)
+    res = re.sub(r'(a_)\1{1,}', r'\1', res)
+    res = re.sub(r'(A_)\1{1,}', r'\1', res)
+    res = re.sub(r'(Aa_)\1{1,}', r'\1', res)
+    return res
+
+CODE_STOP_DELIM = "([\s\t\(\)\[\]{}!@#$%^&*\/\+\-=;:\\\\|`'\"~,.<>/?\n])"
 
 def code_stop_words_tokenizer(s):
     split_s = re.split(CODE_STOP_DELIM, s)
@@ -20,7 +33,7 @@ class VocabularyExtractor(object):
         self.tokenizer = tokenizer
 
     def extract(self):
-        lines_data = pd.read_csv(self.lines_file_path, sep="$", encoding="utf-8")
+        lines_data = pd.read_csv(self.lines_file_path, sep=self.separator, encoding="utf-8")
         lines_data.contents = lines_data.contents.fillna("")
 
         global_counter = collections.Counter()
@@ -51,4 +64,3 @@ class VocabularyExtractor(object):
 
         self.vocab = pd.DataFrame(
             rows, columns=["token", "count", "count_files", "perc_files"]).sort_values(by=['count'], ascending=False)
-

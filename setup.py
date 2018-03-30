@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pyccflex',
-      version='0.1',
+      version='0.2',
       description='Python Flexible Code Classifier',
       url='https://github.com/mochodek/py-ccflex',
       author='',

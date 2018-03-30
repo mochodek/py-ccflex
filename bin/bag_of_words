@@ -3,14 +3,14 @@
 # Extracts basic manual features
 import argparse
 import logging
-import os
-import json
+
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
-from prepare.vocabularies import VocabularyExtractor, code_stop_words_tokenizer, token_signature
-from sklearn.feature_extraction.text import CountVectorizer
-import pandas as pd
+from prepare.feature_extractors import LineFeaturesExtractionController, CountVectorizerBasedFeatureExtraction
+from prepare.vocabularies import code_stop_words_tokenizer, token_signature
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -23,23 +23,20 @@ if __name__ == '__main__':
     logger.info("\n#### Running: {}".format(__file__))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("lines_file",
-                        help="CSV file with the extracted lines - either path or name of the file "
-                             "that will be searched in the processing directory of the workspace",
-                        type=str)
+    parser.add_argument("code_location_config_key",
+                        help="Name of the node in configuration defining path to code", type=str)
     parser.add_argument("vocabulary_file_name",
-                        help="Name of the vocabulary file",
-                        type=str)
+                        help="Name of the vocabulary file", type=str)
     parser.add_argument("--locations_config", help="Path to locations configuration file",
                         type=str, required=False, default="./locations.json")
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
                         type=str, required=False, default="./files_format.json")
-    parser.add_argument("--include_statistics", help="Shall the result include frequency statistics",
+    parser.add_argument("--add_decision_class", help="Shall the decision class be added to output?",
                         default=False, action='store_true')
-    parser.add_argument("--token_signature_for_missing", help="If token is not in vocabulary a signature will be used",
+    parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
                         default=False, action='store_true')
-    parser.add_argument("--top_words_threshold", help="How many most frequent words to take",
-                        type=int, required=False, default=-1)
+    parser.add_argument("--token_signature_for_missing", help="Shall the content of the line be added to output?",
+                        default=False, action='store_true')
     parser.add_argument("--min_ngrams", help="Min. number of n-grams",
                         type=int, required=False, default=1)
     parser.add_argument("--max_ngrams", help="Max. number of n-grams",
@@ -67,46 +64,25 @@ if __name__ == '__main__':
     workspace_dir_path = workspace_dir_conf.get("path", "")
     workspace_dir = WorkspaceHandler(workspace_dir_path)
 
-    lines_file = args['lines_file']
-    vocabulary_file_name = args['vocabulary_file_name']
-    include_statistics = args['include_statistics']
-    top_words_threshold = args['top_words_threshold']
+    code_loc_config_key = args['code_location_config_key']
+    code_loc = locations_config.get(code_loc_config_key, None)
+    input_file_path = workspace_dir.get_processing_file_path("{}-lines.csv".format(code_loc_config_key))
+    output_file_path = workspace_dir.get_processing_file_path("{}-bag-of-words.csv".format(code_loc_config_key))
+
+    vocabulary_file_path = workspace_dir.get_processing_file_path(args['vocabulary_file_name'])
+    base_vocabulary_file_path = workspace_dir.get_processing_file_path("base-" + args['vocabulary_file_name'])
+
+    add_decision_class = args['add_decision_class']
+    add_contents = args['add_contents']
+
     token_signature_for_missing = args['token_signature_for_missing']
     min_ngrams = args['min_ngrams']
     max_ngrams = args['max_ngrams']
 
-    if os.path.exists(lines_file):
-        input_file_path = lines_file
-    else:
-        input_file_path = workspace_dir.get_processing_file_path(lines_file)
-    logger.info(">>> Extracting vocabulary from file {}".format(input_file_path))
+    logger.info(">>> Loading vocabularies")
 
-    output_file_path = workspace_dir.get_processing_file_path(vocabulary_file_name)
-    base_output_file_path = workspace_dir.get_processing_file_path("base-" + vocabulary_file_name)
-    base_output_json_file_path = workspace_dir.get_processing_file_path(
-        "base-" + vocabulary_file_name.replace(".csv", ".json"))
-
-    logger.info(">>> Extracting base vocabulary")
-    vocab_extractor = VocabularyExtractor(input_file_path, separator)
-    vocab_extractor.extract()
-
-    base_vocab = vocab_extractor.vocab
-    if top_words_threshold > 0:
-        logger.info(">>>> Taking {} most frequent words".format(top_words_threshold))
-        base_vocab = base_vocab.head(top_words_threshold)
-
-    if include_statistics:
-        base_vocab.to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
-    else:
-        base_vocab[['token']].to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
-    logger.info(">>> Base vocabulary stored in the file {}".format(base_output_file_path))
-
-    base_vocab_json = [{"name": x, "string": [x]} for x in list(base_vocab.token)]
-    with open(base_output_json_file_path, 'w') as fp:
-        json.dump(base_vocab_json, fp)
-        logger.info(">>> Base vocabulary stored in the file {}".format(base_output_json_file_path))
-
-    logger.info(">>> Creating vocabulary including n-grams")
+    base_vocab = pd.read_csv(base_vocabulary_file_path, sep=separator, encoding="utf-8")
+    vocabulary = pd.read_csv(vocabulary_file_path, sep=separator, encoding="utf-8")
 
     internal_tokenizer = code_stop_words_tokenizer
     vocab_tokens = set(base_vocab.token)
@@ -139,16 +115,25 @@ if __name__ == '__main__':
         logger.info(">>> Using a tokenizer that will skip tokens outside of the base vocabulary")
         tokenizer = tokenize_skipping_missing
 
-    count_vect = CountVectorizer(ngram_range=(min_ngrams, max_ngrams),
-                                 tokenizer=tokenizer)
+    logger.info(">>> Extracting features")
+
+    tokens = list(vocabulary['token'])
+    vocab = dict((key, value) for value, key in enumerate(tokens))
+
+    count_vect = CountVectorizer(ngram_range=(min_ngrams, max_ngrams), tokenizer=tokenizer, vocabulary=vocab)
     lines_data = pd.read_csv(input_file_path, sep=separator, encoding="utf-8")
     lines_data.contents = lines_data.contents.fillna("")
     contents = list(lines_data.contents)
     count_vect.fit(contents)
 
-    tokens = sorted(count_vect.vocabulary_.keys(), key=count_vect.vocabulary_.get)
-    result_vocab = pd.DataFrame({"token": tokens})
+    extractors = [CountVectorizerBasedFeatureExtraction(count_vect, separator, "{}".format(separator))]
 
-    result_vocab.to_csv(output_file_path, sep=separator, index=False, encoding="utf-8")
+    controller = LineFeaturesExtractionController(extractors,
+                                                  input_file_path, output_file_path,
+                                                  sep=separator,
+                                                  add_decision_class=add_decision_class,
+                                                  add_contents=add_contents)
+    controller.extract()
 
-    logger.info(">>> Vocabulary saved to {}".format(output_file_path))
+    logger.info(">>> Bag of words features saved to file {}".format(output_file_path))
+
