@@ -32,9 +32,9 @@ def tree_to_code(tree, feature_names):
         if tree_.feature[node] != _tree.TREE_UNDEFINED:
             name = feature_name[node]
             threshold = tree_.threshold[node]
-            result += "{}if {} <= {}:\n".format(indent, name, threshold)
+            result += "{}if '{}' <= {}:\n".format(indent, name, threshold)
             result = recurse(tree_.children_left[node], depth + 1, result)
-            result += "{}else:  # if {} > {}\n".format(indent, name, threshold)
+            result += "{}else:  # if '{}' > {}\n".format(indent, name, threshold)
             result = recurse(tree_.children_right[node], depth + 1, result)
         else:
             result += "{}return {}\n".format(indent, np.argmax(tree_.value[node][0]), result)
