@@ -296,16 +296,22 @@ the workspace is located
 * classify-output-ALL-\<class>.csv - merges all results file found in results folder of the workspace
 but filtered to contain only classification to a given class
 
-### Classifiers: classify_\<NAME> 
+### Classifiers: classify
 This is a family of scripts that use different algorithms to classify lines.
 
 *Input:*
 * the first parameter is the name of the file containing features for training set
 * the second parameter is the name of the file containing features for set to classify
+* --classifiers - a list of classification algorithms to use:
+    * CART - CART decision tree (sklearn)
+    * KNN - K-nearest neighbours (sklearn)
+    * RandomForest - random forest (sklearn)
+    * MultinomialNB - multinomial Naive Bayes (sklearn)
+    * C50 - C50 decision trees (R C50 package)
 * --classifiers_options - a json file with classifiers options. If it contains a key equal to 
 the name of the classifier its contents will be used to configure the classification algorithm
 
 *Output:* 
-* classify-output-\<NAME>.csv - result of classification stored in results folder of the workspace
-* classify-output-\<NAME>-\<class>.csv - results filtered for a given class
+* classify-output-\<classifier>.csv - result of classification stored in results folder of the workspace
+* classify-output-\<classifer>-\<class>.csv - results filtered for a given class
 
