@@ -3,6 +3,14 @@
 @objectc.methodc().invocationcObject().x()
 @objectd.methodd().invocationc().invocationa().invocationg().invocationz()
 
+objectda.methodda()
+objectdb.methoddb()
+objectdc.methoddc()
+objectdd.methoddd()
+objectde.methodde()
+
+if (objectdef.methoddea() && objectded.methoddez())
+
 @objecte.methode().invocationk().invocationw().invocationl().invocationd().invocatione()
 
 @objectf.methodf().invocationp().invocationqq().invocationaa().x
