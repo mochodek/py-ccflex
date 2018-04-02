@@ -8,8 +8,12 @@ from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.tree import _tree
 import numpy as np
+from subprocess import call
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -46,12 +50,15 @@ def tree_to_code(tree, feature_names):
 
 if __name__ == '__main__':
 
-    CLASSIFIER_NAME = "CART"
-
     logger.info("\n#### Running: {}".format(__file__))
 
     # Parse input parameters
     parser = argparse.ArgumentParser()
+    parser.add_argument("train_input_csv",
+                        help="Path to input train csv file", type=str)
+    parser.add_argument("classify_input_csv",
+                        help="Path to input classify csv file", type=str)
+    parser.add_argument('--classifiers', nargs='+', type=str)
     parser.add_argument("--locations_config", help="Path to locations configuration file",
                         type=str, required=False, default="./locations.json")
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
@@ -60,10 +67,6 @@ if __name__ == '__main__':
                         type=str, required=False, default="./classes.json")
     parser.add_argument("--classifiers_options", help="Path to classifiers options file",
                         type=str, required=False, default="./classifiers_options.json")
-    parser.add_argument("train_input_csv",
-                        help="Path to input train csv file", type=str)
-    parser.add_argument("classify_input_csv",
-                        help="Path to input classify csv file", type=str)
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -72,6 +75,8 @@ if __name__ == '__main__':
     files_format_file_path = args['files_format_config']
     classes_file_path = args['classes_config']
     classifiers_options_file_path = args['classifiers_options']
+
+    classifiers = args['classifiers']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -107,9 +112,6 @@ if __name__ == '__main__':
     train_input_file = workspace_dir.get_processing_file_path(args['train_input_csv'])
     classify_input_file = workspace_dir.get_processing_file_path(args['classify_input_csv'])
 
-    output_file_path = workspace_dir.get_results_file_path("classify-output-{}.csv".format(CLASSIFIER_NAME))
-    output_tree_file_path = workspace_dir.get_results_file_path("classify-output-{}-model.txt".format(CLASSIFIER_NAME))
-
     logger.info(">>>> Setting up paths complete!")
 
     # read and transform inputs
@@ -130,39 +132,80 @@ if __name__ == '__main__':
         collumns_to_drop.append('contents')
     classify_data = classify_raw.drop(collumns_to_drop, inplace=False, axis=1)
 
-    # train model
-    logger.info(">>>> Training classifier")
-    model_options = classifiers_options_config.get(CLASSIFIER_NAME, {})
-
-    model = DecisionTreeClassifier(**model_options)
-
+    logger.info(">>> Preparing training data")
     X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
     Y = input_data['class_value']
-    model.fit(X, Y)
 
-    logger.info(">>>> Starting classification")
-    pred = model.predict(classify_data)
+    sklearn_classifiers = ("CART", "RandomForest", "KNN", "MultinomialNB")
 
-    # report
-    output_full = classify_raw[['id', 'contents']]
-    output_full = output_full.assign(pred_class=pred)
-    output_full.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
+    # train model
+    for classifier in classifiers:
+        model_options = classifiers_options_config.get(classifier, {})
+        output_file_path = workspace_dir.get_results_file_path("classify-output-{}.csv".format(classifier))
 
-    for decision_class in decision_classes["labeled"]:
+        if classifier == "CART":
+            logger.info(">>> {}: training model".format(classifier))
+            model = DecisionTreeClassifier(**model_options)
+            model.fit(X, Y)
+
+            tree_text = tree_to_code(model, X.columns)
+            output_tree_file_path = workspace_dir.get_results_file_path(
+                "classify-output-{}-model.txt".format(classifier))
+            with open(output_tree_file_path, "wt") as tree_file:
+                tree_file.write(tree_text)
+
+            logger.info(">>> {} model structure saved to the file {} ".format(classifier, output_tree_file_path))
+
+        elif classifier == "RandomForest":
+            logger.info(">>> {}: training model".format(classifier))
+            model = RandomForestClassifier(**model_options)
+            model.fit(X, Y)
+
+        elif classifier == "KNN":
+            model = KNeighborsClassifier(**model_options)
+            model.fit(X, Y)
+
+        elif classifier == "MultinomialNB":
+            model = MultinomialNB(**model_options)
+            model.fit(X, Y)
+
+        logger.info(">>> {}: classifying instances".format(classifier))
+        # Classifying instances for sklearn algorithms
+        if classifier in sklearn_classifiers:
+            pred = model.predict(classify_data)
+
+            # report
+            output_full = classify_raw[['id', 'contents']]
+            output_full = output_full.assign(pred_class=pred)
+            output_full.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
+            logger.info(
+                ">>> {}: results saved to {}".format(classifier, output_file_path))
+
+        # Running C50 algorithm training and classification in R
+        if classifier == "C50":
+            output_file_prefix = workspace_dir.get_results_file_path("classify-output-{}".format(classifier))
+            r_script_exec = locations_config.get("rscript_executable_path", "RScript.exe")
+
+            call([r_script_exec, "./bin/classify_c5.R", train_input_file, classify_input_file, output_file_prefix,
+                  classifiers_options_file_path, classes_file_path, csv_separator])
+
+            output_full = pd.read_csv("{}.csv".format(output_file_prefix), sep=csv_separator, encoding="utf-8")
+
+        # Reporting results for classes
+        for decision_class in decision_classes["labeled"]:
+            output_file_path_class = workspace_dir.get_results_file_path(
+                "classify-output-{}-{}.csv".format(classifier, decision_class['name']))
+            output_class = output_full[(output_full['pred_class'] == decision_class['value'])]
+            output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
+            logger.info(
+                ">>> {}: results for the class \"{}\" saved to {}".format(classifier, decision_class['name'],
+                                                                          output_file_path_class))
+
         output_file_path_class = workspace_dir.get_results_file_path(
-            "classify-output-{}-{}.csv".format(CLASSIFIER_NAME, decision_class['name']))
-        output_class = output_full[(output_full['pred_class'] == decision_class['value'])]
+            "classify-output-{}-{}.csv".format(classifier, decision_classes["default"]['name']))
+        output_class = output_full[(output_full['pred_class'] == decision_classes["default"]['value'])]
         output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
-
-    output_file_path_class = workspace_dir.get_results_file_path(
-        "classify-output-{}-{}.csv".format(CLASSIFIER_NAME, decision_classes["default"]['name']))
-    output_class = output_full[(output_full['pred_class'] == decision_classes["default"]['value'])]
-    output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
-
-    logger.info(">>>> Export to csv successful!")
-
-    tree_text = tree_to_code(model, X.columns)
-    with open(output_tree_file_path, "wt") as tree_file:
-        tree_file.write(tree_text)
-
-    logger.info(">>>> Tree rendering complete! ")
+        logger.info(
+            ">>> {}: results for the class \"{}\" saved to {}".format(classifier,
+                                                                      decision_classes["default"]['name'],
+                                                                      output_file_path_class))
