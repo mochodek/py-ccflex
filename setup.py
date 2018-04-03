@@ -21,5 +21,6 @@ setup(name='pyccflex',
           'bin/classify',
           'bin/merge_results',
           'bin/vocabulary_extractor',
-          'bin/bag_of_words'],
+          'bin/bag_of_words',
+          'bin/merge_inputs'],
       zip_safe=False)
