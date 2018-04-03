@@ -127,7 +127,8 @@ if __name__ == '__main__':
     collumns_to_drop = ['id']
     columns = list(classify_raw.columns)
     if 'class_value' in columns:
-        collumns_to_drop.append('class_value', 'class_name')
+        collumns_to_drop.append('class_value')
+        collumns_to_drop.append('class_name')
     if 'contents' in columns:
         collumns_to_drop.append('contents')
     classify_data = classify_raw.drop(collumns_to_drop, inplace=False, axis=1)
