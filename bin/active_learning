@@ -34,8 +34,8 @@ if __name__ == '__main__':
 
     # Parse input parameters
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_file", help="The name of the input file containing features and contents",
-                        default=False, type=str)
+    parser.add_argument("--input_files", help="The name of the input file containing features and contents",
+                        nargs='+', type=str, required=True)
     parser.add_argument("--output_file", help="The name of the output file",
                         default=False, type=str)
     parser.add_argument("--base_learner", help="The name of classification algorithm used to evaluate",
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     classes_file_path = args['classes_config']
     classifiers_options_file_path = args['classifiers_options']
 
-    input_file = args['input_file']
+    input_files = args['input_files']
     output_file = args['output_file']
     base_learner = args['base_learner']
     use_existing_labels = args['use_existing_labels']
@@ -101,19 +101,38 @@ if __name__ == '__main__':
 
     add_contents = args['add_contents']
 
-    input_file_path = workspace_dir.get_processing_file_path(input_file)
     output_file_path = workspace_dir.get_processing_file_path(output_file)
 
-    input_df = pd.read_csv(input_file_path, sep=csv_separator, encoding="utf-8")
-    input_df.contents = input_df.contents.fillna("")
+    input_full_df = None
+
+    for input_file in input_files:
+        input_file_path = workspace_dir.get_processing_file_path(input_file)
+
+        logger.info(">>> Loading file {}".format(input_file))
+
+        input_df = pd.read_csv(input_file_path, sep=csv_separator, encoding="utf-8")
+        columns = list(input_df.columns)
+        if 'contents' in columns:
+            input_df.contents = input_df.contents.fillna("")
+        else:
+            input_df['contents'] = np.array([''] * input_df.shape[0])
+
+        if 'class_value' not in columns:
+            input_df['class_value'] = np.array([decision_classes['default']['value']] * input_df.shape[0])
+            input_df['class_name'] = np.array([decision_classes['default']['name']] * input_df.shape[0])
+
+        if input_full_df is None:
+            input_full_df = input_df
+        else:
+            input_full_df = pd.concat([input_full_df, input_df], axis=0, ignore_index=True)
+
+    input_df = input_full_df
 
     decision_class_name_column = None
     decision_class_value_column = None
     contents_column = None
     ids_column = input_df['id']
     file_names = [x.split(":")[0] for x in list(input_df['id'])]
-
-    logger.info(">>> Loading file {}".format(input_file))
 
     columns = list(input_df.columns)
     if decision_class_name_column is None and 'class_value' in columns:
@@ -136,8 +155,6 @@ if __name__ == '__main__':
         y = np.array([x if x > 0 else None for x in list(decision_class_value_column)])
     else:
         y = np.array([None, None] * input_df.shape[0])
-
-    print(y)
 
     model = None
     model_options = classifiers_options_config.get(base_learner, {})
