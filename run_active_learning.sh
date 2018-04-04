@@ -1,0 +1,13 @@
+#!/bin/sh
+
+LOCATIONS_CONFIG="./locations_mo.json"
+CLASSES_CONFIG="./classes.json"
+FILES_FORMAT_CONFIG="./files_format.json"
+MANUAL_FEATURES_CONFIG="./manual_features.json"
+CLASSIFIERS_CONFIG="./classifiers_options.json"
+FEATURE_SELECTORS_CONFIG="./feature_selectors_options.json"
+
+
+active_learning  --input_file "classify-manual-and-bow.csv" --output_file "active_learning_input.csv" --base_learner "CART" --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#active_learning  --input_file "train-manual-and-bow.csv" --output_file "active_learning_input.csv" --base_learner "CART" --use_existing_labels --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+

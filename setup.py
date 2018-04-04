@@ -11,7 +11,8 @@ setup(name='pyccflex',
       install_requires=[
           'pandas',
           'numpy',
-          'scikit-learn'
+          'scikit-learn',
+          'libact'
       ],
       scripts=[
           'bin/create_workspace',
@@ -24,5 +25,6 @@ setup(name='pyccflex',
           'bin/bag_of_words',
           'bin/merge_inputs',
           'bin/add_seq_context',
-          'bin/select_features'],
+          'bin/select_features',
+          'bin/active_learning'],
       zip_safe=False)
