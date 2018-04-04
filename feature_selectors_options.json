@@ -1,0 +1,8 @@
+{
+  "INFO": {
+    "VarianceThreshold": "http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html"
+  },
+  "VarianceThreshold":{
+    "threshold": 0.0
+  }
+}

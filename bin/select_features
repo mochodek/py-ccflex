@@ -1,0 +1,189 @@
+#!/usr/bin/env python
+
+# Reading input csv file with features, performs feature selection and storres the resulting features file
+
+import argparse
+import logging
+import os
+import warnings
+import pandas as pd
+from sklearn.feature_selection import VarianceThreshold
+
+from common.configuration import ConfigurationHandler
+from common.workspace import WorkspaceHandler
+
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+if __name__ == '__main__':
+
+    logger.info("\n#### Running: {}".format(__file__))
+
+    # Parse input parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument("train_file",
+                        help="Path to train csv file", type=str)
+    parser.add_argument("classify_file",
+                        help="Path to classify csv file", type=str)
+    parser.add_argument("--output_file_prefix", help="The prefix added to output files",
+                        type=str, required=False, default="./classes.json")
+    parser.add_argument('--feature_selectors', nargs='+', type=str)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
+    parser.add_argument("--classes_config", help="Path to classes configuration file",
+                        type=str, required=False, default="./classes.json")
+    parser.add_argument("--classifiers_options", help="Path to classifiers options file",
+                        type=str, required=False, default="./classifiers_options.json")
+    parser.add_argument("--feature_selectors_options", help="Path to feature selectors options file",
+                        type=str, required=False, default="./feature_selectors_options.json")
+    parser.add_argument("--add_decision_class", help="Shall the decision class be added to output?",
+                        default=False, action='store_true')
+    parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
+                        default=False, action='store_true')
+
+    args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
+
+    locations_file_path = args['locations_config']
+    files_format_file_path = args['files_format_config']
+    classes_file_path = args['classes_config']
+    classifiers_options_file_path = args['classifiers_options']
+    feature_selectors_options_file_path = args['feature_selectors_options']
+
+    train_file = args['train_file']
+    classify_file = args['classify_file']
+    output_file_prefix = args['output_file_prefix']
+    feature_selectors = args['feature_selectors']
+    add_decision_class = args['add_decision_class']
+    add_contents = args['add_contents']
+
+    try:
+        locations_config = ConfigurationHandler(locations_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
+        exit(1)
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
+    try:
+        classifiers_options_config = ConfigurationHandler(classifiers_options_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(classifiers_options_file_path))
+        exit(1)
+
+    try:
+        feature_selectors_options_config = ConfigurationHandler(feature_selectors_options_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(feature_selectors_options_file_path))
+        exit(1)
+
+    try:
+        classes_config = ConfigurationHandler(classes_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(classes_file_path))
+        exit(1)
+    decision_classes = classes_config.get("classes", {})
+
+    csv_separator = files_format_config.get("csv_sep", ",")
+
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
+
+    logger.info(">>> Loading training file {}".format(train_file))
+    input_train_file_path = workspace_dir.get_processing_file_path(train_file)
+    input_train_df = pd.read_csv(input_train_file_path, sep=csv_separator, encoding="utf-8")
+    output_train_file_path = workspace_dir.get_processing_file_path("{}{}".format(output_file_prefix, train_file))
+
+    logger.info(">>> Loading classify file {}".format(train_file))
+    input_classify_file_path = workspace_dir.get_processing_file_path(classify_file)
+    input_classify_df = pd.read_csv(input_classify_file_path, sep=csv_separator, encoding="utf-8")
+    output_classify_file_path = workspace_dir.get_processing_file_path(
+        "{}{}".format(output_file_prefix, classify_file))
+
+    # temporary remove class and contents
+    decision_class_name_column_train = None
+    decision_class_value_column_train = None
+    contents_column_train = None
+    ids_column_train = input_train_df['id']
+    columns_train = list(input_train_df.columns)
+    columns_to_drop_train = ['id']
+    if 'class_value' in columns_train:
+        decision_class_name_column_train = input_train_df['class_name']
+        decision_class_value_column_train = input_train_df['class_value']
+        columns_to_drop_train.append('class_value')
+        columns_to_drop_train.append('class_name')
+    if 'contents' in columns_train:
+        contents_column_train = input_train_df['contents']
+        columns_to_drop_train.append('contents')
+    input_train_df.drop(columns_to_drop_train, inplace=True, axis=1)
+
+    decision_class_name_column_classify = None
+    decision_class_value_column_classify = None
+    contents_column_classify = None
+    ids_column_classify = input_classify_df['id']
+    columns_classify = list(input_classify_df.columns)
+    columns_to_drop_classify = ['id']
+    if 'class_value' in columns_classify:
+        decision_class_name_column_classify = input_classify_df['class_name']
+        decision_class_value_column_classify = input_classify_df['class_value']
+        columns_to_drop_classify.append('class_value')
+        columns_to_drop_classify.append('class_name')
+    if 'contents' in columns_classify:
+        contents_column_classify = input_classify_df['contents']
+        columns_to_drop_classify.append('contents')
+    input_classify_df.drop(columns_to_drop_classify, inplace=True, axis=1)
+
+    train_x = input_train_df
+    train_y = decision_class_value_column_train
+
+    classify_x = input_classify_df
+
+    selected_features = None
+    for feature_selector in feature_selectors:
+        selector_options = feature_selectors_options_config.get(feature_selector, {})
+
+        if feature_selector == "VarianceThreshold":
+            logger.info(">>> {}: determining features".format(feature_selector))
+            selector = VarianceThreshold(**selector_options)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                selector.fit(train_x, train_y)
+                selected_features = train_x.columns[selector.get_support()]
+                train_x = pd.DataFrame(selector.transform(train_x), columns=selected_features)
+                classify_x = classify_x[classify_x.columns[selector.get_support(True)]]
+
+    logger.info(">>> Saving output to the file {}".format(output_train_file_path))
+    output_train_df = train_x
+
+    output_train_df = pd.concat([ids_column_train, output_train_df], axis=1)
+    if decision_class_name_column_train is not None:
+        output_train_df['class_name'] = decision_class_name_column_train
+        output_train_df['class_value'] = decision_class_value_column_train
+
+    if contents_column_train is not None:
+        output_train_df['contents'] = contents_column_train
+
+    output_train_df.to_csv(output_train_file_path, sep=csv_separator, index=False, encoding="utf-8")
+
+    logger.info(">>> Saving output to the file {}".format(output_classify_file_path))
+    output_classify_df = classify_x
+
+    output_classify_df = pd.concat([ids_column_classify, output_classify_df], axis=1)
+    if decision_class_name_column_classify is not None:
+        output_classify_df['class_name'] = decision_class_name_column_classify
+        output_classify_df['class_value'] = decision_class_value_column_classify
+
+    if contents_column_classify is not None:
+        output_classify_df['contents'] = contents_column_classify
+
+    output_classify_df.to_csv(output_classify_file_path, sep=csv_separator, index=False, encoding="utf-8")

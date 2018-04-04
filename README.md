@@ -134,14 +134,7 @@ CLASSES_CONFIG="./classes.json"
 FILES_FORMAT_CONFIG="./files_format.json"
 MANUAL_FEATURES_CONFIG="./manual_features.json"
 CLASSIFIERS_CONFIG="./classifiers_options.json"
-
-#!/bin/sh
-
-LOCATIONS_CONFIG="./locations_mo.json"
-CLASSES_CONFIG="./classes.json"
-FILES_FORMAT_CONFIG="./files_format.json"
-MANUAL_FEATURES_CONFIG="./manual_features.json"
-CLASSIFIERS_CONFIG="./classifiers_options.json"
+FEATURE_SELECTORS_CONFIG="./feature_selectors_options.json"
 
 # 1. create workspace
 create_workspace --locations_config $LOCATIONS_CONFIG
@@ -164,8 +157,11 @@ merge_inputs --input_files "train-basic-manual.csv" "train-bag-of-words.csv" --o
 merge_inputs --input_files "classify-basic-manual.csv" "classify-bag-of-words.csv" --output_file "classify-manual-and-bow.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
 # add context +/- lines
-add_seq_context  "train-bag-of-words.csv" "train-bag-of-words-ctx.csv" --prev_cases 1 --next_cases 1 --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-add_seq_context  "classify-bag-of-words.csv" "classify-bag-of-words-ctx.csv" --prev_cases 1 --next_cases 1 --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+add_seq_context  "train-manual-and-bow.csv" "train-manual-and-bow-ctx.csv" --prev_cases 1 --next_cases 1 --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+add_seq_context  "classify-manual-and-bow.csv" "classify-manual-and-bow-ctx.csv" --prev_cases 1 --next_cases 1 --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+
+# perform feature selection - remove duplicated features
+select_features  "train-manual-and-bow-ctx.csv" "classify-manual-and-bow-ctx.csv" --output_file_prefix "min-" --feature_selectors "VarianceThreshold" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --feature_selectors_options $FEATURE_SELECTORS_CONFIG --classes_config $CLASSES_CONFIG
 
 # 3. run classification algorithms
 # train and classify using bag-of-words feature
@@ -178,7 +174,7 @@ add_seq_context  "classify-bag-of-words.csv" "classify-bag-of-words-ctx.csv" --p
 #classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
 # train and classify using both manually defined and bag-of-words feature with +/- context lines
-classify "train-bag-of-words-ctx.csv" "classify-bag-of-words-ctx.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
 # 4. merge results to a single csv file
 merge_results --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
@@ -189,6 +185,7 @@ generate_html "processing/train-bag-of-words.csv" "training-lines-bow-features.h
 generate_html "results/classify-output-ALL.csv" "classified-lines-ALL.html" --all --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
 generate_html "results/classify-output-ALL-count.csv" "classified-lines-ALL-count.html" --all --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
 generate_html "results/classify-output-C50-count.csv" "classified-lines-C50-count.html" --all --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+
 
 ```
 
@@ -323,8 +320,24 @@ the workspace is located
 * classify-output-ALL-\<class>.csv - merges all results file found in results folder of the workspace
 but filtered to contain only classification to a given class
 
-### Classifiers: classify
-This is a family of scripts that use different algorithms to classify lines.
+### select_features
+This scripts allows to perform feature selection.
+
+*Input:*
+* the first parameter is the name of the file containing features for training set
+* the second parameter is the name of the file containing features for set to classify
+* --output_file_prefix - the prefix that will be added to output features files (training and classify) 
+* --feature_selectors - a list of feature selection algorithms:
+    * VarianceThreshold - variance threshold - useful in eliminating duplicate features (sklearn)
+* --feature_selectors_options - a json file with feature selector options. If it contains a key equal to 
+the name of the feature selection algorithm its contents will be used to configure the feature selection algorithm
+
+*Output:* 
+* <output_file_prefix><first parameter> - reduced training feature file
+* <output_file_prefix><second parameter> - reduced classify feature file
+
+### classify
+This scripts uses different algorithms to classify lines.
 
 *Input:*
 * the first parameter is the name of the file containing features for training set
