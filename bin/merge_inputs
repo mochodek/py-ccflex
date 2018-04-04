@@ -110,13 +110,13 @@ if __name__ == '__main__':
         if contents_column is None and 'contents' in columns:
             contents_column = input_df['contents']
 
-        collumns_to_drop = []
+        columns_to_drop = []
         if 'class_value' in columns:
-            collumns_to_drop.append('class_value')
-            collumns_to_drop.append('class_name')
+            columns_to_drop.append('class_value')
+            columns_to_drop.append('class_name')
         if 'contents' in columns:
-            collumns_to_drop.append('contents')
-        input_df.drop(collumns_to_drop, inplace=True, axis=1)
+            columns_to_drop.append('contents')
+        input_df.drop(columns_to_drop, inplace=True, axis=1)
 
         if merged_df is None:
             merged_df = input_df
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     if add_contents and contents_column is not None:
         merged_df['contents'] = contents_column
 
-    logger.info(">>>> Saving the merged file {}".format(output_file))
+    logger.info(">>> Saving the merged file {}".format(output_file))
     merged_df.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
 
 
