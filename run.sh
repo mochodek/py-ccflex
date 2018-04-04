@@ -27,6 +27,10 @@ bag_of_words "classify" "vocabulary.csv" --min_ngrams 1 --max_ngrams 2 --token_s
 merge_inputs --input_files "train-basic-manual.csv" "train-bag-of-words.csv" --output_file "train-manual-and-bow.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 merge_inputs --input_files "classify-basic-manual.csv" "classify-bag-of-words.csv" --output_file "classify-manual-and-bow.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
+# add context +/- lines
+add_seq_context  "train-bag-of-words.csv" "train-bag-of-words-ctx.csv" --prev_cases 1 --next_cases 1 --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+add_seq_context  "classify-bag-of-words.csv" "classify-bag-of-words-ctx.csv" --prev_cases 1 --next_cases 1 --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+
 # 3. run classification algorithms
 # train and classify using bag-of-words feature
 #classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
@@ -35,7 +39,10 @@ merge_inputs --input_files "classify-basic-manual.csv" "classify-bag-of-words.cs
 #classify "train-basic-manual.csv" "classify-basic-manual.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
 # train and classify using both manually defined and bag-of-words feature
-classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+
+# train and classify using both manually defined and bag-of-words feature with +/- context lines
+classify "train-bag-of-words-ctx.csv" "classify-bag-of-words-ctx.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
 # 4. merge results to a single csv file
 merge_results --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG

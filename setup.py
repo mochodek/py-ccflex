@@ -22,5 +22,6 @@ setup(name='pyccflex',
           'bin/merge_results',
           'bin/vocabulary_extractor',
           'bin/bag_of_words',
-          'bin/merge_inputs'],
+          'bin/merge_inputs',
+          'bin/add_seq_context'],
       zip_safe=False)
