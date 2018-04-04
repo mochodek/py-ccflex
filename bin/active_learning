@@ -118,8 +118,10 @@ if __name__ == '__main__':
             input_df['contents'] = np.array([''] * input_df.shape[0])
 
         if 'class_value' not in columns:
-            input_df['class_value'] = np.array([decision_classes['default']['value']] * input_df.shape[0])
-            input_df['class_name'] = np.array([decision_classes['default']['name']] * input_df.shape[0])
+            #input_df['class_value'] = np.array([decision_classes['default']['value']] * input_df.shape[0])
+            #input_df['class_name'] = np.array([decision_classes['default']['name']] * input_df.shape[0])
+            input_df['class_value'] = np.array([None] * input_df.shape[0])
+            input_df['class_name'] = np.array([None] * input_df.shape[0])
 
         if input_full_df is None:
             input_full_df = input_df
@@ -152,7 +154,8 @@ if __name__ == '__main__':
 
     x = input_df.values
     if use_existing_labels and decision_class_value_column is not None:
-        y = np.array([x if x > 0 else None for x in list(decision_class_value_column)])
+        #y = np.array([x if x > 0 else None for x in list(decision_class_value_column)])
+        y = np.array([x for x in list(decision_class_value_column)])
     else:
         y = np.array([None, None] * input_df.shape[0])
 
@@ -160,8 +163,9 @@ if __name__ == '__main__':
     model_options = classifiers_options_config.get(base_learner, {})
     if base_learner == "CART":
         model = DecisionTreeClassifier(**model_options)
-
-    model_libact = SklearnProbaAdapter(model)
+        model_libact = SklearnProbaAdapter(model)
+    else:
+        model_libact = LogisticRegression()
 
     dataset = Dataset(x, y)
     ask_id = list(np.random.choice(range(0, x.shape[0]), 1, replace=False))[0]
