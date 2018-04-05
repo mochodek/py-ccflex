@@ -30,10 +30,6 @@ if __name__ == '__main__':
                         type=str, required=False, default="./locations.json")
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
                         type=str, required=False, default="./files_format.json")
-    parser.add_argument("--classes_config", help="Path to classes configuration file",
-                        type=str, required=False, default="./classes.json")
-    parser.add_argument("--classifiers_options", help="Path to classifiers options file",
-                        type=str, required=False, default="./classifiers_options.json")
     parser.add_argument("--add_decision_class", help="Shall the decision class be added to output?",
                         default=False, action='store_true')
     parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
@@ -44,8 +40,6 @@ if __name__ == '__main__':
 
     locations_file_path = args['locations_config']
     files_format_file_path = args['files_format_config']
-    classes_file_path = args['classes_config']
-    classifiers_options_file_path = args['classifiers_options']
 
     input_files = args['input_files']
     if len(input_files) < 2:
@@ -65,19 +59,6 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error("Couldn't load configuration file {}".format(files_format_file_path))
         exit(1)
-
-    try:
-        classifiers_options_config = ConfigurationHandler(classifiers_options_file_path)
-    except Exception as e:
-        logger.error("Couldn't load configuration file {}".format(classifiers_options_file_path))
-        exit(1)
-
-    try:
-        classes_config = ConfigurationHandler(classes_file_path)
-    except Exception as e:
-        logger.error("Couldn't load configuration file {}".format(classes_file_path))
-        exit(1)
-    decision_classes = classes_config.get("classes", {})
 
     csv_separator = files_format_config.get("csv_sep", ",")
 
