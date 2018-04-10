@@ -12,6 +12,7 @@ setup(name='pyccflex',
           'pandas',
           'numpy',
           'scikit-learn',
+          'Cython',
           'libact'
       ],
       scripts=[
