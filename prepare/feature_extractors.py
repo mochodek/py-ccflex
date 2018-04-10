@@ -35,8 +35,9 @@ class LineFeaturesExtractionController(object):
                 writer = csv.DictWriter(out_file, fieldnames=self.feature_names,
                                         delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 writer.writeheader()
-                for row in reader:
-                    self.logger.info("Extracting features from {}".format(row['id']))
+                for i, row in enumerate(reader):
+                    if i % 1000 == 0:
+                        self.logger.info("Extracting features from {}".format(row['id']))
                     features = {"id": row['id']}
                     if self.add_contents:
                         features["contents"] = row['contents']
