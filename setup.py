@@ -12,8 +12,8 @@ setup(name='pyccflex',
           'pandas',
           'numpy',
           'scikit-learn',
-          'Cython',
-          'libact'
+          #'Cython',
+          #'libact'
       ],
       scripts=[
           'bin/create_workspace',
