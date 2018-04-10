@@ -164,6 +164,9 @@ if __name__ == '__main__':
     if base_learner == "CART":
         model = DecisionTreeClassifier(**model_options)
         model_libact = SklearnProbaAdapter(model)
+    elif base_learner == "RandomForest":
+        model = RandomForestClassifier(**model_options)
+        model_libact = SklearnProbaAdapter(model)
     else:
         model_libact = LogisticRegression()
 

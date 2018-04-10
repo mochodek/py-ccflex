@@ -470,7 +470,10 @@ having exactly the same sets of features. They could have class_value column.
 * --base_learner - many active learning strategies use classifier to train it on the already 
 labeled data and use it to predict which unlabeled data would be worth to label. The name
 of the classifier should be the one of the available classifiers in py-ccflex (see 
-classifiers_option.json file)
+classifiers_option.json file). Currently the supported ones are:
+    * CART (sklearn)
+    * RandomForest (sklearn)
+    * LogisticRegression (sklearn)
 * --locations_config - path to locations configuration (json). The merger needs to know where
 the workspace is located.
 * --files_format_config - a json file with configuration of file format (e.g., the separator
