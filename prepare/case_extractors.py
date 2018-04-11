@@ -13,7 +13,7 @@ class BaseCaseExtractor(abc.ABC):
     Base class for extracting cases / objects from code files. Intended for subclassing.
     """
 
-    def __init__(self, code_location, output_file_path, decision_classes, sep=","):
+    def __init__(self, code_location, output_file_path, decision_classes, sep=",", verbosity=100):
         self.logger = logging.getLogger('pyccflex.common.configuration.BaseCaseExtractor')
         self.code_location = code_location
         self.locations = code_location.get("locations", [])
@@ -21,13 +21,24 @@ class BaseCaseExtractor(abc.ABC):
         self.sep = sep
         self.decision_classes = decision_classes
         self.baseline_dir = code_location.get("baseline_dir", "/")
+        self.verbosity = verbosity
 
     def extract(self):
         with open(self.output_file_path, "w", newline='', encoding="utf-8") as output_file:
             writer = csv.writer(output_file, delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
             self._save_header(writer)
-            self._extract_files(writer, self.locations)
+
+            files = set()
+            self._get_files_in_locations(self.locations, files)
+            no_files = len(files)
+            for i, file_path in enumerate(files, start=1):
+                if self.verbosity == 0:
+                    self.logger.info("Extracting file {}".format(file_path))
+                else:
+                    if i % self.verbosity == 0:
+                        self.logger.info("Extracting {} out of {} files: {}".format(i, no_files, file_path))
+                self.extract_cases_from_file(file_path, writer)
 
     def _matches_any(self, filename, include):
         for pattern in include:
@@ -38,16 +49,14 @@ class BaseCaseExtractor(abc.ABC):
     def re_compiled(self, reg_exps):
         return [re.compile(x) for x in reg_exps]
 
-    def _extract_files(self, writer, locations, counter = 0):
+    def _get_files_in_locations(self, locations, result):
         for location in locations:
             path = location.get("path", None)
             include = self.re_compiled(location.get("include", []))
             exclude = self.re_compiled(location.get("exclude", []))
-            counter += 1
+
             if os.path.isfile(path):
-                if counter % 1000 == 0:
-                    self.logger.info("Extracting file {}".format(file_path))
-                self.extract_cases_from_file(path, writer)
+                result.add(path)
             else:
                 files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(os.path.normpath(path), f))]
                 dirs = [f for f in os.listdir(path) if os.path.isdir(os.path.join(os.path.normpath(path), f))]
@@ -55,14 +64,11 @@ class BaseCaseExtractor(abc.ABC):
                 for f in files:
                     file_path = os.path.join(os.path.normpath(path), f)
                     if self._matches_any(f, include) and not self._matches_any(f, exclude):
-                        self.extract_cases_from_file(file_path, writer)
-                    else:
-                        if counter % 1000 == 0:
-                            self.logger.info("Skipping file {}".format(file_path))
+                        result.add(file_path)
 
                 children_loc = [{"path": os.path.join(os.path.normpath(path), d),
                                  "include": include, "exclude": exclude} for d in dirs]
-                self._extract_files(writer, children_loc, counter)
+                self._get_files_in_locations(children_loc, result)
 
     def _save_header(self, writer):
         header_row = self.header()
