@@ -5,6 +5,7 @@ import argparse
 import logging
 
 import pandas as pd
+import dask.dataframe as dd
 from sklearn.feature_extraction.text import CountVectorizer
 
 from common.configuration import ConfigurationHandler
@@ -121,7 +122,7 @@ if __name__ == '__main__':
     vocab = dict((key, value) for value, key in enumerate(tokens))
 
     count_vect = CountVectorizer(ngram_range=(min_ngrams, max_ngrams), tokenizer=tokenizer, vocabulary=vocab)
-    lines_data = pd.read_csv(input_file_path, sep=separator, encoding="utf-8")
+    lines_data = dd.read_csv(input_file_path, sep=separator, encoding="utf-8").compute()
     lines_data.contents = lines_data.contents.fillna("")
     contents = list(lines_data.contents)
     count_vect.fit(contents)
