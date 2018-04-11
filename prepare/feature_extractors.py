@@ -11,7 +11,7 @@ class LineFeaturesExtractionController(object):
     """
 
     def __init__(self, extractors, input_file, output_path, sep=",",
-                 add_decision_class=False, add_contents=False):
+                 add_decision_class=False, add_contents=False, verbosity=10000):
         self.logger = logging.getLogger('pyccflex.common.configuration.LineFeaturesExtractionController')
         self.extractors = extractors
         self.input_file = input_file
@@ -27,6 +27,7 @@ class LineFeaturesExtractionController(object):
             self.feature_names.append("class_value")
         if add_contents:
             self.feature_names.append("contents")
+        self.verbosity = verbosity
 
     def extract(self):
         with open(self.input_file, 'rt', encoding="utf-8") as in_file:
@@ -35,8 +36,8 @@ class LineFeaturesExtractionController(object):
                 writer = csv.DictWriter(out_file, fieldnames=self.feature_names,
                                         delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 writer.writeheader()
-                for i, row in enumerate(reader):
-                    if i % 10000 == 0:
+                for i, row in enumerate(reader, start=1):
+                    if self.verbosity == 0 or i % self.verbosity == 0:
                         self.logger.info("Extracting features from {}".format(row['id']))
                     features = {"id": row['id']}
                     if self.add_contents:
