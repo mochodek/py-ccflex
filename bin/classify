@@ -7,6 +7,8 @@ import logging
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
 import pandas as pd
+import dask.dataframe as dd
+import dask.array as da
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -116,13 +118,16 @@ if __name__ == '__main__':
 
     # read and transform inputs
     logger.info(">>>> Loading and transforming inputs")
-    input_raw = pd.read_csv(train_input_file, sep=csv_separator, encoding="utf-8")
-    classify_raw = pd.read_csv(classify_input_file, sep=csv_separator, encoding="utf-8")
+    #input_raw = pd.read_csv(train_input_file, sep=csv_separator, encoding="utf-8")
+    input_raw = dd.read_csv(train_input_file, sep=csv_separator, encoding="utf-8")
+    #classify_raw = pd.read_csv(classify_input_file, sep=csv_separator, encoding="utf-8")
+    classify_raw = dd.read_csv(classify_input_file, sep=csv_separator, encoding="utf-8")
 
     collumns_to_drop = ['id', 'class_name']
     if 'contents' in list(input_raw.columns):
         collumns_to_drop.append('contents')
-    input_data = input_raw.drop(collumns_to_drop, inplace=False, axis=1)
+    #input_data = input_raw.drop(collumns_to_drop, inplace=False, axis=1)
+    input_data = input_raw.drop(collumns_to_drop, axis=1)
 
     collumns_to_drop = ['id']
     columns = list(classify_raw.columns)
@@ -131,11 +136,13 @@ if __name__ == '__main__':
         collumns_to_drop.append('class_name')
     if 'contents' in columns:
         collumns_to_drop.append('contents')
-    classify_data = classify_raw.drop(collumns_to_drop, inplace=False, axis=1)
+    #classify_data = classify_raw.drop(collumns_to_drop, inplace=False, axis=1)
+    classify_data = classify_raw.drop(collumns_to_drop, axis=1)
 
     logger.info(">>> Preparing training data")
-    X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
     Y = input_data['class_value']
+    #X = input_data.iloc[:, 0:(input_data.shape[1] - 1)]
+    X = input_data.drop(['class_value'], axis=1)
 
     sklearn_classifiers = ("CART", "RandomForest", "KNN", "MultinomialNB")
 
@@ -177,7 +184,8 @@ if __name__ == '__main__':
 
             # report
             output_full = classify_raw[['id', 'contents']]
-            output_full = output_full.assign(pred_class=pred)
+            #output_full = output_full.assign(pred_class=pred)
+            output_full = output_full.compute().assign(pred_class=pred)
             output_full.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
             logger.info(
                 ">>> {}: results saved to {}".format(classifier, output_file_path))

@@ -8,6 +8,7 @@ import logging
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
 import pandas as pd
+import dask.dataframe as dd
 
 #
 #   Handling the logging; now it logs to console
@@ -70,7 +71,8 @@ if __name__ == '__main__':
     output_file = workspace_dir.get_reports_file_path(args['output_html'])
 
     # read the csv file
-    df = pd.read_csv(input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
+    #df = pd.read_csv(input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8")
+    df = dd.read_csv(input_file, sep=files_format_config.get("csv_sep", ","), encoding="utf-8").compute()
 
     # get the names of the columns
     column_names = df.iloc[0]
