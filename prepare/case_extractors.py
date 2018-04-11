@@ -38,12 +38,15 @@ class BaseCaseExtractor(abc.ABC):
     def re_compiled(self, reg_exps):
         return [re.compile(x) for x in reg_exps]
 
-    def _extract_files(self, writer, locations):
+    def _extract_files(self, writer, locations, counter = 0):
         for location in locations:
             path = location.get("path", None)
             include = self.re_compiled(location.get("include", []))
             exclude = self.re_compiled(location.get("exclude", []))
+            counter += 1
             if os.path.isfile(path):
+                if counter % 1000 == 0:
+                    self.logger.info("Extracting file {}".format(file_path))
                 self.extract_cases_from_file(path, writer)
             else:
                 files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(os.path.normpath(path), f))]
@@ -54,11 +57,12 @@ class BaseCaseExtractor(abc.ABC):
                     if self._matches_any(f, include) and not self._matches_any(f, exclude):
                         self.extract_cases_from_file(file_path, writer)
                     else:
-                        self.logger.info("Skipping file {}".format(file_path))
+                        if counter % 1000 == 0:
+                            self.logger.info("Skipping file {}".format(file_path))
 
                 children_loc = [{"path": os.path.join(os.path.normpath(path), d),
                                  "include": include, "exclude": exclude} for d in dirs]
-                self._extract_files(writer, children_loc)
+                self._extract_files(writer, children_loc, counter)
 
     def _save_header(self, writer):
         header_row = self.header()
@@ -81,7 +85,6 @@ class LinesCaseExtractor(BaseCaseExtractor):
         return ["id", "line", "contents", "class_name", "class_value", "path"]
 
     def extract_cases_from_file(self, file_path, writer):
-        self.logger.info("Extracting file {}".format(file_path))
 
         file_relative_path = os.path.relpath(file_path, self.baseline_dir)
 
