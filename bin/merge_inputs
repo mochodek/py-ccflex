@@ -116,7 +116,6 @@ if __name__ == '__main__':
 
             for input_file_dfs_chunks in input_files_dfs_chunks:
                 try:
-                    #input_df_chunk = input_file_dfs_chunks.read()
                     input_df_chunk = input_file_dfs_chunks.get_chunk()
                 except StopIteration as e:
                     pass
