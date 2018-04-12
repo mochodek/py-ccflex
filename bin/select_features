@@ -7,7 +7,6 @@ import logging
 import os
 import warnings
 import pandas as pd
-import dask.dataframe as dd
 from sklearn.feature_selection import VarianceThreshold
 
 from common.configuration import ConfigurationHandler
@@ -18,6 +17,8 @@ logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
+
+chunk_size = 10 ** 5
 
 if __name__ == '__main__':
 
@@ -31,7 +32,7 @@ if __name__ == '__main__':
                         help="Path to classify csv file", type=str)
     parser.add_argument("--output_file_prefix", help="The prefix added to output files",
                         type=str, required=False, default="./classes.json")
-    parser.add_argument('--feature_selectors', nargs='+', type=str)
+    parser.add_argument('--feature_selector', type=str, required=True)
     parser.add_argument("--locations_config", help="Path to locations configuration file",
                         type=str, required=False, default="./locations.json")
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     train_file = args['train_file']
     classify_file = args['classify_file']
     output_file_prefix = args['output_file_prefix']
-    feature_selectors = args['feature_selectors']
+    feature_selector = args['feature_selector']
     add_decision_class = args['add_decision_class']
     add_contents = args['add_contents']
 
@@ -92,14 +93,13 @@ if __name__ == '__main__':
 
     logger.info(">>> Loading training file {}".format(train_file))
     input_train_file_path = workspace_dir.get_processing_file_path(train_file)
-    #input_train_df = pd.read_csv(input_train_file_path, sep=csv_separator, encoding="utf-8")
-    input_train_df = dd.read_csv(input_train_file_path, sep=csv_separator, encoding="utf-8")
+    input_train_df = pd.read_csv(input_train_file_path, sep=csv_separator, encoding="utf-8")
     output_train_file_path = workspace_dir.get_processing_file_path("{}{}".format(output_file_prefix, train_file))
 
     logger.info(">>> Loading classify file {}".format(train_file))
     input_classify_file_path = workspace_dir.get_processing_file_path(classify_file)
-    #input_classify_df = pd.read_csv(input_classify_file_path, sep=csv_separator, encoding="utf-8")
-    input_classify_df = dd.read_csv(input_classify_file_path, sep=csv_separator, encoding="utf-8")
+    input_classify_df_chunks = pd.read_csv(input_classify_file_path, sep=csv_separator, encoding="utf-8",
+                                           chunksize=chunk_size)
     output_classify_file_path = workspace_dir.get_processing_file_path(
         "{}{}".format(output_file_prefix, classify_file))
 
@@ -118,52 +118,25 @@ if __name__ == '__main__':
     if 'contents' in columns_train:
         contents_column_train = input_train_df['contents']
         columns_to_drop_train.append('contents')
-    #input_train_df.drop(columns_to_drop_train, inplace=True, axis=1)
-    input_train_df = input_train_df.drop(columns_to_drop_train, axis=1)
-
-    decision_class_name_column_classify = None
-    decision_class_value_column_classify = None
-    contents_column_classify = None
-    ids_column_classify = input_classify_df['id']
-    columns_classify = list(input_classify_df.columns)
-    columns_to_drop_classify = ['id']
-    if 'class_value' in columns_classify:
-        decision_class_name_column_classify = input_classify_df['class_name']
-        decision_class_value_column_classify = input_classify_df['class_value']
-        columns_to_drop_classify.append('class_value')
-        columns_to_drop_classify.append('class_name')
-    if 'contents' in columns_classify:
-        contents_column_classify = input_classify_df['contents']
-        columns_to_drop_classify.append('contents')
-    #input_classify_df.drop(columns_to_drop_classify, inplace=True, axis=1)
-    input_classify_df = input_classify_df.drop(columns_to_drop_classify, axis=1)
+    input_train_df.drop(columns_to_drop_train, inplace=True, axis=1)
 
     train_x = input_train_df
     train_y = decision_class_value_column_train
 
-    classify_x = input_classify_df
+    selector_options = feature_selectors_options_config.get(feature_selector, {})
 
-    selected_features = None
-    for feature_selector in feature_selectors:
-        selector_options = feature_selectors_options_config.get(feature_selector, {})
-
-        if feature_selector == "VarianceThreshold":
-            logger.info(">>> {}: determining features".format(feature_selector))
-            selector = VarianceThreshold(**selector_options)
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=FutureWarning)
-                selector.fit(train_x, train_y)
-                selected_features = train_x.columns[selector.get_support()]
-                train_x = pd.DataFrame(selector.transform(train_x), columns=selected_features)
-                #classify_x = classify_x[classify_x.columns[selector.get_support(True)]]
-                classify_x = classify_x.loc[:, list(classify_x.columns[selector.get_support(True)])]
+    if feature_selector == "VarianceThreshold":
+        logger.info(">>> {}: determining features".format(feature_selector))
+        selector = VarianceThreshold(**selector_options)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=FutureWarning)
+            selector.fit(train_x, train_y)
+            selected_features = train_x.columns[selector.get_support()]
+            train_x = pd.DataFrame(selector.transform(train_x), columns=selected_features)
 
     logger.info(">>> Saving output to the file {}".format(output_train_file_path))
     output_train_df = train_x
-
-    #output_train_df = pd.concat([ids_column_train, output_train_df], axis=1)
-    #output_train_df = dd.concat([ids_column_train, output_train_df], axis=1)
-    output_train_df['id'] = ids_column_train
+    output_train_df = pd.concat([ids_column_train, output_train_df], axis=1)
     if decision_class_name_column_train is not None:
         output_train_df['class_name'] = decision_class_name_column_train
         output_train_df['class_value'] = decision_class_value_column_train
@@ -173,16 +146,37 @@ if __name__ == '__main__':
 
     output_train_df.to_csv(output_train_file_path, sep=csv_separator, index=False, encoding="utf-8")
 
-    logger.info(">>> Saving output to the file {}".format(output_classify_file_path))
-    output_classify_df = classify_x
+    with open(output_classify_file_path, 'w', newline='', encoding="utf-8") as f:
+        for input_classify_df in input_classify_df_chunks:
 
-    #output_classify_df = pd.concat([ids_column_classify, output_classify_df], axis=1)
-    output_classify_df['id'] = ids_column_classify
-    if decision_class_name_column_classify is not None:
-        output_classify_df['class_name'] = decision_class_name_column_classify
-        output_classify_df['class_value'] = decision_class_value_column_classify
+            decision_class_name_column_classify = None
+            decision_class_value_column_classify = None
+            contents_column_classify = None
+            ids_column_classify = input_classify_df['id']
+            columns_classify = list(input_classify_df.columns)
+            columns_to_drop_classify = ['id']
+            if 'class_value' in columns_classify:
+                decision_class_name_column_classify = input_classify_df['class_name']
+                decision_class_value_column_classify = input_classify_df['class_value']
+                columns_to_drop_classify.append('class_value')
+                columns_to_drop_classify.append('class_name')
+            if 'contents' in columns_classify:
+                contents_column_classify = input_classify_df['contents']
+                columns_to_drop_classify.append('contents')
+            input_classify_df = input_classify_df.drop(columns_to_drop_classify, inplace=False, axis=1)
 
-    if contents_column_classify is not None:
-        output_classify_df['contents'] = contents_column_classify
+            classify_x = input_classify_df
+            classify_x = classify_x[classify_x.columns[selector.get_support(True)]]
 
-    output_classify_df.compute().to_csv(output_classify_file_path, sep=csv_separator, index=False, encoding="utf-8")
+            logger.info(
+                ">>> Saving {}-lines chunk to the output to the file {}".format(chunk_size, output_classify_file_path))
+            output_classify_df = classify_x
+            output_classify_df = pd.concat([ids_column_classify, output_classify_df], axis=1)
+            if decision_class_name_column_classify is not None:
+                output_classify_df['class_name'] = decision_class_name_column_classify
+                output_classify_df['class_value'] = decision_class_value_column_classify
+
+            if contents_column_classify is not None:
+                output_classify_df['contents'] = contents_column_classify
+
+            output_classify_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8")
