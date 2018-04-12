@@ -16,7 +16,7 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-chunk_size = 10 ** 4
+chunk_size = 10 ** 5
 
 if __name__ == '__main__':
 
@@ -132,7 +132,6 @@ if __name__ == '__main__':
 
                 if i == 0:
                     columns_to_drop = ['id']
-                    print(list(input_df_chunk.columns))
                     if 'class_value' in columns:
                         columns_to_drop.append('class_value')
                         columns_to_drop.append('class_name')
