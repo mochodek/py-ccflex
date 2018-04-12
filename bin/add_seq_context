@@ -17,6 +17,8 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
+chunk_size = 10 ** 5
+
 if __name__ == '__main__':
 
     logger.info("\n#### Running: {}".format(__file__))
@@ -74,77 +76,82 @@ if __name__ == '__main__':
     logger.info(">>> Loading input the file {}".format(input_file))
 
     input_file_path = workspace_dir.get_processing_file_path(input_file)
-    input_df = pd.read_csv(input_file_path, sep=csv_separator, encoding="utf-8")
+    input_df_chunks = pd.read_csv(input_file_path, sep=csv_separator, encoding="utf-8", chunksize=chunk_size)
 
     output_file_path = workspace_dir.get_processing_file_path(output_file)
 
-    # temporary remove class and contents
-    decision_class_name_column = None
-    decision_class_value_column = None
-    contents_column = None
-    ids_column = list(input_df['id'])
-    file_names = [x.split(":")[0] for x in ids_column]
-    columns = list(input_df.columns)
-    collumns_to_drop = ['id']
-    if 'class_value' in columns:
-        decision_class_name_column = list(input_df['class_name'])
-        decision_class_value_column = list(input_df['class_value'])
-        collumns_to_drop.append('class_value')
-        collumns_to_drop.append('class_name')
-    if 'contents' in columns:
-        contents_column = list(input_df['contents'])
-        collumns_to_drop.append('contents')
-    input_df.drop(collumns_to_drop, inplace=True, axis=1)
-
-    logger.info(">>> Saving output to the file {}".format(output_file))
-
-    # preapare header
-    header = ['id']
-    for i in range(1, prev_cases + 1):
-        cols_prev = ["{}_prev{}".format(x, i) for x in list(input_df.columns)]
-        header.extend(cols_prev)
-
-    for i in range(1, next_cases + 1):
-        cols_next = ["{}_next{}".format(x, i) for x in list(input_df.columns)]
-        header.extend(cols_next)
-
-    header.extend(list(input_df.columns))
-
-    if add_decision_class and decision_class_name_column is not None:
-        header.extend(['class_name', 'class_value'])
-
-    if add_contents and contents_column is not None:
-        header.append('contents')
-
     with open(output_file_path, "w", newline='', encoding="utf-8") as f:
         writer = csv.writer(f, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(header)
 
-        for i in range(0, input_df.shape[0]):
-            row = [ids_column[i]]
-            file_name = file_names[i]
+        for chunk_id, input_df in enumerate(input_df_chunks):
 
-            for j in range(1, prev_cases + 1):
-                if i - j >= 0 and file_names[i - j] == file_name:
-                    row.extend(list(input_df.loc[i - j, :]))
-                else:
-                    row.extend([0] * input_df.shape[1])
+            logger.info(">>> Saving chunk of {} lines to output to the file {}".format(chunk_size, output_file))
 
-            for j in range(1, next_cases + 1):
-                if i + j < input_df.shape[0] and file_names[i + j] == file_name:
-                    row.extend(list(input_df.loc[i + j, :]))
-                else:
-                    row.extend([0] * input_df.shape[1])
+            # temporary remove class and contents
+            decision_class_name_column = None
+            decision_class_value_column = None
+            contents_column = None
+            ids_column = input_df['id']
+            file_names = [x.split(":")[0] for x in list(ids_column)]
+            columns = list(input_df.columns)
+            collumns_to_drop = ['id']
+            if 'class_value' in columns:
+                decision_class_name_column = list(input_df['class_name'])
+                decision_class_value_column = list(input_df['class_value'])
+                collumns_to_drop.append('class_value')
+                collumns_to_drop.append('class_name')
+            if 'contents' in columns:
+                contents_column = input_df['contents']
+                collumns_to_drop.append('contents')
+            input_df = input_df.drop(collumns_to_drop, inplace=False, axis=1)
 
-            row.extend(list(input_df.loc[i, :]))
+            # preapare header
+            if chunk_id == 0:
+                header = ['id']
+                for i in range(1, prev_cases + 1):
+                    cols_prev = ["{}_prev{}".format(x, i) for x in list(input_df.columns)]
+                    header.extend(cols_prev)
 
-            if add_decision_class and decision_class_name_column is not None:
-                row.append(decision_class_name_column[i])
-                row.append(decision_class_value_column[i])
+                for i in range(1, next_cases + 1):
+                    cols_next = ["{}_next{}".format(x, i) for x in list(input_df.columns)]
+                    header.extend(cols_next)
 
-            if add_contents and contents_column is not None:
-                row.append(contents_column[i])
+                header.extend(list(input_df.columns))
 
-            writer.writerow(row)
+                if add_decision_class and decision_class_name_column is not None:
+                    header.extend(['class_name', 'class_value'])
+
+                if add_contents and contents_column is not None:
+                    header.append('contents')
+
+                writer.writerow(header)
+
+            start = input_df.index.min()
+            for i in input_df.index.values:
+                row = [ids_column[i]]
+                file_name = file_names[i - start]
+
+                for j in range(1, prev_cases + 1):
+                    if i - j >= 0 and file_names[i - j - start] == file_name:
+                        row.extend(list(input_df.loc[i - j, :]))
+                    else:
+                        row.extend([0] * input_df.shape[1])
+
+                for j in range(1, next_cases + 1):
+                    if i + j < input_df.shape[0] and file_names[i + j - start] == file_name:
+                        row.extend(list(input_df.loc[i + j, :]))
+                    else:
+                        row.extend([0] * input_df.shape[1])
+
+                row.extend(list(input_df.loc[i, :]))
+
+                if add_decision_class and decision_class_name_column is not None:
+                    row.append(decision_class_name_column[i])
+                    row.append(decision_class_value_column[i])
+
+                if add_contents and contents_column is not None:
+                    row.append(contents_column[i])
+
+                writer.writerow(row)
 
     logger.info(">>> Output saved to the file {}".format(output_file))
