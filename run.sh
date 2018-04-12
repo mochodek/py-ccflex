@@ -32,20 +32,37 @@ add_seq_context  "train-manual-and-bow.csv" "train-manual-and-bow-ctx.csv" --pre
 add_seq_context  "classify-manual-and-bow.csv" "classify-manual-and-bow-ctx.csv" --prev_cases 1 --next_cases 1 --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
 
 # perform feature selection - remove duplicated features
-select_features  "train-manual-and-bow-ctx.csv" "classify-manual-and-bow-ctx.csv" --output_file_prefix "min-" --feature_selectors "VarianceThreshold" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --feature_selectors_options $FEATURE_SELECTORS_CONFIG
+select_features  "train-manual-and-bow-ctx.csv" "classify-manual-and-bow-ctx.csv" --output_file_prefix "min-" --feature_selector "VarianceThreshold" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --feature_selectors_options $FEATURE_SELECTORS_CONFIG
 
 # 3. run classification algorithms
 # train and classify using bag-of-words feature
-#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "CART"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "RandomForest"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "C50"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "MultinomialNB"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
 # train and classify using manually defined features
-#classify "train-basic-manual.csv" "classify-basic-manual.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-basic-manual.csv" "classify-basic-manual.csv" --classifier "CART" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-basic-manual.csv" "classify-basic-manual.csv" --classifier "RandomForest" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-basic-manual.csv" "classify-basic-manual.csv" --classifier "C50" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-basic-manual.csv" "classify-basic-manual.csv" --classifier "MultinomialNB" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-basic-manual.csv" "classify-basic-manual.csv" --classifier "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+
 
 # train and classify using both manually defined and bag-of-words feature
-#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "CART" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "RandomForest" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "C50" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "MultinomialNB" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "KNN" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
 # train and classify using both manually defined and bag-of-words feature with +/- context lines
-classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifiers "CART" "RandomForest" "C50" "MultinomialNB" "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "CART" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "RandomForest" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "C50" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "MultinomialNB" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "KNN" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
 # 4. merge results to a single csv file
 merge_results --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
