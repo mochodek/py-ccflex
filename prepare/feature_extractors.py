@@ -11,7 +11,7 @@ class LineFeaturesExtractionController(object):
     """
 
     def __init__(self, extractors, input_file, output_path, sep=",",
-                 add_decision_class=False, add_contents=False, verbosity=10000):
+                 add_decision_class=False, add_contents=False, verbosity=100000):
         self.logger = logging.getLogger('pyccflex.common.configuration.LineFeaturesExtractionController')
         self.extractors = extractors
         self.input_file = input_file
