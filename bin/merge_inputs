@@ -16,6 +16,8 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
+chunk_size = 10 ** 4
+
 if __name__ == '__main__':
 
     logger.info("\n#### Running: {}".format(__file__))
@@ -77,42 +79,92 @@ if __name__ == '__main__':
     decision_class_value_column = None
     contents_column = None
     merged_df = None
-    for input_file in input_files:
-        input_file_path = workspace_dir.get_processing_file_path(input_file)
-        input_df = pd.read_csv(input_file_path, sep=csv_separator, encoding="utf-8")
 
-        logger.info(">>> Merging the file {}".format(input_file))
+    input_file_path = workspace_dir.get_processing_file_path(input_files[0])
+    first_input_file_df_chunks = pd.read_csv(input_file_path, sep=csv_separator,
+                                             encoding="utf-8", chunksize=chunk_size, iterator=True)
 
-        columns = list(input_df.columns)
-        if decision_class_name_column is None and 'class_value' in columns:
-            decision_class_name_column = input_df['class_name']
-            decision_class_value_column = input_df['class_value']
+    input_file_path = workspace_dir.get_processing_file_path(input_files[1])
+    second = pd.read_csv(input_file_path, sep=csv_separator,
+                                             encoding="utf-8", chunksize=chunk_size, iterator=True)
 
-        if contents_column is None and 'contents' in columns:
-            contents_column = input_df['contents']
 
-        columns_to_drop = []
-        if 'class_value' in columns:
-            columns_to_drop.append('class_value')
-            columns_to_drop.append('class_name')
-        if 'contents' in columns:
-            columns_to_drop.append('contents')
-        input_df.drop(columns_to_drop, inplace=True, axis=1)
+    input_files_dfs_chunks = []
+    for i, input_file in enumerate(input_files):
+        if i > 0:
+            input_file_path = workspace_dir.get_processing_file_path(input_file)
+            input_df_chunks = pd.read_csv(input_file_path, sep=csv_separator,
+                                          encoding="utf-8", chunksize=chunk_size, iterator=False)
+            input_files_dfs_chunks.append(input_df_chunks)
 
-        if merged_df is None:
-            merged_df = input_df
-        else:
-            input_df.drop(['id'], inplace=True, axis=1)
-            merged_df = pd.concat([merged_df, input_df], axis=1)
 
-    if add_decision_class and decision_class_name_column is not None:
-        merged_df['class_name'] = decision_class_name_column
-        merged_df['class_value'] = decision_class_value_column
+    with open(output_file_path, 'w', newline='', encoding="utf-8") as f:
 
-    if add_contents and contents_column is not None:
-        merged_df['contents'] = contents_column
+        for i, first_input_file_df_chunk in enumerate(first_input_file_df_chunks):
 
-    logger.info(">>> Saving the merged file {}".format(output_file))
-    merged_df.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
+            columns = list(first_input_file_df_chunk.columns)
+            if decision_class_name_column is None and 'class_value' in columns:
+                decision_class_name_column = first_input_file_df_chunk['class_name']
+                decision_class_value_column = first_input_file_df_chunk['class_value']
+
+            if contents_column is None and 'contents' in columns:
+                contents_column = first_input_file_df_chunk['contents']
+
+            columns_to_drop = []
+            if 'class_value' in columns:
+                columns_to_drop.append('class_value')
+                columns_to_drop.append('class_name')
+            if 'contents' in columns:
+                columns_to_drop.append('contents')
+            first_input_file_df_chunk.drop(columns_to_drop, inplace=True, axis=1)
+            chunks_to_merge = [first_input_file_df_chunk]
+
+            for input_file_dfs_chunks in input_files_dfs_chunks:
+                try:
+                    input_df_chunk = input_file_dfs_chunks.read()
+                except StopIteration as e:
+                    pass
+
+                logger.info(">>> Merging {}-line chunk of the file {}".format(chunk_size, input_file))
+
+                columns = list(input_df_chunk.columns)
+                if decision_class_name_column is None and 'class_value' in columns:
+                    decision_class_name_column = input_df_chunk['class_name']
+                    decision_class_value_column = input_df_chunk['class_value']
+
+                if contents_column is None and 'contents' in columns:
+                    contents_column = input_df_chunk['contents']
+
+                if i == 0:
+                    columns_to_drop = ['id']
+                    if 'class_value' in columns:
+                        columns_to_drop.append('class_value')
+                        columns_to_drop.append('class_name')
+                    if 'contents' in columns:
+                        columns_to_drop.append('contents')
+                    input_df_chunk.drop(columns_to_drop, inplace=True, axis=1)
+                chunks_to_merge.append(input_df_chunk)
+
+        merged_df = pd.concat(chunks_to_merge, axis=1)
+
+        if add_decision_class and decision_class_name_column is not None:
+            merged_df['class_name'] = decision_class_name_column
+            merged_df['class_value'] = decision_class_value_column
+
+        if add_contents and contents_column is not None:
+            merged_df['contents'] = contents_column
+
+        logger.info(">>> Saving the merged chunks to file {}".format(output_file))
+        merged_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8")
+        del merged_df
+
+
+
+
+
+
+
+
+
 
 
