@@ -16,7 +16,7 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-chunk_size = 10 ** 4
+chunk_size = 10 ** 5
 
 if __name__ == '__main__':
 
