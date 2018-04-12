@@ -17,7 +17,7 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-chunk_size = 10 ** 5
+chunk_size = 10 ** 4
 
 if __name__ == '__main__':
 
@@ -127,18 +127,19 @@ if __name__ == '__main__':
                 writer.writerow(header)
 
             start = input_df.index.min()
+            end = input_df.index.max()
             for i in input_df.index.values:
                 row = [ids_column[i]]
                 file_name = file_names[i - start]
 
                 for j in range(1, prev_cases + 1):
-                    if i - j >= 0 and file_names[i - j - start] == file_name:
+                    if i - j >= start and file_names[i - j - start] == file_name:
                         row.extend(list(input_df.loc[i - j, :]))
                     else:
                         row.extend([0] * input_df.shape[1])
 
                 for j in range(1, next_cases + 1):
-                    if i + j < input_df.shape[0] and file_names[i + j - start] == file_name:
+                    if i + j <= end and file_names[i + j - start] == file_name:
                         row.extend(list(input_df.loc[i + j, :]))
                     else:
                         row.extend([0] * input_df.shape[1])
