@@ -78,10 +78,6 @@ if __name__ == '__main__':
 
     output_file_path = workspace_dir.get_processing_file_path(output_file)
 
-    decision_class_name_column = None
-    decision_class_value_column = None
-    contents_column = None
-    merged_df = None
 
     input_file_path = workspace_dir.get_processing_file_path(input_files[0])
     first_input_file_df_chunks = pd.read_csv(input_file_path, sep=csv_separator,
@@ -99,6 +95,10 @@ if __name__ == '__main__':
     with open(output_file_path, 'w', newline='', encoding="utf-8") as f:
 
         for i, first_input_file_df_chunk in enumerate(first_input_file_df_chunks):
+            contents_column = None
+            decision_class_name_column = None
+            decision_class_value_column = None
+            merged_df = None
 
             columns = list(first_input_file_df_chunk.columns)
             if decision_class_name_column is None and 'class_value' in columns:
@@ -114,6 +114,7 @@ if __name__ == '__main__':
                 columns_to_drop.append('class_name')
             if 'contents' in columns:
                 columns_to_drop.append('contents')
+
             first_input_file_df_chunk = first_input_file_df_chunk.drop(columns_to_drop, inplace=False, axis=1)
             chunks_to_merge = [first_input_file_df_chunk]
 
