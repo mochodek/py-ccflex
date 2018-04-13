@@ -40,7 +40,7 @@ if __name__ == '__main__':
     parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
                         default=False, action='store_true')
     parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
-                        type=int, required=False, default=10 ** 4)
+                        type=int, required=False, default=10 ** 5)
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
