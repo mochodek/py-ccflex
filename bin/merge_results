@@ -86,14 +86,13 @@ if __name__ == '__main__':
         if classifier_name in ("INFO"):
             continue
 
-        pred_colnames.append("pred_{}".format(classifier_name))
-
         classifier_output_file = workspace_dir.get_results_file_path("classify-output-{}.csv".format(classifier_name))
         if os.path.exists(classifier_output_file):
             res_df_chunks = pd.read_csv(classifier_output_file, sep=csv_separator, encoding="utf-8",
                                         chunksize=chunk_size)
             input_files_df_chunks.append(res_df_chunks)
             classifier_names.append(classifier_name)
+            pred_colnames.append("pred_{}".format(classifier_name))
 
     first_input_file_df_chunks = input_files_df_chunks.pop(0)
     first_classifier_name = classifier_names.pop(0)
