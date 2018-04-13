@@ -4,8 +4,6 @@
 import argparse
 import logging
 
-from openpyxl.reader.excel import load_workbook
-
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
 import pandas as pd
