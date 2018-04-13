@@ -4,17 +4,19 @@
 
 import argparse
 import logging
-import os
 import pandas as pd
+import gc
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
+
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
+
 
 chunk_size = 10 ** 5
 
@@ -143,6 +145,11 @@ if __name__ == '__main__':
 
             merged_df = pd.concat(chunks_to_merge, axis=1)
 
+            for chunk in chunks_to_merge:
+                del chunk
+            del chunks_to_merge
+            gc.collect()
+
             if add_decision_class and decision_class_name_column is not None:
                 merged_df['class_name'] = decision_class_name_column
                 merged_df['class_value'] = decision_class_value_column
@@ -151,9 +158,9 @@ if __name__ == '__main__':
                 merged_df['contents'] = contents_column
 
             logger.info(">>> Saving the merged chunks to file {}".format(output_file))
-            merged_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8")
+            merged_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=(i == 0))
             del merged_df
-
+            gc.collect()
 
 
 
