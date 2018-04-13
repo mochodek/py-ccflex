@@ -8,6 +8,7 @@ import logging
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
 import pandas as pd
+import gc
 
 #
 #   Handling the logging; now it logs to console
@@ -95,5 +96,8 @@ if __name__ == '__main__':
             output_html_file.write(html_string)
 
             logger.info(">>> Saving {} lines to the file {}".format(df.shape[0], output_file))
+
+            del df
+            gc.collect()
 
     logger.info(">>> Export to HTML successful!")
