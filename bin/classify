@@ -201,10 +201,13 @@ if __name__ == '__main__':
                     output_full.to_csv(f, sep=csv_separator, index=False, encoding="utf-8")
             logger.info(
                 ">>> {}: {}-line chunk of results saved to {}".format(classifier, chunk_size, output_file_path))
+            del output_full
+            del pred
+            del classify_raw
 
     # Reporting results for classes
     output_file_chunks = pd.read_csv(output_file_path, sep=csv_separator, encoding="utf-8",
-                                     chunksize=chunk_size, low_memory=False, dtype={'id': object})
+                                     chunksize=chunk_size)
 
     for i, output_full in enumerate(output_file_chunks):
 
