@@ -204,6 +204,7 @@ if __name__ == '__main__':
             del output_full
             del pred
             del classify_raw
+            del classify_data
 
     # Reporting results for classes
     output_file_chunks = pd.read_csv(output_file_path, sep=csv_separator, encoding="utf-8",
