@@ -4,9 +4,9 @@
 
 import argparse
 import logging
-import os
 import pandas as pd
 import csv
+import gc
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
@@ -16,8 +16,6 @@ logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
-
-chunk_size = 10 ** 4
 
 if __name__ == '__main__':
 
@@ -41,6 +39,8 @@ if __name__ == '__main__':
                         default=False, action='store_true')
     parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
                         default=False, action='store_true')
+    parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
+                        type=int, required=False, default=10 ** 4)
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -54,6 +54,7 @@ if __name__ == '__main__':
     next_cases = args['next_cases']
     add_decision_class = args['add_decision_class']
     add_contents = args['add_contents']
+    chunk_size = args['chunk_size']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -85,7 +86,7 @@ if __name__ == '__main__':
 
         for chunk_id, input_df in enumerate(input_df_chunks):
 
-            logger.info(">>> Saving chunk of {} lines to output to the file {}".format(chunk_size, output_file))
+            logger.info(">>> Saving {} lines to the file {}".format(input_df.shape[0], output_file))
 
             # temporary remove class and contents
             decision_class_name_column = None
@@ -154,5 +155,8 @@ if __name__ == '__main__':
                     row.append(contents_column[i])
 
                 writer.writerow(row)
+
+            del input_df
+            gc.collect()
 
     logger.info(">>> Output saved to the file {}".format(output_file))
