@@ -49,8 +49,6 @@ def tree_to_code(tree, feature_names):
     return result
 
 
-chunk_size = 10 ** 5
-
 sklearn_classifiers = ("CART", "RandomForest", "KNN", "MultinomialNB")
 
 if __name__ == '__main__':
@@ -72,6 +70,8 @@ if __name__ == '__main__':
                         type=str, required=False, default="./classes.json")
     parser.add_argument("--classifiers_options", help="Path to classifiers options file",
                         type=str, required=False, default="./classifiers_options.json")
+    parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
+                        type=int, required=False, default=10 ** 5)
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -80,6 +80,7 @@ if __name__ == '__main__':
     files_format_file_path = args['files_format_config']
     classes_file_path = args['classes_config']
     classifiers_options_file_path = args['classifiers_options']
+    chunk_size = args['chunk_size']
 
     classifier = args['classifier']
 
@@ -201,7 +202,8 @@ if __name__ == '__main__':
                 with open(output_file_path, "a", newline='', encoding="utf-8") as f:
                     output_full.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=False)
             logger.info(
-                ">>> {}: {}-line chunk of results saved to {}".format(classifier, chunk_size, output_file_path))
+                ">>> {}: {} lines of predictions saved to {}".format(classifier, output_full.shape[0],
+                                                                     output_file_path))
             del output_full
             del pred
             del classify_raw
@@ -226,9 +228,10 @@ if __name__ == '__main__':
                 with open(output_file_path_class, "a", newline='', encoding="utf-8") as f:
                     output_class.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=False)
             logger.info(
-                ">>> {}: {}-chunk of results for the class \"{}\" saved to {}".format(classifier, chunk_size,
-                                                                                      decision_class['name'],
-                                                                                      output_file_path_class))
+                ">>> {}: {} lines of predictions for the class \"{}\" saved to {}".format(classifier,
+                                                                                          output_class.shape[0],
+                                                                                          decision_class['name'],
+                                                                                          output_file_path_class))
             del output_class
             gc.collect()
 
@@ -242,9 +245,10 @@ if __name__ == '__main__':
             with open(output_file_path_class, "a", newline='', encoding="utf-8") as f:
                 output_class.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=False)
         logger.info(
-            ">>> {}: {}-chunk of results for the class \"{}\" saved to {}".format(classifier, chunk_size,
-                                                                                  decision_classes["default"]['name'],
-                                                                                  output_file_path_class))
+            ">>> {}: {} lines of predictions for the class \"{}\" saved to {}".format(classifier, output_class.shape[0],
+                                                                                      decision_classes["default"][
+                                                                                          'name'],
+                                                                                      output_file_path_class))
         del output_class
         del output_full
         gc.collect()

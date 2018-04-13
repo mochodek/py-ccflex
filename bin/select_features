@@ -18,8 +18,6 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-chunk_size = 10 ** 5
-
 if __name__ == '__main__':
 
     logger.info("\n#### Running: {}".format(__file__))
@@ -45,6 +43,8 @@ if __name__ == '__main__':
                         default=False, action='store_true')
     parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
                         default=False, action='store_true')
+    parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
+                        type=int, required=False, default=10 ** 5)
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -60,6 +60,7 @@ if __name__ == '__main__':
     feature_selector = args['feature_selector']
     add_decision_class = args['add_decision_class']
     add_contents = args['add_contents']
+    chunk_size = args['chunk_size']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -170,8 +171,6 @@ if __name__ == '__main__':
             del input_classify_df
             gc.collect()
 
-            logger.info(
-                ">>> Saving {}-lines chunk to the output to the file {}".format(chunk_size, output_classify_file_path))
             output_classify_df = classify_x
             output_classify_df.insert(0, "id", ids_column_classify)
             if decision_class_name_column_classify is not None:
@@ -180,6 +179,10 @@ if __name__ == '__main__':
 
             if contents_column_classify is not None:
                 output_classify_df['contents'] = contents_column_classify
+
+            logger.info(
+                ">>> Saving {} lines to the output to the file {}".format(output_classify_df.shape[0],
+                                                                          output_classify_file_path))
 
             output_classify_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=(i == 0))
             del output_classify_df
