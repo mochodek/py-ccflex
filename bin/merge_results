@@ -6,6 +6,7 @@ import argparse
 import logging
 import os
 import pandas as pd
+import gc
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
@@ -30,6 +31,8 @@ if __name__ == '__main__':
                         type=str, required=False, default="./classes.json")
     parser.add_argument("--classifiers_options", help="Path to classifiers options file",
                         type=str, required=False, default="./classifiers_options.json")
+    parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
+                        type=int, required=False, default=10 ** 5)
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -38,6 +41,7 @@ if __name__ == '__main__':
     files_format_file_path = args['files_format_config']
     classes_file_path = args['classes_config']
     classifiers_options_file_path = args['classifiers_options']
+    chunk_size = args['chunk_size']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -74,40 +78,84 @@ if __name__ == '__main__':
 
     output_file_path = workspace_dir.get_results_file_path("classify-output-ALL.csv")
 
-    merged_df = None
+    input_files_df_chunks = []
+    classifier_names = []
     pred_colnames = []
-
-    # iterate over all available classifiers to build a single file
     for classifier_name in classifiers_options_config.config.keys():
         # skip keys that do not represent classifiers
         if classifier_name in ("INFO"):
             continue
 
+        pred_colnames.append("pred_{}".format(classifier_name))
+
         classifier_output_file = workspace_dir.get_results_file_path("classify-output-{}.csv".format(classifier_name))
-
         if os.path.exists(classifier_output_file):
-            res_df = pd.read_csv(classifier_output_file, sep=csv_separator, encoding="utf-8")
-            res_df.rename(columns={'pred_class': "pred_{}".format(classifier_name)}, inplace=True)
+            res_df_chunks = pd.read_csv(classifier_output_file, sep=csv_separator, encoding="utf-8",
+                                        chunksize=chunk_size)
+            input_files_df_chunks.append(res_df_chunks)
+            classifier_names.append(classifier_name)
 
-            if merged_df is None:
-                merged_df = res_df
+    first_input_file_df_chunks = input_files_df_chunks.pop(0)
+    first_classifier_name = classifier_names.pop(0)
+
+    with open(output_file_path, 'w', newline='', encoding="utf-8") as f:
+
+        for i, first_input_file_df_chunk in enumerate(first_input_file_df_chunks):
+            first_input_file_df_chunk.rename(columns={'pred_class': "pred_{}".format(first_classifier_name)},
+                                             inplace=True)
+            to_merge = [first_input_file_df_chunk]
+            for j, input_file_dfs_chunks in enumerate(input_files_df_chunks):
+                try:
+                    input_df_chunk = input_file_dfs_chunks.get_chunk()
+                except StopIteration as e:
+                    pass
+
+                input_df_chunk.rename(columns={'pred_class': "pred_{}".format(classifier_names[j])}, inplace=True)
+
+                to_merge.append(input_df_chunk[["pred_{}".format(classifier_names[j])]])
+
+            merged_df = pd.concat(to_merge, axis=1)
+            for to_merge_df in to_merge:
+                del to_merge_df
+            del to_merge
+            gc.collect()
+
+            logger.info(">>>> Saving {} lines of merged results to {}".format(merged_df.shape[0], output_file_path))
+            merged_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=(i == 0))
+
+            for decision_class in decision_classes["labeled"]:
+                output_file_path_class = workspace_dir.get_results_file_path(
+                    "classify-output-ALL-{}.csv".format(decision_class['name']))
+                output_class = merged_df[merged_df[pred_colnames].apply(
+                    lambda x: list(x).count(decision_class['value']) > 0, axis=1)]
+                if i == 0:
+                    with open(output_file_path_class, 'w', newline='', encoding="utf-8") as f_res:
+                        output_class.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
+                                            header=True)
+                else:
+                    with open(output_file_path_class, 'a', newline='', encoding="utf-8") as f_res:
+                        output_class.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
+                                            header=False)
+                logger.info(">>>> Saving {} lines of merged results to {}".format(output_class.shape[0],
+                                                                                  output_file_path_class))
+                del output_class
+                gc.collect()
+
+            output_file_path_class = workspace_dir.get_results_file_path(
+                "classify-output-ALL-{}.csv".format(decision_classes["default"]['name']))
+            output_class = merged_df[merged_df[pred_colnames].apply(
+                lambda x: list(x).count(decision_classes["default"]['value']) > 0, axis=1)]
+            output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
+
+            if i == 0:
+                with open(output_file_path_class, 'w', newline='', encoding="utf-8") as f_res:
+                    output_class.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
+                                        header=True)
             else:
-                merged_df = pd.concat([merged_df, res_df[["pred_{}".format(classifier_name)]]], axis=1)
-            pred_colnames.append("pred_{}".format(classifier_name))
-
-    logger.info(">>>> Saving the merged files")
-    merged_df.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
-
-    for decision_class in decision_classes["labeled"]:
-        output_file_path_class = workspace_dir.get_results_file_path(
-            "classify-output-ALL-{}.csv".format(decision_class['name']))
-        output_class = merged_df[merged_df[pred_colnames].apply(
-            lambda x: list(x).count(decision_class['value']) > 0, axis=1)]
-        output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
-
-    output_file_path_class = workspace_dir.get_results_file_path(
-        "classify-output-ALL-{}.csv".format(decision_classes["default"]['name']))
-    output_class = merged_df[merged_df[pred_colnames].apply(
-        lambda x: list(x).count(decision_classes["default"]['value']) > 0, axis=1)]
-    output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
-
+                with open(output_file_path_class, 'a', newline='', encoding="utf-8") as f_res:
+                    output_class.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
+                                        header=False)
+            logger.info(">>>> Saving {} lines of merged results to {}".format(output_class.shape[0], output_file_path_class))
+            del output_class
+            merged_df
+            gc.collect()
