@@ -18,7 +18,7 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-chunk_size = 10 ** 5
+chunk_size = 10 ** 4
 
 if __name__ == '__main__':
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
     logger.info(">>> Loading classify file {}".format(train_file))
     input_classify_file_path = workspace_dir.get_processing_file_path(classify_file)
     input_classify_df_chunks = pd.read_csv(input_classify_file_path, sep=csv_separator, encoding="utf-8",
-                                           chunksize=chunk_size)
+                                           chunksize=chunk_size, low_memory=False, dtype={'id': object, "contents":object})
     output_classify_file_path = workspace_dir.get_processing_file_path(
         "{}{}".format(output_file_prefix, classify_file))
 
@@ -167,11 +167,13 @@ if __name__ == '__main__':
 
             classify_x = input_classify_df
             classify_x = classify_x[classify_x.columns[selector.get_support(True)]]
+            del input_classify_df
 
             logger.info(
                 ">>> Saving {}-lines chunk to the output to the file {}".format(chunk_size, output_classify_file_path))
             output_classify_df = classify_x
-            output_classify_df = pd.concat([ids_column_classify, output_classify_df], axis=1)
+            #output_classify_df = pd.concat([ids_column_classify, output_classify_df], axis=1)
+            output_classify_df.insert(0, "id", ids_column_classify)
             if decision_class_name_column_classify is not None:
                 output_classify_df['class_name'] = decision_class_name_column_classify
                 output_classify_df['class_value'] = decision_class_value_column_classify
@@ -180,3 +182,5 @@ if __name__ == '__main__':
                 output_classify_df['contents'] = contents_column_classify
 
             output_classify_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8")
+            del output_classify_df
+            del classify_x
