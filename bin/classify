@@ -14,6 +14,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.tree import _tree
 import numpy as np
 from subprocess import call
+import gc
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -48,7 +49,7 @@ def tree_to_code(tree, feature_names):
     return result
 
 
-chunk_size = 10 ** 5
+chunk_size = 10 ** 4
 
 sklearn_classifiers = ("CART", "RandomForest", "KNN", "MultinomialNB")
 
@@ -205,6 +206,7 @@ if __name__ == '__main__':
             del pred
             del classify_raw
             del classify_data
+            gc.collect()
 
     # Reporting results for classes
     output_file_chunks = pd.read_csv(output_file_path, sep=csv_separator, encoding="utf-8",
@@ -228,6 +230,7 @@ if __name__ == '__main__':
                                                                                       decision_class['name'],
                                                                                       output_file_path_class))
             del output_class
+            gc.collect()
 
         output_file_path_class = workspace_dir.get_results_file_path(
             "classify-output-{}-{}.csv".format(classifier, decision_classes["default"]['name']))
@@ -244,3 +247,4 @@ if __name__ == '__main__':
                                                                                   output_file_path_class))
         del output_class
         del output_full
+        gc.collect()
