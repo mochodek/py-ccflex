@@ -49,7 +49,7 @@ def tree_to_code(tree, feature_names):
     return result
 
 
-chunk_size = 10 ** 4
+chunk_size = 10 ** 6
 
 sklearn_classifiers = ("CART", "RandomForest", "KNN", "MultinomialNB")
 
