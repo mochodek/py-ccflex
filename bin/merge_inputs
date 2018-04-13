@@ -133,14 +133,14 @@ if __name__ == '__main__':
                 if contents_column is None and 'contents' in columns:
                     contents_column = input_df_chunk['contents']
 
-                if i == 0:
-                    columns_to_drop = ['id']
-                    if 'class_value' in columns:
-                        columns_to_drop.append('class_value')
-                        columns_to_drop.append('class_name')
-                    if 'contents' in columns:
-                        columns_to_drop.append('contents')
-                    input_df_chunk.drop(columns_to_drop, inplace=True, axis=1)
+
+                columns_to_drop = ['id']
+                if 'class_value' in columns:
+                    columns_to_drop.append('class_value')
+                    columns_to_drop.append('class_name')
+                if 'contents' in columns:
+                    columns_to_drop.append('contents')
+                input_df_chunk.drop(columns_to_drop, inplace=True, axis=1)
 
                 chunks_to_merge.append(input_df_chunk)
 
