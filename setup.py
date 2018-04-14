@@ -12,8 +12,10 @@ setup(name='pyccflex',
           'pandas',
           'numpy',
           'scikit-learn',
-          #'Cython',
-          #'libact'
+          'modAL',
+      ],
+      dependency_links=[
+          "git+ssh://git@cosmic-cortex/modAL.git@master",
       ],
       scripts=[
           'bin/create_workspace',

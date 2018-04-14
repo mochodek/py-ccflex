@@ -29,18 +29,6 @@ IEEE Workshop on (pp. 14-20). IEEE.
 
 ## Installation
 
-The library _libact_ that we use for active learning has the following external dependencies:
-
-Debian (>=7) / Ubuntu (>=14.04)
-```
-sudo apt-get install build-essential gfortran libatlas-base-dev liblapacke-dev python3-dev
-```
-
-Mac OSX
-```
-brew install openblas
-```
-
 To install pyccflex, download or clone the repository and run in the root directory:
 ```
 pip install -e .
