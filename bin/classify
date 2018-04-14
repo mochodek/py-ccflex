@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # Classifying instances for sklearn algorithms
     if classifier in sklearn_classifiers:
         classify_raw_chunks = pd.read_csv(classify_input_file, sep=csv_separator, encoding="utf-8",
-                                          chunksize=chunk_size)
+                                          chunksize=chunk_size, low_memory=False)
 
         for i, classify_raw in enumerate(classify_raw_chunks):
 
@@ -191,6 +191,8 @@ if __name__ == '__main__':
             classify_data = classify_raw.drop(collumns_to_drop, inplace=False, axis=1)
 
             pred = model.predict(classify_data)
+            del classify_data
+            gc.collect()
 
             # report
             output_full = classify_raw[['id', 'contents']]
@@ -207,7 +209,6 @@ if __name__ == '__main__':
             del output_full
             del pred
             del classify_raw
-            del classify_data
             gc.collect()
 
     # Reporting results for classes
