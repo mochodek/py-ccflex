@@ -130,6 +130,7 @@ if __name__ == '__main__':
 
     if use_existing_labels:
         train_df = input_full_df[input_full_df['class_value'].notnull()]
+        train_df.is_copy = False
 
     decision_class_name_column = None
     decision_class_value_column = None
