@@ -488,7 +488,6 @@ of the classifier should be the one of the available classifiers in py-ccflex (s
 classifiers_option.json file). Currently the supported ones are:
     * CART (sklearn)
     * RandomForest (sklearn)
-    * LogisticRegression (sklearn)
 * --locations_config - path to locations configuration (json). The merger needs to know where
 the workspace is located.
 * --files_format_config - a json file with configuration of file format (e.g., the separator
@@ -497,6 +496,7 @@ used in csv files).
 * --add_contents -  the flag is used without parameters; if present a column 'contents'
 will be added to the output file with the original text of the line.
 * --classes_config - a json file containing definitions of decision classes.
+* --max_lines - the maximum number of lines read from each of input files. 
 
 *Output:* 
 * <output file name> - a csv file stored in the processing folder of the workspace. 
