@@ -13,11 +13,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
-from libact.base.dataset import Dataset
-from libact.models import LogisticRegression
 
-from libact.query_strategies.uncertainty_sampling import UncertaintySampling
-from libact.models.sklearn_adapter import SklearnProbaAdapter
+from modAL.models import ActiveLearner
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
@@ -54,6 +51,8 @@ if __name__ == '__main__':
                         type=str, required=False, default="./classifiers_options.json")
     parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
                         default=False, action='store_true')
+    parser.add_argument("--max_lines", help="The maximum number of lines to read from each input file",
+                        type=int, required=False, default=10 ** 5)
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -67,6 +66,7 @@ if __name__ == '__main__':
     output_file = args['output_file']
     base_learner = args['base_learner']
     use_existing_labels = args['use_existing_labels']
+    max_lines = args['max_lines']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
         logger.info(">>> Loading file {}".format(input_file))
 
-        input_df = pd.read_csv(input_file_path, sep=csv_separator, encoding="utf-8")
+        input_df = pd.read_csv(input_file_path, sep=csv_separator, encoding="utf-8", nrows=max_lines)
         columns = list(input_df.columns)
         if 'contents' in columns:
             input_df.contents = input_df.contents.fillna("")
@@ -118,8 +118,8 @@ if __name__ == '__main__':
             input_df['contents'] = np.array([''] * input_df.shape[0])
 
         if 'class_value' not in columns:
-            #input_df['class_value'] = np.array([decision_classes['default']['value']] * input_df.shape[0])
-            #input_df['class_name'] = np.array([decision_classes['default']['name']] * input_df.shape[0])
+            # input_df['class_value'] = np.array([decision_classes['default']['value']] * input_df.shape[0])
+            # input_df['class_name'] = np.array([decision_classes['default']['name']] * input_df.shape[0])
             input_df['class_value'] = np.array([None] * input_df.shape[0])
             input_df['class_name'] = np.array([None] * input_df.shape[0])
 
@@ -128,51 +128,52 @@ if __name__ == '__main__':
         else:
             input_full_df = pd.concat([input_full_df, input_df], axis=0, ignore_index=True)
 
-    input_df = input_full_df
+    if use_existing_labels:
+        train_df = input_full_df[input_full_df['class_value'].notnull()]
 
     decision_class_name_column = None
     decision_class_value_column = None
     contents_column = None
-    ids_column = input_df['id']
-    file_names = [x.split(":")[0] for x in list(input_df['id'])]
+    ids_column = input_full_df['id']
+    file_names = [x.split(":")[0] for x in list(input_full_df['id'])]
 
-    columns = list(input_df.columns)
-    if decision_class_name_column is None and 'class_value' in columns:
-        decision_class_name_column = input_df['class_name']
-        decision_class_value_column = input_df['class_value']
-
-    if contents_column is None and 'contents' in columns:
-        contents_column = input_df['contents']
-
+    columns = list(input_full_df.columns)
     columns_to_drop = ['id']
-    if 'class_value' in columns:
+    if decision_class_name_column is None and 'class_value' in columns:
+        decision_class_name_column = input_full_df['class_name']
+        decision_class_value_column = input_full_df['class_value']
         columns_to_drop.append('class_value')
         columns_to_drop.append('class_name')
-    if 'contents' in columns:
-        columns_to_drop.append('contents')
-    input_df.drop(columns_to_drop, inplace=True, axis=1)
 
-    x = input_df.values
-    if use_existing_labels and decision_class_value_column is not None:
-        #y = np.array([x if x > 0 else None for x in list(decision_class_value_column)])
-        y = np.array([x for x in list(decision_class_value_column)])
-    else:
-        y = np.array([None, None] * input_df.shape[0])
+    if contents_column is None and 'contents' in columns:
+        contents_column = input_full_df['contents']
+        columns_to_drop.append('contents')
+
+    input_full_df.drop(columns_to_drop, inplace=True, axis=1)
+
+    X_pool = input_full_df.values
+    X_train = None
+    y_train = None
+    if use_existing_labels:
+        y_train = train_df['class_value']
+        train_df.drop(columns_to_drop, inplace=True, axis=1)
+        X_train = train_df.values
 
     model = None
     model_options = classifiers_options_config.get(base_learner, {})
     if base_learner == "CART":
         model = DecisionTreeClassifier(**model_options)
-        model_libact = SklearnProbaAdapter(model)
+
     elif base_learner == "RandomForest":
         model = RandomForestClassifier(**model_options)
-        model_libact = SklearnProbaAdapter(model)
-    else:
-        model_libact = LogisticRegression()
 
-    dataset = Dataset(x, y)
-    ask_id = list(np.random.choice(range(0, x.shape[0]), 1, replace=False))[0]
-    qs = None
+    # active learner - default - uncertainty
+    learner = ActiveLearner(
+        estimator=model,
+        X_training=X_train, y_training=y_train,
+    )
+
+    query_idx = list(np.random.choice(range(0, X_pool.shape[0]), 1, replace=False))
 
     prompt_message = ", ".join(["[{}]-{}".format(x['value'], x['name']) for x in decision_classes['labeled']])
     prompt_message = "{}, [enter]-{}, [q] to finish: ".format(prompt_message, decision_classes['default']['name'])
@@ -185,13 +186,14 @@ if __name__ == '__main__':
     print("Please, label the following lines:")
 
     while True:
-        file_name = file_names[ask_id]
+        query_idx = query_idx[0]
+        file_name = file_names[query_idx]
         print("{}:".format(file_name))
-        lines_to_display = [i for i in range(ask_id - 3, ask_id + 3) if
+        lines_to_display = [i for i in range(query_idx - 3, query_idx + 3) if
                             file_name == file_names[i] and i >= 0 and i < len(file_names)]
 
         for line_id in lines_to_display:
-            if line_id == ask_id:
+            if line_id == query_idx:
                 spacer = ">>>"
             else:
                 spacer = "   "
@@ -204,19 +206,24 @@ if __name__ == '__main__':
             break
         if cmd in class_values:
             label = int(cmd)
-        dataset.update(ask_id, label)
 
-        if qs is None:
-            qs = UncertaintySampling(dataset, method='lc', model=model_libact)
+        X_new = X_pool[query_idx].reshape(1, -1)
+        y_new = np.array(label).reshape(1, )
 
-        ask_id = qs.make_query()
+        learner.teach(
+            X=X_new,
+            y=y_new,
+        )
+
+        query_idx, query_sample = learner.query(X_pool)
 
         if cmd == "q":
             break
 
     print("Saving results to the file".format(output_file_path))
 
-    output_x, output_y = zip(*dataset.get_entries())
+    output_x = learner.X_training
+    output_y = learner.y_training
 
     class_values = np.array(output_y)
 
@@ -224,7 +231,7 @@ if __name__ == '__main__':
     class_value_to_name[decision_classes['default']['value']] = decision_classes['default']['name']
     class_names = np.array([class_value_to_name[x] if x is not None else None for x in list(class_values)])
 
-    output_df = pd.DataFrame(np.array(output_x), columns=list(input_df.columns))
+    output_df = pd.DataFrame(np.array(output_x), columns=list(input_full_df.columns))
     output_df = pd.concat(
         [ids_column, output_df, pd.DataFrame({"class_name": class_names}), pd.DataFrame({"class_value": class_values})],
         axis=1)
