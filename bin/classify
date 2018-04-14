@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # Classifying instances for sklearn algorithms
     if classifier in sklearn_classifiers:
         classify_raw_chunks = pd.read_csv(classify_input_file, sep=csv_separator, encoding="utf-8",
-                                          chunksize=chunk_size, low_memory=False)
+                                          chunksize=chunk_size)
 
         for i, classify_raw in enumerate(classify_raw_chunks):
 
