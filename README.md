@@ -364,6 +364,7 @@ used in csv files).
 to the output csv file - class_value and class_name.
 * --add_contents -  the flag is used without parameters; if present a column 'contents'
 will be added to the output file with the original text of the line.
+* --chunk_size - the size of the batch of lines that will be read and processed (allows to read big files).  
 
 *Output:* 
 * merged features file
@@ -383,6 +384,7 @@ used in csv files).
 to the output csv file - class_value and class_name.
 * --add_contents -  the flag is used without parameters; if present a column 'contents'
 will be added to the output file with the original text of the line.
+* --chunk_size - the size of the batch of lines that will be read and processed (allows to read big files).
 
 *Output:* 
 * the name of output file with added features from previous / next lines
@@ -406,6 +408,7 @@ to the output csv file - class_value and class_name.
 * --add_contents -  the flag is used without parameters; if present a column 'contents'
 will be added to the output file with the original text of the line.
 * --classifiers_options - a json file with classifiers options. 
+* --chunk_size - the size of the batch of lines that will be read and processed (allows to read big files).
 
 *Output:* 
 * <output_file_prefix><first parameter> - reduced training feature file
@@ -428,6 +431,7 @@ the name of the classifier its contents will be used to configure the classifica
 * --locations_config - path to locations configuration (json). 
 * --files_format_config - a json file with configuration of file format (e.g., the separator
 used in csv files).
+* --chunk_size - the size of the batch of lines that will be read and processed (allows to read big files).
 
 *Output:* 
 * classify-output-\<classifier>.csv - result of classification stored in results folder of the workspace
@@ -443,6 +447,7 @@ the workspace is located.
 used in csv files).
 * --classifiers_options - a json file with classifiers options.
 * --classes_config - a json file containing definitions of decision classes. 
+* --chunk_size - the size of the batch of lines that will be read and processed (allows to read big files).
 
 *Output:* 
 * classify-output-ALL.csv - merges all results file found in results folder of the workspace
@@ -461,6 +466,9 @@ the workspace is located.
 used in csv files).
 * --all - the flag is used without parameters; if present all the columns will be stored in
 the output file, otherwise only 'id', 'contents',  and 'class_name'
+* --chunk_size - the size of the batch of lines that will be read and processed (allows to read big files).
+* --split_files - the flag is used without parameters; when used a separate html file will be generated 
+for each chunk of lines (see --chunk_size).
 
 *Output:* 
 * <output file name> - a html file will be stored in reports folder in the workspace 
