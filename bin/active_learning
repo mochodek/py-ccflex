@@ -131,6 +131,7 @@ if __name__ == '__main__':
     if use_existing_labels:
         train_df = input_full_df[input_full_df['class_value'].notnull()]
         train_df.is_copy = False
+        input_full_df = input_full_df[input_full_df['class_value'].isnull()]
 
     decision_class_name_column = None
     decision_class_value_column = None
@@ -152,11 +153,18 @@ if __name__ == '__main__':
 
     input_full_df.drop(columns_to_drop, inplace=True, axis=1)
 
+    output_contents = []
+    output_ids = []
+    ids_column_list = list(ids_column)
+    contents_list = list(contents_column)
+
     X_pool = input_full_df.values
     X_train = None
     y_train = None
     if use_existing_labels:
         y_train = train_df['class_value']
+        output_ids = list(train_df['id'])
+        output_contents = list(train_df['contents'])
         train_df.drop(columns_to_drop, inplace=True, axis=1)
         X_train = train_df.values
 
@@ -198,7 +206,7 @@ if __name__ == '__main__':
                 spacer = ">>>"
             else:
                 spacer = "   "
-            print("{} {}  {}".format(spacer, line_id + 1, contents_column.loc[line_id]))
+            print("{} {}  {}".format(spacer, ids_column_list[line_id].split(":")[-1], contents_list[line_id]))
         cmd = input("# Choose: {}".format(prompt_message))
         print("\n")
 
@@ -211,12 +219,21 @@ if __name__ == '__main__':
         X_new = X_pool[query_idx].reshape(1, -1)
         y_new = np.array(label).reshape(1, )
 
+        output_contents.append(contents_list[query_idx])
+        output_ids.append(ids_column_list[query_idx])
+
         learner.teach(
             X=X_new,
             y=y_new,
         )
+        # remove queried instance from pool
+        X_pool = np.delete(X_pool, query_idx, axis=0)
+        del contents_list[query_idx]
+        del ids_column_list[query_idx]
+        del file_names[query_idx]
 
         query_idx, query_sample = learner.query(X_pool)
+
 
         if cmd == "q":
             break
@@ -234,12 +251,24 @@ if __name__ == '__main__':
 
     output_df = pd.DataFrame(np.array(output_x), columns=list(input_full_df.columns))
     output_df = pd.concat(
-        [ids_column, output_df, pd.DataFrame({"class_name": class_names}), pd.DataFrame({"class_value": class_values})],
+        [pd.DataFrame(pd.Series(np.array(output_ids), name="id")), output_df, pd.DataFrame({"class_name": class_names}),
+         pd.DataFrame({"class_value": class_values})],
         axis=1)
 
     if add_contents:
-        output_df = pd.concat([output_df, contents_column], axis=1)
+        output_df = pd.concat([output_df, pd.Series(np.array(output_contents), name='contents')], axis=1)
 
     output_df = output_df[output_df['class_value'].notnull()]
+
+    if add_contents:
+        line_numbers = output_df['id'].apply(lambda x: int(x.split(":")[-1]))
+        files = output_df['id'].apply(lambda x: x.split(":")[0])
+
+        lines_df = pd.concat(
+            [output_df['id'], line_numbers, output_df['contents'], output_df[['class_name', 'class_value']], files],
+            axis=1)
+        lines_df.set_axis(['id', 'line', 'contents', 'class_name', 'class_value', 'path'], axis=1, inplace=True)
+        lines_output_file_path = workspace_dir.get_processing_file_path("lines-" + output_file)
+        lines_df.to_csv(lines_output_file_path, sep=csv_separator, index=False, encoding="utf-8")
 
     output_df.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
