@@ -268,6 +268,17 @@ used in csv files)
 * \<location key>-lines.csv is produced in the processing folder of the workspace
 
 
+### copy_builtin_training_file
+Copies one of the built-in training files into the workspace.
+
+*Input:*
+* the first parameter is the name of the file to be copied (files in data subdirectory of pyccflex)
+* --locations_config - path to locations configuration (json). The file shall contain
+ the "workspace_dir" key that defines path to the workspace folder. There is also the *erase* option
+ which if set to true will clear the folder each time the script is executed 
+
+*Output:* the file is copied into the workspace processing directory.
+
 ### predefined_manual_features
 This script analyses the lines.csv file to extract manually crafted features, e.g., presence of some 
 substring in a line. The definition of the features is provide in a json file (e.g., manual_features.json).

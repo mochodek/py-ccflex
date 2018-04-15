@@ -26,5 +26,6 @@ setup(name='pyccflex',
           'bin/merge_inputs',
           'bin/add_seq_context',
           'bin/select_features',
-          'bin/active_learning'],
+          'bin/active_learning',
+          'bin/copy_builtin_training_file'],
       zip_safe=False)
