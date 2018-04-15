@@ -15,9 +15,13 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
+available_extractors = ["PatternSubstringExctractor", "PatternWordExtractor",
+                        "CommentStringExtractor", "NoWordsExtractor", "NoCharsExtractor"]
+
 if __name__ == '__main__':
 
     logger.info("\n#### Running: {}".format(__file__))
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument("code_location_config_key",
@@ -33,12 +37,16 @@ if __name__ == '__main__':
                         default=False, action='store_true')
     parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
                         default=False, action='store_true')
+    parser.add_argument('--extractors', type=str, required=False)
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
 
     locations_file_path = args['locations_config']
     files_format_file_path = args['files_format_config']
     manual_features_file_path = args['manual_features_config']
+    extractors_to_use = args['extractors']
+    if extractors_to_use is None:
+        extractors_to_use = available_extractors
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -78,17 +86,33 @@ if __name__ == '__main__':
 
     logger.info(">>> Preparing basic feature extractors")
 
-    substring_counting_extractor = SubstringCountingFeatureExtraction(manual_string_counting_features)
-    manual_whole_word_counting_exractor = WholeWordCountingFeatureExtraction(manual_whole_word_counting_features)
-    comment_extractor = CommentFeatureExtraction()
-    no_words_extractor = WordCountFeatureExtraction()
-    no_chars_extractor = CharCountFeatureExtraction()
 
-    extractors = [substring_counting_extractor,
-                  manual_whole_word_counting_exractor,
-                  comment_extractor,
-                  no_words_extractor,
-                  no_chars_extractor]
+    extractors = []
+    if "PatternSubstringExctractor" in extractors_to_use:
+        substring_counting_extractor = SubstringCountingFeatureExtraction(manual_string_counting_features)
+        extractors.append(substring_counting_extractor)
+        logger.info(">>> Using {}".format("PatternSubstringExctractor"))
+
+    if "PatternWordExtractor" in extractors_to_use:
+        manual_whole_word_counting_exractor = WholeWordCountingFeatureExtraction(manual_whole_word_counting_features)
+        extractors.append(manual_whole_word_counting_exractor)
+        logger.info(">>> Using {}".format("PatternWordExtractor"))
+
+    if "CommentStringExtractor" in extractors_to_use:
+        comment_extractor = CommentFeatureExtraction()
+        extractors.append(comment_extractor)
+        logger.info(">>> Using {}".format("CommentStringExtractor"))
+
+    if "NoWordsExtractor" in extractors_to_use:
+        no_words_extractor = WordCountFeatureExtraction()
+        extractors.append(no_words_extractor)
+        logger.info(">>> Using {}".format("NoWordsExtractor"))
+
+    if "NoCharsExtractor" in extractors_to_use:
+        no_chars_extractor = CharCountFeatureExtraction()
+        extractors.append(no_chars_extractor)
+        logger.info(">>> Using {}".format("NoCharsExtractor"))
+
 
     logger.info(">>> Extracting features")
 

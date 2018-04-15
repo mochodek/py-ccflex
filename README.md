@@ -284,6 +284,14 @@ used in csv files).
 to the output csv file - class_value and class_name.
 * --add_contents -  the flag is used without parameters; if present a column 'contents'
 will be added to the output file with the original text of the line.
+* --extractors - a list of feature extractors names (or all if not provided):
+    * PatternSubstringExctractor - looks for substrings in defined under the manual_string_counting_features
+    key in manual_features.json file.
+    * PatternWordExtractor - looks for the whole words matching patterns in defined under the 
+    manual_whole_word_counting_features key in manual_features.json file.
+    * CommentStringExtractor - look for //, /*, and \*.
+    * NoWordsExtractor - the number of words.
+    * NoCharsExtractor - the number of characters.
 
 *Output:* 
 * \<location key>-basic-manual.csv - a file containing extracted features that could be used to train a classifer

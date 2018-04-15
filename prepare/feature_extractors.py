@@ -104,9 +104,7 @@ class CommentFeatureExtraction(object):
         self.feature_names = ['comment']
 
     def extract(self, text):
-        feature = text.count("//") + text.count("/*")
-        if text.strip().startswith("* "):
-            feature += 1
+        feature = text.count("//") + text.count("/*") + text.count("*/")
         return {'comment': feature}
 
 
