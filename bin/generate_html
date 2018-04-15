@@ -83,36 +83,7 @@ if __name__ == '__main__':
     if split_files:
         for i, df in enumerate(df_chunks):
 
-            if 'contents' in list(df.columns):
-                df.contents = df.contents.fillna("")
-
-            # get the names of the columns
-            column_names = df.iloc[0]
-            df.rename(columns=column_names)
-
-            # printing to HTML
-            if not all_columns:
-                html_string = df[['id', 'contents', 'class_name']].to_html()
-            else:
-                html_string = df.to_html()
-
-            html_string = html_string.encode(encoding='UTF-8', errors='ignore')
-
-            # and now printing to file
-            chunk_output_file = workspace_dir.get_reports_file_path(
-                "{}-{}.html".format("".join(args['output_html'].split(".")[:-1]), i))
-            with open(chunk_output_file, 'wb') as output_html_file:
-                output_html_file.write(html_string)
-
-            logger.info(">>> Saving {} lines to the file {}".format(df.shape[0], chunk_output_file))
-
-            del df
-            gc.collect()
-    else:
-
-        with open(output_file, 'wb') as output_html_file:
-            for i, df in enumerate(df_chunks):
-
+            if df.shape[0] > 0:
                 if 'contents' in list(df.columns):
                     df.contents = df.contents.fillna("")
 
@@ -129,11 +100,41 @@ if __name__ == '__main__':
                 html_string = html_string.encode(encoding='UTF-8', errors='ignore')
 
                 # and now printing to file
-                output_html_file.write(html_string)
+                chunk_output_file = workspace_dir.get_reports_file_path(
+                    "{}-{}.html".format("".join(args['output_html'].split(".")[:-1]), i))
+                with open(chunk_output_file, 'wb') as output_html_file:
+                    output_html_file.write(html_string)
 
-                logger.info(">>> Saving {} lines to the file {}".format(df.shape[0], output_file))
+                logger.info(">>> Saving {} lines to the file {}".format(df.shape[0], chunk_output_file))
 
                 del df
                 gc.collect()
+    else:
+
+        with open(output_file, 'wb') as output_html_file:
+            for i, df in enumerate(df_chunks):
+                if df.shape[0] > 0:
+                    if 'contents' in list(df.columns):
+                        df.contents = df.contents.fillna("")
+
+                    # get the names of the columns
+                    column_names = df.iloc[0]
+                    df.rename(columns=column_names)
+
+                    # printing to HTML
+                    if not all_columns:
+                        html_string = df[['id', 'contents', 'class_name']].to_html()
+                    else:
+                        html_string = df.to_html()
+
+                    html_string = html_string.encode(encoding='UTF-8', errors='ignore')
+
+                    # and now printing to file
+                    output_html_file.write(html_string)
+
+                    logger.info(">>> Saving {} lines to the file {}".format(df.shape[0], output_file))
+
+                    del df
+                    gc.collect()
 
     logger.info(">>> Export to HTML successful!")
