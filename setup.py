@@ -14,9 +14,6 @@ setup(name='pyccflex',
           'scikit-learn',
           'modAL',
       ],
-      dependency_links=[
-          "git+ssh://git@cosmic-cortex/modAL.git@master",
-      ],
       scripts=[
           'bin/create_workspace',
           'bin/lines2csv',
