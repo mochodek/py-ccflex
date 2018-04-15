@@ -1,0 +1,27 @@
+{
+  "classes": {
+    "labeled": [
+      {
+        "line_prefix": "_@",
+        "name": "start",
+        "value": 1
+      },
+      {
+        "line_prefix": "@_",
+        "name": "end",
+        "value": 2
+      },
+      {
+        "line_prefix": "!@",
+        "name": "start_end",
+        "value": 3
+      }
+    ],
+    "default": {
+      "name": "ignore",
+      "value": 0
+    }
+  }
+}
+
+

@@ -27,5 +27,6 @@ setup(name='pyccflex',
           'bin/add_seq_context',
           'bin/select_features',
           'bin/active_learning',
-          'bin/copy_builtin_training_file'],
+          'bin/copy_builtin_training_file',
+          'bin/extract_block_features'],
       zip_safe=False)
