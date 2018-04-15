@@ -3,183 +3,146 @@ block_comments.c:1$1$/*$start$1.0$block_comments.c
 block_comments.c:2$2$* comment line$ignore$0.0$block_comments.c
 block_comments.c:3$3$*$ignore$0.0$block_comments.c
 block_comments.c:4$4$ *$ignore$0.0$block_comments.c
-block_comments.c:5$5$*/$end$2.0$block_comments.c
-block_comments.c:6$6$$ignore$0.0$block_comments.c
-block_comments.c:7$7$int i = 10; /* co */$start_end$3.0$block_comments.c
+block_comments.c:5$5$*$ignore$0.0$block_comments.c
+block_comments.c:6$6$* if a > 5$ignore$0.0$block_comments.c
+block_comments.c:7$7$*/$end$2.0$block_comments.c
 block_comments.c:8$8$$ignore$0.0$block_comments.c
-block_comments.c:9$9$/* co */ $start_end$3.0$block_comments.c
-block_comments.c:10$10$$ignore$0.0$block_comments.c
-block_comments.c:11$11$/* int i = 10$start$1.0$block_comments.c
-block_comments.c:12$12$* i = 10$ignore$0.0$block_comments.c
-block_comments.c:13$13$*/$end$2.0$block_comments.c
-block_comments.c:14$14$$ignore$0.0$block_comments.c
-block_comments.c:15$15$int i = 10;$ignore$0.0$block_comments.c
-block_comments.c:16$16$$ignore$0.0$block_comments.c
-block_comments.c:17$17$/*$start$1.0$block_comments.c
-block_comments.c:18$18$$ignore$0.0$block_comments.c
-block_comments.c:19$19$$ignore$0.0$block_comments.c
-block_comments.c:20$20$$ignore$0.0$block_comments.c
+block_comments.c:9$9$/* x + 1$start$1.0$block_comments.c
+block_comments.c:10$10$*$ignore$0.0$block_comments.c
+block_comments.c:11$11$**/$end$2.0$block_comments.c
+block_comments.c:12$12$$ignore$0.0$block_comments.c
+block_comments.c:13$13$int i = 10; /* co */$ignore$0.0$block_comments.c
+block_comments.c:14$14$/* int = 3 */$start_end$3.0$block_comments.c
+block_comments.c:15$15$$ignore$0.0$block_comments.c
+block_comments.c:16$16$/* Copyrights */ $start_end$3.0$block_comments.c
+block_comments.c:17$17$$ignore$0.0$block_comments.c
+block_comments.c:18$18$/* int i = 10$start$1.0$block_comments.c
+block_comments.c:19$19$* i = 10$ignore$0.0$block_comments.c
+block_comments.c:20$20$*/$end$2.0$block_comments.c
 block_comments.c:21$21$$ignore$0.0$block_comments.c
-block_comments.c:22$22$$ignore$0.0$block_comments.c
+block_comments.c:22$22$int i = 10;$ignore$0.0$block_comments.c
 block_comments.c:23$23$$ignore$0.0$block_comments.c
-block_comments.c:24$24$/* int i = 10;$end$2.0$block_comments.c
-block_comments.c:25$25$$ignore$0.0$block_comments.c
-block_comments.c:26$26$$ignore$0.0$block_comments.c
+block_comments.c:24$24$/* b.a()$start$1.0$block_comments.c
+block_comments.c:25$25$*$ignore$0.0$block_comments.c
+block_comments.c:26$26$*/$end$2.0$block_comments.c
 block_comments.c:27$27$$ignore$0.0$block_comments.c
-tests/candevicetest.cpp:255$255$    QSignalSpy frameSentSpy(&canDevice, &CanDevice::frameSent);$ignore$0.0$tests/candevicetest.cpp
-src/components/projectconfig/projectconfig.h:47$47$#endif // PROJECTCONFIG_H$start_end$3.0$src/components/projectconfig/projectconfig.h
-src/components/canrawsender/newlinemanager.cpp:167$167$        _loop->setState(true); // get possibility to write interval data$start_end$3.0$src/components/canrawsender/newlinemanager.cpp
-src/common/modelvisitor.h:29$29$ *  // or apply_model_visitor(*m, std::move(std::ref(v)));$start_end$3.0$src/common/modelvisitor.h
-src/components/canrawsender/canrawsender_p.h:17$17$/// \class CanRawSenderPrivate$start_end$3.0$src/components/canrawsender/canrawsender_p.h
-src/common/enumiterator.h:83$83$    // }$start_end$3.0$src/common/enumiterator.h
-src/components/canrawplayer/canrawplayer_p.cpp:81$81$            unsigned int time = static_cast<unsigned int>(std::stof(match.captured(1).toStdString()) * 1000 + 0.5);$ignore$0.0$src/components/canrawplayer/canrawplayer_p.cpp
-src/components/projectconfig/iconlabel.h:27$27$        QRectF boundary2(1, 1, pix.width()-2, pix.height()/2 - 2);$ignore$0.0$src/components/projectconfig/iconlabel.h
-src/common/enumiterator.h:36$36$     * @{ */$end$2.0$src/common/enumiterator.h
-src/common/visitor.h:37$37$ * @see http://insooth.github.io/visitor-pattern.md for an article$ignore$0.0$src/common/visitor.h
-src/common/enumiterator.h:22$22$ * @see http://en.cppreference.com/w/cpp/concept/ForwardIterator$ignore$0.0$src/common/enumiterator.h
-src/common/modelvisitor.h:46$46$/** @throws bad_cast if object under @c m is not visitable with @c v. */$start_end$3.0$src/common/modelvisitor.h
-src/components/projectconfig/projectconfig.h:4$4$#include <QtWidgets/QWidget>$ignore$0.0$src/components/projectconfig/projectconfig.h
-src/components/canrawview/canrawview_p.h:205$205$    /* In the future for create log file below code can be use it.$start$1.0$src/components/canrawview/canrawview_p.h
-tools/templategen/main.cpp:207$207$    {name}* q_ptr;$ignore$0.0$tools/templategen/main.cpp
-src/common/visitor.h:14$14$/**$start$1.0$src/common/visitor.h
-src/components/canrawview/canrawview_p.h:87$87$        QString time = QString::number((_timer.elapsed() / 1000.0), 'f', 2);$ignore$0.0$src/components/canrawview/canrawview_p.h
-src/common/componentinterface.h:21$21$    *   @brief  Signal to be implemented by Component. Indicates when dock/undock action was invoked. $ignore$0.0$src/common/componentinterface.h
-src/common/enumiterator.h:139$139$            (*this != end()) // not past-the-end?$ignore$0.0$src/common/enumiterator.h
-src/components/projectconfig/candevicemodel.h:27$27$    /**$start$1.0$src/components/projectconfig/candevicemodel.h
-src/gui/mainwindow.cpp:401$401$"        QDesktopServices::openUrl({""""http://www.mobica.com""""});"$ignore$0.0$src/gui/mainwindow.cpp
-src/common/visitor.h:142$142$        /** else: noop -- action not specified */$start_end$3.0$src/common/visitor.h
-src/common/visitor.h:38$38$ */$end$2.0$src/common/visitor.h
-src/gui/main.cpp:64$64$    // CDS_DEBUG is set automatically in CMakeLists.txt based on build type (i.e. false for Release, true for Debug)$start_end$3.0$src/gui/main.cpp
-src/components/projectconfig/candevicemodel.cpp:28$28$    assert((PortType::In == portType) || (PortType::Out == portType) || (PortType::None == portType)); // range check$start_end$3.0$src/components/projectconfig/candevicemodel.cpp
-src/gui/mainwindow.cpp:603$603$        // Setting icons for QAction in CSS does not work$start_end$3.0$src/gui/mainwindow.cpp
-tools/templategen/main.cpp:1018$1018$"    boost::filesystem::path testsDir(componentsPath + """"/../../tests"""");"$ignore$0.0$tools/templategen/main.cpp
-src/common/visitor.h:45$45$    using visitable_types = std::tuple<Visitables...>;  // DO NOT PASS REFERENCES$start_end$3.0$src/common/visitor.h
-src/components/canrawlogger/canrawlogger.h:46$46$#endif //CANRAWLOGGER_H$start_end$3.0$src/components/canrawlogger/canrawlogger.h
-src/components/projectconfig/candevicemodel.h:31$31$     */$end$2.0$src/components/projectconfig/candevicemodel.h
-src/components/canrawview/canrawview_p.h:279$279$                    //==================$start_end$3.0$src/components/canrawview/canrawview_p.h
-tools/templategen/main.cpp:607$607$</ui>$ignore$0.0$tools/templategen/main.cpp
-src/common/componentinterface.h:22$22$    *   @param  widget Widget subjected to dock/undock action$ignore$0.0$src/common/componentinterface.h
-src/components/canrawview/canrawview_p.h:417$417$        std::tuple<QStandardItem*, QStandardItem*, QStandardItem*, QStandardItem*, QStandardItem*, QStandardItem*>>$ignore$0.0$src/components/canrawview/canrawview_p.h
-src/common/enumiterator.h:51$51$    /* @} */$start_end$3.0$src/common/enumiterator.h
-tests/canrawsendermodel_test.cpp:62$62$int main(int argc, char* argv[])$ignore$0.0$tests/canrawsendermodel_test.cpp
-src/components/canrawsender/newlinemanager.h:16$16$/// \brief This class holds informations about all the columns in line and relationships beteewn them$start_end$3.0$src/components/canrawsender/newlinemanager.h
-tools/templategen/main.cpp:3$3$#include <spdlog/fmt/fmt.h>$ignore$0.0$tools/templategen/main.cpp
-tools/templategen/main.cpp:589$589$ <comment></comment>$ignore$0.0$tools/templategen/main.cpp
-src/common/enumiterator.h:118$118$    EnumIterator end()   const { return {};      } // value-initialised singular is past-the-end$start_end$3.0$src/common/enumiterator.h
-tests/newlinemanager_test.cpp:167$167$"    // When(Method(nlmLineEditMock, getText)).AlwaysDo([&]() {return """"22"""";});"$start_end$3.0$tests/newlinemanager_test.cpp
-src/common/log.h:9$9$#define __FILENAME__ (std::strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)$ignore$0.0$src/common/log.h
-src/common/visitor.h:62$62$    template<class T>$ignore$0.0$src/common/visitor.h
-src/common/visitor.h:28$28$ *          Example      // tag$start_end$3.0$src/common/visitor.h
-src/components/candevice/candevice.h:26$26$     *$ignore$0.0$src/components/candevice/candevice.h
-tests/common_test.cpp:237$237$// -- compile-time errors:$start_end$3.0$tests/common_test.cpp
-src/components/canrawlogger/canrawlogger_p.cpp:63$63$"        std::string line = fmt::format(formatString, """"sec""""_a = nsec / 1000000000, """"msec""""_a = (nsec % 1000000000) / 1000,"$ignore$0.0$src/components/canrawlogger/canrawlogger_p.cpp
-tools/templategen/main.cpp:687$687$            //{{CanSignalCoderSignalOut{{}}.type()}}, $start_end$3.0$tools/templategen/main.cpp
-src/gui/mainwindow.cpp:404$404$"        QDesktopServices::openUrl({""""http://www.genivi.org""""});"$ignore$0.0$src/gui/mainwindow.cpp
-tests/canrawview_test.cpp:66$66$    // Verify(Method(crvMock, setSorting).Using(0, Qt::AscendingOrder));$start_end$3.0$tests/canrawview_test.cpp
-tools/templategen/main.cpp:780$780$"// automatic detection of types is """"flawed"""" in moc"$start_end$3.0$tools/templategen/main.cpp
-tools/templategen/main.cpp:1032$1032$"        boost::filesystem::path componentGuiDir(componentDir / """"gui"""");"$ignore$0.0$tools/templategen/main.cpp
-src/gui/main.cpp:16$16$    return std::strchr(fullPath.c_str(), '/') ? std::strrchr(fullPath.c_str(), '/') + 1 : fullPath;$ignore$0.0$src/gui/main.cpp
-src/gui/mainwindow.h:36$36$    QVector<std::pair<QPushButton *, QPushButton *>> _recentProjectsButtons;$ignore$0.0$src/gui/mainwindow.h
-src/components/projectconfig/pcimpl.h:55$55$        pos1.setX(pos1.x() + 32); // FIXME: these values are hardcoded and should not be here$start_end$3.0$src/components/projectconfig/pcimpl.h
-src/common/enumiterator.h:140$140$         && (_current <= static_cast<stored_type>(std::numeric_limits<raw_type>::max())) // binary conversion possible?$start_end$3.0$src/common/enumiterator.h
-src/gui/mainwindow.cpp:592$592$"        stylefile = """":/files/css/darkStyle.css"""";"$ignore$0.0$src/gui/mainwindow.cpp
-src/common/enumiterator.h:142$142$         && (_current <= static_cast<stored_type>(stop)) // fits into input domain?$start_end$3.0$src/common/enumiterator.h
-src/common/visitor.h:29$29$ *        , A, B, C, D   // visitable types$start_end$3.0$src/common/visitor.h
-tools/templategen/main.cpp:1052$1052$"    writeToFile(projectConfigDir / (componentNameLower + """"model.h""""), genDataModelHdr(componentName));"$ignore$0.0$tools/templategen/main.cpp
-src/components/projectconfig/projectconfigvalidator.h:13$13$"    static bool loadConfigSchema(const char* filename="""":/files/json/projectConfigSchema.json"""");"$ignore$0.0$src/components/projectconfig/projectconfigvalidator.h
-src/components/canrawplayer/canrawplayer_p.cpp:68$68$"        cds_error(""""Failed to open file '{}' for reading"""", filename.toStdString());"$ignore$0.0$src/components/canrawplayer/canrawplayer_p.cpp
-src/components/canrawsender/canrawsender_p.cpp:59$59$        _tvModel.removeRow(n.row()); // Delete line from table view$start_end$3.0$src/components/canrawsender/canrawsender_p.cpp
-src/common/log.h:4$4$#include <spdlog/fmt/ostr.h>$ignore$0.0$src/common/log.h
-src/common/visitor.h:33$33$ *  };$ignore$0.0$src/common/visitor.h
-src/components/candevice/candeviceinterface.h:32$32$#endif /* end of include guard: CANDEVICEINTERFACE_H_DNXOI7PW */$start_end$3.0$src/components/candevice/candeviceinterface.h
-src/components/candevice/candevice.h:14$14$*/$end$2.0$src/components/candevice/candevice.h
-src/components/canrawview/canrawview_p.h:293$293$"                    // auto nameConf = colObj[""""name""""].toString();"$start_end$3.0$src/components/canrawview/canrawview_p.h
-src/components/canrawsender/newlinemanager.h:29$29$    /// \brief This is an enumeration used by functions reponsible for return columns information$start_end$3.0$src/components/canrawsender/newlinemanager.h
-src/common/enumiterator.h:124$124$        return *reinterpret_cast<pointer>(&_current);  // FIXME$start_end$3.0$src/common/enumiterator.h
-src/components/projectconfig/candevicemodel.h:34$34$    /**$start$1.0$src/components/projectconfig/candevicemodel.h
-src/components/candevice/candevice_p.h:9$9$#include <QtCore/QVector>$ignore$0.0$src/components/candevice/candevice_p.h
-src/components/canrawview/canrawview.h:25$25$    */$end$2.0$src/components/canrawview/canrawview.h
-src/gui/mainwindow.cpp:593$593$"        styletoolbar = """":/files/css/toolBar_dark.css"""";"$ignore$0.0$src/gui/mainwindow.cpp
-src/components/projectconfig/iconlabel.h:50$50$#endif /* !__ICONLABEL_H */$start_end$3.0$src/components/projectconfig/iconlabel.h
-src/common/modelvisitor.h:39$39$//    , Other$start_end$3.0$src/common/modelvisitor.h
-src/components/canrawview/canrawview_p.h:300$300$                    //===========$start_end$3.0$src/components/canrawview/canrawview_p.h
-tests/common_test.cpp:238$238$/*$start$1.0$tests/common_test.cpp
+block_comments.c:28$28$/**$start$1.0$block_comments.c
+block_comments.c:29$29$*/$end$2.0$block_comments.c
+block_comments.c:30$30$$ignore$0.0$block_comments.c
+block_comments.c:31$31$// b = 4$start_end$3.0$block_comments.c
+block_comments.c:32$32$$ignore$0.0$block_comments.c
+block_comments.c:33$33$/// a = 3$start_end$3.0$block_comments.c
+block_comments.c:34$34$$ignore$0.0$block_comments.c
+block_comments.c:35$35$a = 3 // b = 2$ignore$0.0$block_comments.c
+block_comments.c:36$36$$ignore$0.0$block_comments.c
+block_comments.c:37$37$/*$start$1.0$block_comments.c
+block_comments.c:38$38$**/ int i = 10;$end$2.0$block_comments.c
+block_comments.c:39$39$$ignore$0.0$block_comments.c
+block_comments.c:40$40$$ignore$0.0$block_comments.c
+block_comments.c:41$41$$ignore$0.0$block_comments.c
+tools/templategen/main.cpp:517$517$            _props[p.first] = json[p.first].toVariant();$ignore$0.0$tools/templategen/main.cpp
+tools/templategen/main.cpp:83$83$#endif //{nameUpper}_H$ignore$0.0$tools/templategen/main.cpp
+tools/templategen/main.cpp:742$742$    // }}$start_end$3.0$tools/templategen/main.cpp
 src/gui/mainwindow.cpp:604$604$"        _ui->actionNew->setIcon(QIcon("""":/images/files/images/light/CANbus_icon_NewProject.svg""""));"$ignore$0.0$src/gui/mainwindow.cpp
-src/common/modelvisitor.h:17$17$/**$start$1.0$src/common/modelvisitor.h
-src/components/canrawview/canrawview_p.h:295$295$                        // The name does not pass - get next$start_end$3.0$src/components/canrawview/canrawview_p.h
-tools/templategen/main.cpp:595$595$    <x>0</x>$ignore$0.0$tools/templategen/main.cpp
-src/components/projectconfig/nodepainter.h:19$19$        QPainter* painter, QtNodes::NodeGeometry const& geom, QtNodes::NodeDataModel const* model) override$ignore$0.0$src/components/projectconfig/nodepainter.h
-src/components/projectconfig/propertyeditordialog.cpp:27$27$    for (int i = 0; i < _model.rowCount(); ++i) {$ignore$0.0$src/components/projectconfig/propertyeditordialog.cpp
-src/gui/subwindow.h:36$36$            size.setHeight(parentWidget()->size().height() / 2);$ignore$0.0$src/gui/subwindow.h
-src/components/canrawplayer/canrawplayer_p.cpp:74$74$"    QRegularExpression re(R""""(\((\d+\.\d{6})\)\s*\w*\s*([0-9,A-F]{1,8})\s*\[(\d)\]\s*((\s*[0-9,A-F]{2}){0,8}))"""");"$ignore$0.0$src/components/canrawplayer/canrawplayer_p.cpp
-src/common/visitor.h:25$25$ * @code$ignore$0.0$src/common/visitor.h
-tests/canrawlogger_test.cpp:220$220$"TEST_CASE(""""logging - send/receive, removed file"""", """"[canrawlogger]"""")"$ignore$0.0$tests/canrawlogger_test.cpp
-src/common/visitor.h:10$10$"#include """"visitablewith.h"""" // VisitableWith"$start_end$3.0$src/common/visitor.h
-src/common/visitor.h:31$31$ *  {$ignore$0.0$src/common/visitor.h
-src/common/enumiterator.h:10$10$#include <type_traits> // {common,underlying}_type, is_enum, add_{pointer,lvalue_reference,const}, conditional$start_end$3.0$src/common/enumiterator.h
-src/components/canrawplayer/canrawplayer_p.cpp:112$112$    while (_frameNdx < _frames.size() && _frames[_frameNdx].first <= _ticks) {$ignore$0.0$src/components/canrawplayer/canrawplayer_p.cpp
-src/gui/mainwindow.cpp:132$132$"                    this, """"Project not found"""", """"File """" + projectFile + """" not found. Do you want to remove it from the recent list?"""","$ignore$0.0$src/gui/mainwindow.cpp
-src/components/canrawplayer/canrawplayer.h:45$45$#endif //CANRAWPLAYER_H$start_end$3.0$src/components/canrawplayer/canrawplayer.h
-tools/templategen/main.cpp:1011$1011$"    boost::filesystem::path dataTypesDir(projectConfigDir / """"datamodeltypes"""");"$ignore$0.0$tools/templategen/main.cpp
-tools/templategen/main.cpp:680$680$            //{{CanSignalCoderDataIn{{}}.type() }},$start_end$3.0$tools/templategen/main.cpp
-src/components/canrawview/canrawview_p.h:277$277$                for (; jj < colArray.size(); ++jj) {$ignore$0.0$src/components/canrawview/canrawview_p.h
-tools/templategen/main.cpp:275$275$    gui/{name}.ui$ignore$0.0$tools/templategen/main.cpp
-src/components/canrawplayer/canrawplayer_p.cpp:102$102$    _frameNdx = 0;$ignore$0.0$src/components/canrawplayer/canrawplayer_p.cpp
-tools/templategen/main.cpp:779$779$// needed for QSignalSpy cause according to qtbug 49623 comments$start_end$3.0$tools/templategen/main.cpp
-src/common/visitor.h:23$23$ *$ignore$0.0$src/common/visitor.h
-tools/templategen/main.cpp:276$276$    gui/{name}guiimpl.h$ignore$0.0$tools/templategen/main.cpp
-src/components/canrawview/canrawview_p.h:48$48$        _tvModel.setHeaderData(0, Qt::Horizontal, QVariant::fromValue(CRV_ColType::uint_type), Qt::UserRole); // rowID$start_end$3.0$src/components/canrawview/canrawview_p.h
-src/components/canrawplayer/canrawplayer_p.cpp:11$11$    , q_ptr(q)$ignore$0.0$src/components/canrawplayer/canrawplayer_p.cpp
-src/common/context.h:10$10$*$ignore$0.0$src/common/context.h
-src/common/enumiterator.h:131$131$        return *reinterpret_cast<const_pointer>(&_current); // FIXME$start_end$3.0$src/common/enumiterator.h
-src/common/visitor.h:131$131$"                , """"Visitable types cannot be references"""");"$ignore$0.0$src/common/visitor.h
-src/components/projectconfig/canrawloggermodel.cpp:7$7$// clang-format off$start_end$3.0$src/components/projectconfig/canrawloggermodel.cpp
-tools/templategen/main.cpp:83$83$#endif //{nameUpper}_H$start_end$3.0$tools/templategen/main.cpp
-src/components/projectconfig/canrawsendermodel.h:16$16$*/$end$2.0$src/components/projectconfig/canrawsendermodel.h
-src/components/canrawsender/canrawsender_p.h:123$123$    int _currentIndex;$ignore$0.0$src/components/canrawsender/canrawsender_p.h
-tests/canrawsendermodel_test.cpp:1$1$#include <QtWidgets/QApplication>$ignore$0.0$tests/canrawsendermodel_test.cpp
-tools/templategen/main.cpp:683$683$        }}$ignore$0.0$tools/templategen/main.cpp
-src/common/enumiterator.h:33$33$     *$ignore$0.0$src/common/enumiterator.h
-src/components/canrawsender/canrawsender_p.h:72$72$    /// @return supported properties$start_end$3.0$src/components/canrawsender/canrawsender_p.h
-src/common/visitor.h:30$30$ *        >$ignore$0.0$src/common/visitor.h
+src/common/enumiterator.h:36$36$     * @{ */$end$2.0$src/common/enumiterator.h
+tools/templategen/main.cpp:335$335$#endif //{nameUpper}_H$ignore$0.0$tools/templategen/main.cpp
+src/components/canrawview/canrawview_p.h:279$279$                    //==================$start_end$3.0$src/components/canrawview/canrawview_p.h
+tools/templategen/main.cpp:599$599$   </rect>$ignore$0.0$tools/templategen/main.cpp
+src/common/modelvisitor.h:46$46$/** @throws bad_cast if object under @c m is not visitable with @c v. */$start_end$3.0$src/common/modelvisitor.h
+src/components/canrawview/canrawview_p.h:300$300$                    //===========$start_end$3.0$src/components/canrawview/canrawview_p.h
+src/common/enumiterator.h:17$17$ * and ends *after* the item @c stop. Models ForwardIterator concept.$ignore$0.0$src/common/enumiterator.h
 src/common/enumiterator.h:55$55$    /** Creates a singular iterator. */$start_end$3.0$src/common/enumiterator.h
-src/common/modelvisitor.h:56$56$/** @throws bad_cast if object under @c m is not visitable with @c v. */$start_end$3.0$src/common/modelvisitor.h
-src/common/visitor.h:35$35$ *$ignore$0.0$src/common/visitor.h
-src/common/modelvisitor.h:53$53$    dynamic_cast<VisitableWith<CanNodeDataModelVisitor>&>(m).visit(v);  // throws!$start_end$3.0$src/common/modelvisitor.h
-src/components/projectconfig/propertyeditordialog.h:15$15$/**$start$1.0$src/components/projectconfig/propertyeditordialog.h
-src/components/projectconfig/canrawloggermodel.cpp:17$17$// clang-format on$start_end$3.0$src/components/projectconfig/canrawloggermodel.cpp
-src/components/projectconfig/candevicemodel.h:111$111$    // 127 to use 4 blocks, 512 bytes each$start_end$3.0$src/components/projectconfig/candevicemodel.h
-tools/templategen/main.cpp:682$682$            //{{CanSignalCoderRawIn{{}}.type() }}$start_end$3.0$tools/templategen/main.cpp
-src/common/enumiterator.h:20$20$" *          like """"enum class E { A = 100, B = 200, C == 300 }""""."$ignore$0.0$src/common/enumiterator.h
+src/components/canrawview/canrawview_p.h:205$205$    /* In the future for create log file below code can be use it.$start_end$3.0$src/components/canrawview/canrawview_p.h
+src/common/enumiterator.h:139$139$            (*this != end()) // not past-the-end?$ignore$0.0$src/common/enumiterator.h
+src/components/projectconfig/propertyeditordialog.h:34$34$#endif /* SRC_GUI_PROPERTYEDITORDIALOG_H_ */$ignore$0.0$src/components/projectconfig/propertyeditordialog.h
+src/common/modelvisitor.h:30$30$ *  // or apply_model_visitor(*m, [](CanRawViewModel&) {}, [](CanRawSenderModel&) {});$ignore$0.0$src/common/modelvisitor.h
+src/common/enumiterator.h:22$22$ * @see http://en.cppreference.com/w/cpp/concept/ForwardIterator$ignore$0.0$src/common/enumiterator.h
+src/components/canrawview/crvsortmodel.cpp:34$34$    int updatedSortNdx = _currSortNdx;$ignore$0.0$src/components/canrawview/crvsortmodel.cpp
+tools/templategen/main.cpp:680$680$            //{{CanSignalCoderDataIn{{}}.type() }},$start_end$3.0$tools/templategen/main.cpp
+src/components/canrawview/canrawview.cpp:81$81$    // Q_D(CanRawView);$start_end$3.0$src/components/canrawview/canrawview.cpp
+src/common/visitor.h:170$170$        int dummy[sizeof...(Fs)] =$ignore$0.0$src/common/visitor.h
+src/common/componentinterface.h:21$21$    *   @brief  Signal to be implemented by Component. Indicates when dock/undock action was invoked. $ignore$0.0$src/common/componentinterface.h
+src/components/canrawview/crvsortmodel.h:16$16$    /**$start$1.0$src/components/canrawview/crvsortmodel.h
+src/common/enumiterator.h:51$51$    /* @} */$start_end$3.0$src/common/enumiterator.h
+tests/common_test.cpp:7$7$#include <cstddef>  // size_t, ptrdiff_t$ignore$0.0$tests/common_test.cpp
+src/components/canrawview/crvsortmodel.h:21$21$    */$end$2.0$src/components/canrawview/crvsortmodel.h
+src/components/candevice/candeviceinterface.h:32$32$#endif /* end of include guard: CANDEVICEINTERFACE_H_DNXOI7PW */$ignore$0.0$src/components/candevice/candeviceinterface.h
+tools/templategen/main.cpp:275$275$    gui/{name}.ui$ignore$0.0$tools/templategen/main.cpp
+src/components/candevice/candeviceinterface.h:29$29$    virtual void setParent(QObject *parent) = 0;$ignore$0.0$src/components/candevice/candeviceinterface.h
+src/components/canrawview/canrawview_p.h:299$299$                    // Check vIdx$start_end$3.0$src/components/canrawview/canrawview_p.h
+src/common/visitor.h:37$37$ * @see http://insooth.github.io/visitor-pattern.md for an article$ignore$0.0$src/common/visitor.h
+src/common/enumiterator.h:83$83$    // }$start_end$3.0$src/common/enumiterator.h
+src/components/canrawsender/canrawsender_p.cpp:60$60$        _lines.erase(_lines.begin() + n.row()); // Delete lines also from collection$ignore$0.0$src/components/canrawsender/canrawsender_p.cpp
+src/components/projectconfig/projectconfigvalidator.h:21$21$#endif /* SRC_COMPONENTS_PROJECTCONFIG_PROJECTCONFIGVALIDATOR_H_ */$ignore$0.0$src/components/projectconfig/projectconfigvalidator.h
+tests/canrawlogger_test.cpp:250$250$"    QFile rmFile(dirName + """"/"""" + fileList[2]);"$ignore$0.0$tests/canrawlogger_test.cpp
+tests/common_test.cpp:237$237$// -- compile-time errors:$start_end$3.0$tests/common_test.cpp
+src/components/projectconfig/componentmodel.h:41$41$     */$end$2.0$src/components/projectconfig/componentmodel.h
+tests/canrawloggermodel_test.cpp:10$10$// needed for QSignalSpy cause according to qtbug 49623 comments$start_end$3.0$tests/canrawloggermodel_test.cpp
+src/gui/mainwindow.cpp:401$401$"        QDesktopServices::openUrl({""""http://www.mobica.com""""});"$ignore$0.0$src/gui/mainwindow.cpp
+src/common/visitablewith.h:43$43$ * gives$ignore$0.0$src/common/visitablewith.h
+src/common/visitablewith.h:27$27$ *  int main()$ignore$0.0$src/common/visitablewith.h
+src/components/candevice/candevice_p.h:77$77$#endif /* !__CANDEVICE_P_H */$ignore$0.0$src/components/candevice/candevice_p.h
+src/common/componentinterface.h:88$88$#endif /* !__COMPONENTINTERFACE_H */$ignore$0.0$src/common/componentinterface.h
+src/components/canrawview/canrawview_p.h:273$273$        auto ii = 0;$ignore$0.0$src/components/canrawview/canrawview_p.h
+src/common/componentinterface.h:22$22$    *   @param  widget Widget subjected to dock/undock action$ignore$0.0$src/common/componentinterface.h
+tools/templategen/main.cpp:226$226${name}Private::{name}Private({name} *q, {name}Ctx&& ctx)$ignore$0.0$tools/templategen/main.cpp
+tests/canrawloggermodel_test.cpp:96$96$    QApplication a(argc, argv); // QApplication must exist when contructing QWidgets TODO check QTest$ignore$0.0$tests/canrawloggermodel_test.cpp
+tests/common_test.cpp:238$238$/*$start$1.0$tests/common_test.cpp
+src/gui/mainwindow.cpp:220$220${ // check if component is already displayed by mdi area$ignore$0.0$src/gui/mainwindow.cpp
+src/components/projectconfig/canrawviewmodel.h:27$27$    *   @return 1 if port in, 0 if any other type$ignore$0.0$src/components/projectconfig/canrawviewmodel.h
+src/common/visitor.h:29$29$ *        , A, B, C, D   // visitable types$ignore$0.0$src/common/visitor.h
+src/components/canrawplayer/canrawplayer.h:45$45$#endif //CANRAWPLAYER_H$ignore$0.0$src/components/canrawplayer/canrawplayer.h
+src/common/enumiterator.h:124$124$        return *reinterpret_cast<pointer>(&_current);  // FIXME$ignore$0.0$src/common/enumiterator.h
+src/components/projectconfig/candevicemodel.cpp:28$28$    assert((PortType::In == portType) || (PortType::Out == portType) || (PortType::None == portType)); // range check$ignore$0.0$src/components/projectconfig/candevicemodel.cpp
+src/common/visitablewith.h:30$30$ *   B b;$ignore$0.0$src/common/visitablewith.h
+src/gui/mainwindow.cpp:404$404$"        QDesktopServices::openUrl({""""http://www.genivi.org""""});"$ignore$0.0$src/gui/mainwindow.cpp
+src/components/canrawlogger/canrawlogger.h:46$46$#endif //CANRAWLOGGER_H$ignore$0.0$src/components/canrawlogger/canrawlogger.h
+src/components/canrawsender/canrawsender_p.h:26$26$    /// \param[in] ctx CanRawSender context$start_end$3.0$src/components/canrawsender/canrawsender_p.h
+tools/templategen/main.cpp:681$681$            //{{CanSignalCoderSignalIn{{}}.type() }},$start_end$3.0$tools/templategen/main.cpp
+tools/templategen/main.cpp:3$3$#include <spdlog/fmt/fmt.h>$ignore$0.0$tools/templategen/main.cpp
+src/components/canrawsender/canrawsender_p.h:17$17$/// \class CanRawSenderPrivate$start_end$3.0$src/components/canrawsender/canrawsender_p.h
+src/components/canrawsender/canrawsender_p.h:25$25$    /// \param[in] q Pointer to CanRawSender class$start_end$3.0$src/components/canrawsender/canrawsender_p.h
+src/components/canrawview/canrawview_p.h:48$48$        _tvModel.setHeaderData(0, Qt::Horizontal, QVariant::fromValue(CRV_ColType::uint_type), Qt::UserRole); // rowID$ignore$0.0$src/components/canrawview/canrawview_p.h
+src/components/canrawview/crv_enums.h:8$8$Q_DECLARE_METATYPE(CRV_ColType)$ignore$0.0$src/components/canrawview/crv_enums.h
+src/common/modelvisitor.h:50$50$    //       are not in direct inheritance relation, i.e. only type derived$start_end$3.0$src/common/modelvisitor.h
+src/gui/mainwindow.cpp:352$352$    // TODO nodeeditor is not validating data. Improve schema file (using required fields) to be safe.$start_end$3.0$src/gui/mainwindow.cpp
+src/common/visitor.h:28$28$ *          Example      // tag$ignore$0.0$src/common/visitor.h
+tools/templategen/main.cpp:739$739$    //     emit sendFrame(d->frame());$start_end$3.0$tools/templategen/main.cpp
 src/common/modelvisitor.h:19$19$ *$ignore$0.0$src/common/modelvisitor.h
-src/common/visitablewith.h:6$6$ * Example for two types that can be visited: A, B and visitor V.$ignore$0.0$src/common/visitablewith.h
-src/common/enumiterator.h:88$88$    // }$start_end$3.0$src/common/enumiterator.h
-src/gui/mainwindow.cpp:291$291$            file.write(_projectConfig->save()); // FIXME$start_end$3.0$src/gui/mainwindow.cpp
-src/common/enumiterator.h:85$85$    // EqualityComparable concept -- no floating points {$start_end$3.0$src/common/enumiterator.h
-src/components/projectconfig/candevicemodel.h:39$39$     */$end$2.0$src/components/projectconfig/candevicemodel.h
-src/components/canrawlogger/canrawlogger.cpp:102$102$    int num = 1;$ignore$0.0$src/components/canrawlogger/canrawlogger.cpp
-src/components/projectconfig/canrawviewmodel.h:16$16$*/$end$2.0$src/components/projectconfig/canrawviewmodel.h
-src/components/canrawsender/newlinemanager.h:15$15$/// \class NewLineManager$start_end$3.0$src/components/canrawsender/newlinemanager.h
-src/gui/mainwindow.cpp:613$613$"        stylefile = """":/files/css/lightStyle.css"""";"$ignore$0.0$src/gui/mainwindow.cpp
-tools/templategen/main.cpp:728$728$    // return std::make_shared<CanDeviceDataOut>(_frame, _direction, _status);$start_end$3.0$tools/templategen/main.cpp
-src/common/modelvisitor.h:40$40$      >$ignore$0.0$src/common/modelvisitor.h
-src/gui/subwindow.h:37$37$            size.setWidth(parentWidget()->size().width() / 2);$ignore$0.0$src/gui/subwindow.h
-tests/canrawsendermodel_test.cpp:2$2$#include <projectconfig/canrawsendermodel.h>$ignore$0.0$tests/canrawsendermodel_test.cpp
-src/common/modelvisitor.h:30$30$ *  // or apply_model_visitor(*m, [](CanRawViewModel&) {}, [](CanRawSenderModel&) {});$start_end$3.0$src/common/modelvisitor.h
-src/components/canrawview/gui/crvguiinterface.h:36$36$    virtual void getColumnProper(int ndx, int& vIdx) = 0;$ignore$0.0$src/components/canrawview/gui/crvguiinterface.h
-tests/common_test.cpp:276$276$*/$ignore$0.0$tests/common_test.cpp
+src/components/projectconfig/projectconfigvalidator.h:13$13$"    static bool loadConfigSchema(const char* filename="""":/files/json/projectConfigSchema.json"""");"$ignore$0.0$src/components/projectconfig/projectconfigvalidator.h
+tools/templategen/main.cpp:682$682$            //{{CanSignalCoderRawIn{{}}.type() }}$start_end$3.0$tools/templategen/main.cpp
+src/components/projectconfig/canrawviewmodel.h:42$42$    *   @return$ignore$0.0$src/components/projectconfig/canrawviewmodel.h
+src/common/context.h:20$20$    Context(Args*... args)$ignore$0.0$src/common/context.h
+tools/templategen/main.cpp:607$607$</ui>$ignore$0.0$tools/templategen/main.cpp
+src/components/projectconfig/componentmodel.h:211$211$#endif // COMPONENTMODEL_H$ignore$0.0$src/components/projectconfig/componentmodel.h
+tools/templategen/main.cpp:602$602$   <string>{name}</string>$ignore$0.0$tools/templategen/main.cpp
+src/common/modelvisitor.h:56$56$/** @throws bad_cast if object under @c m is not visitable with @c v. */$start_end$3.0$src/common/modelvisitor.h
+src/common/enumiterator.h:28$28$    using raw_type = std::underlying_type_t<T>;  // value_type = T$ignore$0.0$src/common/enumiterator.h
+src/common/visitor.h:91$91$    template<class R, class T, class... As>  // mutable lambda$ignore$0.0$src/common/visitor.h
+src/common/visitablewith.h:40$40$ *  }$ignore$0.0$src/common/visitablewith.h
+src/components/projectconfig/propertyeditordialog.h:17$17$ */$end$2.0$src/components/projectconfig/propertyeditordialog.h
+src/components/canrawsender/newlinemanager.cpp:131$131$            assert(false); // BUG: impossible!$ignore$0.0$src/components/canrawsender/newlinemanager.cpp
+tests/canrawview_test.cpp:67$67$    // Verify(Method(crvMock, getClickedColumn).Using(0));$start_end$3.0$tests/canrawview_test.cpp
+src/gui/mainwindow.cpp:3$3$"#include """"modelvisitor.h"""" // apply_model_visitor"$ignore$0.0$src/gui/mainwindow.cpp
+tests/common_test.cpp:8$8$#include <cstdint> // uint16_t$ignore$0.0$tests/common_test.cpp
+src/common/visitablewith.h:45$45$ * A$ignore$0.0$src/common/visitablewith.h
+src/components/projectconfig/componentmodel.h:38$38$    /**$start$1.0$src/components/projectconfig/componentmodel.h
+src/gui/main.cpp:64$64$    // CDS_DEBUG is set automatically in CMakeLists.txt based on build type (i.e. false for Release, true for Debug)$start_end$3.0$src/gui/main.cpp
+src/components/projectconfig/iconlabel.h:50$50$#endif /* !__ICONLABEL_H */$ignore$0.0$src/components/projectconfig/iconlabel.h
+tests/common_test.cpp:9$9$#include <iterator> // iterator_traits, begin, end$ignore$0.0$tests/common_test.cpp
+src/components/canrawview/canrawview_p.h:105$105$            (*it++)->setText(time);$ignore$0.0$src/components/canrawview/canrawview_p.h
+tools/templategen/main.cpp:434$434$"#include """"gui/{nameLower}guiimpl.h"""""$ignore$0.0$tools/templategen/main.cpp
+src/gui/mainwindow.cpp:84$84$    // loadSettings will update _recentProjects;$start_end$3.0$src/gui/mainwindow.cpp
+src/common/visitor.h:142$142$        /** else: noop -- action not specified */$start_end$3.0$src/common/visitor.h
+src/components/candevice/candevice.cpp:41$41$    QString b = props.at(backend).toString();$ignore$0.0$src/components/candevice/candevice.cpp
+src/components/candevice/candeviceqt.h:130$130$#endif /* end of include guard: CANDEVICEQT_H_JYBV8GIQ */$ignore$0.0$src/components/candevice/candeviceqt.h
+tools/templategen/main.cpp:851$851$    QApplication a(argc, argv); // QApplication must exist when contructing QWidgets TODO check QTest$ignore$0.0$tools/templategen/main.cpp
+src/gui/mainwindow.cpp:148$148$            _projectConfig->load(wholeFile); // FIXME$ignore$0.0$src/gui/mainwindow.cpp
+src/components/projectconfig/datamodeltypes/canrawsenderdata.h:8$8$#endif // CANRAWSENDERDATA_H$ignore$0.0$src/components/projectconfig/datamodeltypes/canrawsenderdata.h
+tests/canrawsender_test.cpp:474$474$"    contentArray.append(QJsonObject({ { """"loop"""", """"aa"""" } }));"$ignore$0.0$tests/canrawsender_test.cpp
+src/common/visitor.h:6$6$#include <tuple> // tuple, tuple_element, get$ignore$0.0$src/common/visitor.h
+tools/templategen/main.cpp:676$676$// clang-format off$start_end$3.0$tools/templategen/main.cpp
+tests/canrawsender_test.cpp:370$370$    // Array size != 5$start_end$3.0$tests/canrawsender_test.cpp
+src/common/modelvisitor.h:9$9$"#include """"visitor.h"""" // Visitor"$ignore$0.0$src/common/modelvisitor.h
+src/components/canrawview/gui/crvguiinterface.h:40$40$#endif // CRVGUIINTERFACE_H$ignore$0.0$src/components/canrawview/gui/crvguiinterface.h
 tools/templategen/main.cpp:1026$1026$"        writeToFile(componentDir / """"CMakeLists.txt"""", genCMake(componentNameLower));"$ignore$0.0$tools/templategen/main.cpp
-src/common/enumiterator.h:16$16$ * Iterator for an enum of type @c T that starts with an item @c start$ignore$0.0$src/common/enumiterator.h
-src/common/componentinterface.h:14$14$*/$end$2.0$src/common/componentinterface.h
-src/components/canrawsender/newlinemanager.h:47$47$    /// internal timer (if was started before)$start_end$3.0$src/components/canrawsender/newlinemanager.h
-tools/templategen/main.cpp:1027$1027$"        writeToFile(componentDir / (componentNameLower + """".h""""), genComponentHdr(componentName));"$ignore$0.0$tools/templategen/main.cpp
-src/common/visitor.h:136$136$        -> std::enable_if_t<is_within<T, visitable_types>::value, void>$ignore$0.0$src/common/visitor.h
-src/components/canrawplayer/canrawplayer_p.cpp:1$1$"#include """"canrawplayer_p.h"""""$ignore$0.0$src/components/canrawplayer/canrawplayer_p.cpp
-src/components/projectconfig/dragwidget.cpp:42$42$    QLabel *child = static_cast<QLabel*>(childAt(event->pos()));$ignore$0.0$src/components/projectconfig/dragwidget.cpp
-src/common/visitor.h:99$99$        static constexpr auto arity = sizeof...(As);$ignore$0.0$src/common/visitor.h
-tools/templategen/main.cpp:335$335$#endif //{nameUpper}_H$start_end$3.0$tools/templategen/main.cpp
-src/common/visitor.h:34$34$ * @endcode$ignore$0.0$src/common/visitor.h
-src/common/enumiterator.h:115$115$    // }$start_end$3.0$src/common/enumiterator.h
-tools/templategen/main.cpp:606$606$ <connections/>$ignore$0.0$tools/templategen/main.cpp
-tools/templategen/main.cpp:591$591$ <class>{name}Private</class>$ignore$0.0$tools/templategen/main.cpp
-src/components/projectconfig/projectconfig.cpp:5$5$ProjectConfig::ProjectConfig(QWidget* parent_)$ignore$0.0$src/components/projectconfig/projectconfig.cpp
