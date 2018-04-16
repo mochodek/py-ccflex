@@ -15,7 +15,7 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-available_extractors = ["PatternSubstringExctractor", "PatternWordExtractor",
+default_extractors = ["PatternSubstringExctractor", "PatternWordExtractor",
                         "CommentStringExtractor", "NoWordsExtractor", "NoCharsExtractor"]
 
 if __name__ == '__main__':
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     manual_features_file_path = args['manual_features_config']
     extractors_to_use = args['extractors']
     if extractors_to_use is None:
-        extractors_to_use = available_extractors
+        extractors_to_use = default_extractors
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
