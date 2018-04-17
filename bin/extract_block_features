@@ -110,9 +110,10 @@ if __name__ == '__main__':
                     if label == 'start':
                         feature_value = 1
                         inside += 1
-                    elif label == 'end':
+                    elif label == 'end' and inside > 0:
                         feature_value = 1
-                        inside -= 1
+                        inside = 0
+                        # inside -= 1   # this line is when we want to catch nested blocks; which is a problem
                     else:
                         if inside > 0:
                             feature_value = 1
