@@ -76,7 +76,7 @@ if __name__ == '__main__':
         return "{}:{} : {}".format(idx, input_data.contents.loc[idx], input_data.class_name.loc[idx])
 
 
-    fig = plt.figure(figsize=(20, 20))
+    fig = plt.figure(figsize=(20, input_data.shape[0]*0.2))
     dendrogram(data_link, labels=input_data.contents.values,
                show_leaf_counts=True,
                orientation='right',
