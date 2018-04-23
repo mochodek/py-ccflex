@@ -29,5 +29,6 @@ setup(name='pyccflex',
           'bin/active_learning',
           'bin/copy_builtin_training_file',
           'bin/extract_block_features',
-          'bin/remove_columns'],
+          'bin/remove_columns',
+          'bin/find_similar'],
       zip_safe=False)

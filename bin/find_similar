@@ -1,0 +1,120 @@
+#!/usr/bin/env python
+
+# Removes a given column from a csv file or recursively for all csv files if folder is given
+
+import argparse
+import logging
+import os
+import pandas as pd
+from scipy.spatial.distance import pdist, squareform
+from scipy.cluster.hierarchy import dendrogram, linkage, cophenet, fcluster, inconsistent
+import matplotlib.pyplot as plt
+
+
+from common.configuration import ConfigurationHandler
+
+
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+
+
+if __name__ == '__main__':
+
+    logger.info("\n#### Running: {}".format(__file__))
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_path",
+                        help="A path to a feature file", type=str)
+    parser.add_argument('--threshold_distance', type=int,
+                            help="A minimal Manhattan distance to say that lines are similar",
+                        required=False, default=0)
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
+
+    args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
+
+    input_path = args['input_path']
+    threshold_distance = args['threshold_distance']
+    files_format_file_path = args['files_format_config']
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
+    csv_separator = files_format_config.get("csv_sep", ",")
+
+    output_csv_file = ".".join(input_path.split(".")[:-1]) + "-similar.csv"
+    output_dendogram_file = ".".join(input_path.split(".")[:-1]) + "-similar.pdf"
+
+    input_data = pd.read_csv(input_path, sep=csv_separator)
+    input_data.contents.fillna("<empty line>", inplace=True)
+
+    columns_names = list(input_data.columns)
+
+    X = input_data.copy()
+    columns_to_drop = ['id', 'contents', 'class_value', 'class_name']
+    for column_to_drop in columns_to_drop:
+        if column_to_drop in columns_names:
+            X.drop([column_to_drop], axis=1, inplace=True)
+
+    X_values = X.values
+
+    data_dist = pdist(X_values, 'cityblock')
+    d_matrix = squareform(data_dist)
+
+    data_link = linkage(data_dist, 'ward')
+
+
+    def llf(idx):
+        return "{}:{} : {}".format(idx, input_data.contents.loc[idx], input_data.class_name.loc[idx])
+
+
+    fig = plt.figure(figsize=(20, 20))
+    dendrogram(data_link, labels=input_data.contents.values,
+               show_leaf_counts=True,
+               orientation='right',
+               leaf_font_size=10,
+               leaf_label_func=llf,
+               distance_sort=False,
+               color_threshold=threshold_distance,
+               show_contracted=True)
+    plt.xlabel('Manhattan Distance')
+    plt.ylabel('Lines')
+    plt.suptitle('Lines similarity', fontweight='bold', fontsize=14)
+
+    ax = plt.gca()
+
+    label_colors = {'ignore': 'r', 'count': 'g'}
+
+    xlbls = ax.get_ymajorticklabels()
+    for lbl in xlbls:
+        idx = int(lbl.get_text().split(":")[0])
+        class_name = input_data.class_name.values[idx]
+        lbl.set_color(label_colors[class_name])
+
+    plt.tight_layout(pad=5, w_pad=5, h_pad=5)
+    plt.savefig(output_dendogram_file)
+
+    inconsistent_indices = set()
+    for i in range(d_matrix.shape[0]):
+        for j in range(i, d_matrix.shape[0]):
+            if i != j and d_matrix[i, j] <= threshold_distance and input_data.class_value.values[i] != input_data.class_value.values[j]:
+                print("Inconsistent pair:")
+                print(" {}-> {}:{}".format(input_data.class_value.values[i], i, input_data.contents[i]))
+                print(" {}-> {}:{}".format(input_data.class_value.values[j], j, input_data.contents[j]))
+                inconsistent_indices.add(i)
+                inconsistent_indices.add(j)
+
+    inconsistent_df = input_data.loc[inconsistent_indices, :]
+
+    inconsistent_df.to_csv(output_csv_file, sep=csv_separator, index=False, encoding="utf-8")
+
+
+    logger.info(">>> Similarity files created sucessfully")
