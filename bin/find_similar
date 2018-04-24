@@ -14,14 +14,11 @@ from ggplot import *
 
 from common.configuration import ConfigurationHandler
 
-
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
-
-
 
 if __name__ == '__main__':
 
@@ -31,7 +28,7 @@ if __name__ == '__main__':
     parser.add_argument("input_path",
                         help="A path to a feature file", type=str)
     parser.add_argument('--threshold_distance', type=int,
-                            help="A minimal Manhattan distance to say that lines are similar",
+                        help="A minimal Manhattan distance to say that lines are similar",
                         required=False, default=0)
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
                         type=str, required=False, default="./files_format.json")
@@ -56,9 +53,10 @@ if __name__ == '__main__':
     output_tsne_file = ".".join(input_path.split(".")[:-1]) + "-similar-tsne.pdf"
 
     input_data = pd.read_csv(input_path, sep=csv_separator)
-    input_data.contents.fillna("<empty line>", inplace=True)
-
     columns_names = list(input_data.columns)
+
+    if "contents" in columns_names:
+        input_data.contents.fillna("<empty line>", inplace=True)
 
     X = input_data.copy()
     columns_to_drop = ['id', 'contents', 'class_value', 'class_name']
@@ -75,11 +73,14 @@ if __name__ == '__main__':
 
 
     def llf(idx):
-        return "{}:{} : {}".format(idx, input_data.contents.loc[idx], input_data.class_name.loc[idx])
+        if "contents" in columns_names:
+            return "{}:{} : {}".format(idx, input_data.contents.loc[idx], input_data.class_name.loc[idx])
+        else:
+            return "{}: {}".format(idx, input_data.class_name.loc[idx])
 
 
-    fig = plt.figure(figsize=(20, input_data.shape[0]*0.2))
-    dendrogram(data_link, labels=input_data.contents.values,
+    fig = plt.figure(figsize=(20, input_data.shape[0] * 0.2))
+    dendrogram(data_link, labels=input_data.contents.values if "contents" in columns_names else input_data.id.values,
                show_leaf_counts=True,
                orientation='right',
                leaf_font_size=10,
@@ -118,16 +119,18 @@ if __name__ == '__main__':
     inconsistent_indices = set()
     for i in range(d_matrix.shape[0]):
         for j in range(i, d_matrix.shape[0]):
-            if i != j and d_matrix[i, j] <= threshold_distance and input_data.class_value.values[i] != input_data.class_value.values[j]:
+            if i != j and d_matrix[i, j] <= threshold_distance and input_data.class_value.values[i] != \
+                    input_data.class_value.values[j]:
                 print("Inconsistent pair:")
-                print(" {}-> {}:{}".format(input_data.class_value.values[i], i, input_data.contents[i]))
-                print(" {}-> {}:{}".format(input_data.class_value.values[j], j, input_data.contents[j]))
+                print(" {}-> {}:{}".format(input_data.class_value.values[i], i,
+                                           input_data.contents[i] if "contents" in columns_names else input_data.id[i]))
+                print(" {}-> {}:{}".format(input_data.class_value.values[j], j,
+                                           input_data.contents[j] if "contents" in columns_names else input_data.id[j]))
                 inconsistent_indices.add(i)
                 inconsistent_indices.add(j)
 
     inconsistent_df = input_data.loc[inconsistent_indices, :]
 
     inconsistent_df.to_csv(output_csv_file, sep=csv_separator, index=False, encoding="utf-8")
-
 
     logger.info(">>> Similarity files created sucessfully")
