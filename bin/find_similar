@@ -30,6 +30,8 @@ if __name__ == '__main__':
     parser.add_argument('--threshold_distance', type=int,
                         help="A minimal Manhattan distance to say that lines are similar",
                         required=False, default=0)
+    parser.add_argument("--tsne", help="If used t-SNE 2D plot will be generated ",
+                        default=False, action='store_true')
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
                         type=str, required=False, default="./files_format.json")
 
@@ -39,6 +41,7 @@ if __name__ == '__main__':
     input_path = args['input_path']
     threshold_distance = args['threshold_distance']
     files_format_file_path = args['files_format_config']
+    tsne = args['tsne']
 
     try:
         files_format_config = ConfigurationHandler(files_format_file_path)
@@ -106,16 +109,17 @@ if __name__ == '__main__':
     except ValueError as e:
         pass
 
-    tsne = TSNE(n_components=2, verbose=1, n_iter=10000)
-    tsne_results = tsne.fit_transform(X_values)
-    df_tsne = pd.concat([pd.DataFrame(tsne_results, columns=("x-tsne", "y-tsne")),
-                         input_data.class_name, pd.Series(input_data.index.values, name="line")], axis=1)
-    df_tsne['line'] = df_tsne['line'].astype(str)
-    chart = ggplot(df_tsne, aes(x='x-tsne', y='y-tsne', color='class_name', shape='class_name', label='line')) \
-            + geom_point(size=70, alpha=0.5) \
-            + geom_text(size=8, position='jitter') \
-            + ggtitle("tSNE dimensions for lines")
-    ggplot.save(chart, output_tsne_file, 15, 10, 300)
+    if tsne:
+        tsne = TSNE(n_components=2, verbose=1, n_iter=10000)
+        tsne_results = tsne.fit_transform(X_values)
+        df_tsne = pd.concat([pd.DataFrame(tsne_results, columns=("x-tsne", "y-tsne")),
+                             input_data.class_name, pd.Series(input_data.index.values, name="line")], axis=1)
+        df_tsne['line'] = df_tsne['line'].astype(str)
+        chart = ggplot(df_tsne, aes(x='x-tsne', y='y-tsne', color='class_name', shape='class_name', label='line')) \
+                + geom_point(size=70, alpha=0.5) \
+                + geom_text(size=8, position='jitter') \
+                + ggtitle("tSNE dimensions for lines")
+        ggplot.save(chart, output_tsne_file, 15, 10, 300)
 
     inconsistent_indices = set()
     for i in range(d_matrix.shape[0]):
