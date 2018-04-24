@@ -13,6 +13,7 @@ setup(name='pyccflex',
           'numpy',
           'scikit-learn',
           'modAL',
+          'ggplot'
       ],
       scripts=[
           'bin/create_workspace',
