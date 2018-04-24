@@ -102,11 +102,11 @@ if __name__ == '__main__':
         for lbl in xlbls:
             idx = int(lbl.get_text().split(":")[0])
             class_name = input_data.class_name.values[idx]
-            lbl.set_color(label_colors[class_name])
+            lbl.set_color(label_colors.get(class_name, "b"))
 
         plt.tight_layout(pad=5, w_pad=5, h_pad=5)
         plt.savefig(output_dendogram_file)
-    except ValueError as e:
+    except (ValueError, KeyError) as e:
         pass
 
     if tsne:
@@ -127,9 +127,9 @@ if __name__ == '__main__':
             if i != j and d_matrix[i, j] <= threshold_distance and input_data.class_value.values[i] != \
                     input_data.class_value.values[j]:
                 print("Inconsistent pair:")
-                print(" {}-> {}:{}".format(input_data.class_value.values[i], i,
+                print(" {}-> {}:{}".format(int(input_data.class_value.values[i]), i+1,
                                            input_data.contents[i] if "contents" in columns_names else input_data.id[i]))
-                print(" {}-> {}:{}".format(input_data.class_value.values[j], j,
+                print(" {}-> {}:{}".format(int(input_data.class_value.values[j]), j+1,
                                            input_data.contents[j] if "contents" in columns_names else input_data.id[j]))
                 inconsistent_indices.add(i)
                 inconsistent_indices.add(j)
