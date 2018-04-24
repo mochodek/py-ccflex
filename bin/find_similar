@@ -78,32 +78,33 @@ if __name__ == '__main__':
         else:
             return "{}: {}".format(idx, input_data.class_name.loc[idx])
 
+    try:
+        fig = plt.figure(figsize=(20, input_data.shape[0] * 0.2))
+        dendrogram(data_link, labels=input_data.contents.values if "contents" in columns_names else input_data.id.values,
+                   show_leaf_counts=True,
+                   orientation='right',
+                   leaf_font_size=10,
+                   leaf_label_func=llf,
+                   distance_sort=False,
+                   color_threshold=threshold_distance,
+                   show_contracted=True)
+        plt.xlabel('Manhattan Distance')
+        plt.ylabel('Lines')
 
-    fig = plt.figure(figsize=(20, input_data.shape[0] * 0.2))
-    dendrogram(data_link, labels=input_data.contents.values if "contents" in columns_names else input_data.id.values,
-               show_leaf_counts=True,
-               orientation='right',
-               leaf_font_size=10,
-               leaf_label_func=llf,
-               distance_sort=False,
-               color_threshold=threshold_distance,
-               show_contracted=True)
-    plt.xlabel('Manhattan Distance')
-    plt.ylabel('Lines')
-    plt.suptitle('Lines similarity', fontweight='bold', fontsize=14)
+        ax = plt.gca()
 
-    ax = plt.gca()
+        label_colors = {'ignore': 'r', 'count': 'g'}
 
-    label_colors = {'ignore': 'r', 'count': 'g'}
+        xlbls = ax.get_ymajorticklabels()
+        for lbl in xlbls:
+            idx = int(lbl.get_text().split(":")[0])
+            class_name = input_data.class_name.values[idx]
+            lbl.set_color(label_colors[class_name])
 
-    xlbls = ax.get_ymajorticklabels()
-    for lbl in xlbls:
-        idx = int(lbl.get_text().split(":")[0])
-        class_name = input_data.class_name.values[idx]
-        lbl.set_color(label_colors[class_name])
-
-    plt.tight_layout(pad=5, w_pad=5, h_pad=5)
-    plt.savefig(output_dendogram_file)
+        plt.tight_layout(pad=5, w_pad=5, h_pad=5)
+        plt.savefig(output_dendogram_file)
+    except ValueError as e:
+        pass
 
     tsne = TSNE(n_components=2, verbose=1, n_iter=10000)
     tsne_results = tsne.fit_transform(X_values)
