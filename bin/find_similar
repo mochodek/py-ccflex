@@ -9,7 +9,8 @@ import pandas as pd
 from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import dendrogram, linkage, cophenet, fcluster, inconsistent
 import matplotlib.pyplot as plt
-
+from sklearn.manifold import TSNE
+from ggplot import *
 
 from common.configuration import ConfigurationHandler
 
@@ -51,7 +52,8 @@ if __name__ == '__main__':
     csv_separator = files_format_config.get("csv_sep", ",")
 
     output_csv_file = ".".join(input_path.split(".")[:-1]) + "-similar.csv"
-    output_dendogram_file = ".".join(input_path.split(".")[:-1]) + "-similar.pdf"
+    output_dendogram_file = ".".join(input_path.split(".")[:-1]) + "-similar-dendr.pdf"
+    output_tsne_file = ".".join(input_path.split(".")[:-1]) + "-similar-tsne.pdf"
 
     input_data = pd.read_csv(input_path, sep=csv_separator)
     input_data.contents.fillna("<empty line>", inplace=True)
@@ -101,6 +103,17 @@ if __name__ == '__main__':
 
     plt.tight_layout(pad=5, w_pad=5, h_pad=5)
     plt.savefig(output_dendogram_file)
+
+    tsne = TSNE(n_components=2, verbose=1, n_iter=10000)
+    tsne_results = tsne.fit_transform(X_values)
+    df_tsne = pd.concat([pd.DataFrame(tsne_results, columns=("x-tsne", "y-tsne")),
+                         input_data.class_name, pd.Series(input_data.index.values, name="line")], axis=1)
+    df_tsne['line'] = df_tsne['line'].astype(str)
+    chart = ggplot(df_tsne, aes(x='x-tsne', y='y-tsne', color='class_name', shape='class_name', label='line')) \
+            + geom_point(size=70, alpha=0.5) \
+            + geom_text(size=8, position='jitter') \
+            + ggtitle("tSNE dimensions for lines")
+    ggplot.save(chart, output_tsne_file, 15, 10, 300)
 
     inconsistent_indices = set()
     for i in range(d_matrix.shape[0]):
