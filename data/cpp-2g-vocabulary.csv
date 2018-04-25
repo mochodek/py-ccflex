@@ -1,0 +1,3214 @@
+token
+	
+	 	
+	  
+	 #
+"	 $"
+	 (
+	 *
+	 /
+	 0
+	 0a0
+	 =
+	 a
+	 a0
+	 a0_0
+	 a0_a
+	 a0a
+	 a0a_a
+	 a_a
+	 a_a0a
+	 break
+	 char
+	 const
+	 else
+	 float
+	 for
+	 if
+	 int
+	 public
+	 return
+	 void
+	 while
+	 {
+	 }
+ 
+  	
+   
+  !
+"  """
+  #
+"  $"
+  %
+  &
+  '
+  (
+  )
+  *
+  +
+  ,
+  -
+  .
+  /
+  0
+  0_
+  0_0
+  0_a
+  0_a0
+  0_a_0
+  0_a_0_a
+  0a
+  0a0
+  0a0_
+  0a0_0a
+  0a0_a0
+  0a_0a
+  0a_a
+  :
+  ;
+  <
+  =
+  >
+  ?
+  @
+  [
+  \
+  ]
+  ^
+  _
+  _0
+  _0_a
+  _0a
+  _a
+  _a0
+  _a0_
+  _a0_a
+  _a0_a_
+  _a0a
+  _a0a_
+  _a0a_a
+  _a_
+  _a_0_0
+  _a_0_a
+  `
+  a
+  a0
+  a0_
+  a0_0
+  a0_a
+  a0_a0
+  a0_a0_a
+  a0_a0a
+  a0_a0a_a
+  a0_a_0_a
+  a0_a_0a
+  a0_a_0a0
+  a0_a_0a_a
+  a0a
+  a0a_
+  a0a_0
+  a0a_0_0
+  a0a_a
+  a0a_a0
+  a_
+  a_0
+  a_0_0
+  a_0_a
+  a_0_a_0
+  a_0_a_0_a
+  a_0a
+  a_0a0
+  a_0a0_a
+  a_0a_0_0a
+  a_0a_a
+  a_0a_a0_a
+  a_a
+  a_a0
+  a_a0_
+  a_a0_0
+  a_a0_a
+  a_a0_a_
+  a_a0_a_0
+  a_a0_a_0a0_a
+  a_a0a
+  a_a0a_a
+  a_a0a_a0
+  a_a0a_a0_a
+  asm
+  auto
+  a’a
+  bool
+  break
+  case
+  catch
+  char
+  class
+  const
+  const_cast
+  continue
+  default
+  define
+  delete
+  do
+  double
+  dynamic_cast
+  else
+  enum
+  explicit
+  export
+  extern
+  false
+  float
+  for
+  friend
+  goto
+  if
+  include
+  inline
+  int
+  long
+  mutable
+  namespace
+  new
+  operator
+  private
+  protected
+  public
+  register
+  reinterpret_cast
+  return
+  short
+  signed
+  sizeof
+  static
+  static_cast
+  struct
+  switch
+  template
+  this
+  throw
+  token
+  true
+  try
+  typedef
+  typeid
+  typename
+  union
+  unsigned
+  using
+  virtual
+  void
+  volatile
+  wchar_t
+  while
+  {
+  |
+  }
+  ~
+  ©
+!
+!  
+! !
+"! """
+! #
+! '
+! (
+! )
+! *
+! ,
+! -
+! /
+! :
+! =
+! ?
+! \
+! _a
+! _a0
+! _a0_
+! _a0_a
+! _a_
+! `
+! a
+! a0
+! a0_a
+! a0a
+! a_
+! a_0
+! a_a
+! a_a0
+! a_a0_a
+! a_a0a
+! bool
+! operator
+! static_cast
+! this
+""""
+""" 	"
+"""  "
+""" !"
+""" """
+""" #"
+""" $"
+""" %"
+""" &"
+""" '"
+""" ("
+""" )"
+""" *"
+""" +"
+""" ,"
+""" -"
+""" ."
+""" /"
+""" 0"
+""" 0a"
+""" 0a0"
+""" :"
+""" ;"
+""" <"
+""" ="
+""" >"
+""" ?"
+""" @"
+""" ["
+""" \"
+""" ]"
+""" ^"
+""" _"
+""" _0a0"
+""" _a"
+""" _a0"
+""" _a0a"
+""" _a0a_a"
+""" _a_"
+""" `"
+""" a"
+""" a0"
+""" a0_0"
+""" a0_a"
+""" a0_a0"
+""" a0a"
+""" a0a_a"
+""" a_"
+""" a_0"
+""" a_0_0"
+""" a_a"
+""" a_a0"
+""" a_a0_a"
+""" a_a0a"
+""" a_a0a_a"
+""" auto"
+""" bool"
+""" catch"
+""" char"
+""" class"
+""" const"
+""" default"
+""" delete"
+""" do"
+""" double"
+""" enum"
+""" explicit"
+""" export"
+""" false"
+""" float"
+""" for"
+""" goto"
+""" if"
+""" inline"
+""" int"
+""" long"
+""" namespace"
+""" new"
+""" operator"
+""" protected"
+""" public"
+""" reinterpret_cast"
+""" return"
+""" short"
+""" sizeof"
+""" static"
+""" struct"
+""" template"
+""" this"
+""" throw"
+""" true"
+""" try"
+""" unsigned"
+""" using"
+""" void"
+""" volatile"
+""" while"
+""" {"
+""" |"
+""" }"
+""" ~"
+#
+#  
+# !
+"# """
+# #
+"# $"
+# %
+# &
+# '
+# (
+# )
+# *
+# +
+# ,
+# -
+# .
+# /
+# 0
+# 0a
+# 0a0
+# 0a_
+# :
+# ;
+# <
+# =
+# >
+# ?
+# @
+# [
+# \
+# ]
+# ^
+# _
+# _0a0
+# _a
+# _a_
+# `
+# a
+# a0
+# a0a
+# a_
+# a_a
+# default
+# define
+# else
+# if
+# include
+# int
+# new
+"$"
+"$ 	"
+"$  "
+"$ """
+"$ #"
+"$ $"
+"$ %"
+"$ &"
+"$ '"
+"$ ("
+"$ )"
+"$ *"
+"$ +"
+"$ ,"
+"$ -"
+"$ ."
+"$ /"
+"$ 0"
+"$ 0a"
+"$ 0a0"
+"$ ;"
+"$ <"
+"$ ="
+"$ >"
+"$ ?"
+"$ @"
+"$ ["
+"$ ]"
+"$ ^"
+"$ _a"
+"$ a"
+"$ a0"
+"$ a0_a"
+"$ a0a"
+"$ a_"
+"$ a_a"
+"$ {"
+%
+%  
+"% """
+% #
+"% $"
+% %
+% &
+% '
+% (
+% )
+% *
+% +
+% ,
+% -
+% .
+% /
+% 0
+% 0_a
+% 0a
+% 0a0
+% 0a0_a
+% 0a_
+% :
+% ;
+% <
+% =
+% >
+% ?
+% @
+% [
+% ]
+% ^
+% `
+% a
+% a0
+% a0a
+% a_
+% a_a
+% a_a0
+&
+&  
+"& """
+& #
+"& $"
+& %
+& &
+& '
+& (
+& )
+& *
+& +
+& ,
+& -
+& .
+& /
+& 0
+& 0_a0
+& 0a
+& 0a0
+& 0a_
+& :
+& ;
+& <
+& =
+& >
+& ?
+& @
+& [
+& ]
+& ^
+& _
+& _a
+& _a_
+& `
+& a
+& a0
+& a0_0
+& a0_a
+& a0a
+& a0a_a
+& a_
+& a_0
+& a_a
+& a_a0
+& a_a0_a
+& a_a0a
+& continue
+& operator
+& static_cast
+& struct
+& this
+& token
+& typeid
+& |
+'
+'  
+' !
+"' """
+' #
+"' $"
+' %
+' &
+' '
+' (
+' )
+' *
+' +
+' ,
+' -
+' .
+' /
+' 0
+' 0a
+' 0a0
+' :
+' ;
+' <
+' =
+' >
+' ?
+' @
+' [
+' \
+' ]
+' ^
+' _
+' _a
+' _a0
+' `
+' a
+' a0
+' a0_a
+' a0a
+' a0a_a
+' a_
+' a_a
+' a_a0
+' auto
+' bool
+' break
+' const
+' double
+' enum
+' false
+' float
+' for
+' if
+' int
+' long
+' mutable
+' new
+' static
+' this
+' true
+' void
+' {
+' |
+' }
+' ~
+(
+(  
+( !
+"( """
+( #
+"( $"
+( %
+( &
+( '
+( (
+( )
+( *
+( +
+( ,
+( -
+( .
+( /
+( 0
+( 0_0
+( 0_a
+( 0_a0
+( 0_a0a
+( 0_a_0
+( 0_a_0_a
+( 0a
+( 0a0
+( 0a0_a0
+( 0a_
+( 0a_a
+( :
+( ;
+( <
+( =
+( >
+( ?
+( @
+( [
+( \
+( ]
+( ^
+( _
+( _0
+( _0_
+( _0a
+( _a
+( _a0
+( _a0_
+( _a0_a
+( _a0a
+( _a_
+( `
+( a
+( a0
+( a0_
+( a0_0
+( a0_a
+( a0_a0
+( a0_a0_a
+( a0_a0a
+( a0_a_0a
+( a0_a_0a0
+( a0_a_0a_a
+( a0a
+( a0a_
+( a0a_a
+( a0a_a0
+( a_
+( a_0
+( a_0_0
+( a_0_a
+( a_0_a_0
+( a_0_a_0_a
+( a_0a
+( a_0a0
+( a_0a_0_0a
+( a_a
+( a_a0
+( a_a0_0
+( a_a0_a
+( a_a0a
+( a_a0a_a
+( auto
+( bool
+( break
+( case
+( char
+( class
+( const
+( const_cast
+( default
+( delete
+( do
+( double
+( dynamic_cast
+( else
+( enum
+( false
+( float
+( for
+( friend
+( if
+( include
+( int
+( long
+( new
+( operator
+( private
+( protected
+( public
+( reinterpret_cast
+( return
+( short
+( signed
+( sizeof
+( static
+( static_cast
+( struct
+( switch
+( this
+( throw
+( token
+( true
+( try
+( typeid
+( typename
+( unsigned
+( using
+( void
+( volatile
+( wchar_t
+( while
+( {
+( |
+( ~
+)
+) 	
+)  
+) !
+") """
+) #
+") $"
+) %
+) &
+) '
+) (
+) )
+) *
+) +
+) ,
+) -
+) .
+) /
+) 0
+) 0a
+) :
+) ;
+) <
+) =
+) >
+) ?
+) [
+) \
+) ]
+) ^
+) _a
+) _a0_a
+) `
+) a
+) a0
+) a0_a
+) a0a
+) a_
+) a_a
+) a_a0
+) a_a0_a
+) a_a0a
+) bool
+) const
+) false
+) new
+) sizeof
+) static_cast
+) this
+) true
+) {
+) |
+) }
+) ~
+*
+* 	
+*  
+* !
+"* """
+* #
+"* $"
+* %
+* &
+* '
+* (
+* )
+* *
+* +
+* ,
+* -
+* .
+* /
+* 0
+* 0_a0
+* 0a
+* 0a_0a
+* :
+* ;
+* <
+* =
+* >
+* @
+* [
+* \
+* ^
+* _a
+* `
+* a
+* a0
+* a0_a
+* a0a
+* a0a_a0_0a0
+* a_
+* a_0_0
+* a_0_a
+* a_a
+* a_a0
+* a_a0_a
+* case
+* const
+* const_cast
+* default
+* do
+* explicit
+* new
+* operator
+* reinterpret_cast
+* sizeof
+* static
+* static_cast
+* this
+* token
+* |
+* }
++
++ 	
++  
+"+ """
++ #
+"+ $"
++ %
++ &
++ '
++ (
++ )
++ *
++ +
++ ,
++ -
++ .
++ /
++ 0
++ 0a
++ 0a0
++ :
++ ;
++ <
++ =
++ >
++ ?
++ @
++ [
++ \
++ ]
++ ^
++ _a
++ `
++ a
++ a0
++ a0_a
++ a0a
++ a_
++ a_0
++ a_a
++ this
++ }
++ ~
+,
+, 	
+,  
+", """
+, #
+", $"
+, %
+, &
+, '
+, (
+, )
+, *
+, +
+, ,
+, -
+, .
+, /
+, 0
+, 0a
+, 0a0
+, ;
+, <
+, =
+, >
+, ?
+, [
+, \
+, ]
+, ^
+, _
+, _a
+, `
+, a
+, a0
+, a0_a
+, a0a
+, a_
+, a_0
+, a_a
+, bool
+, const
+, double
+, false
+, float
+, int
+, long
+, new
+, private
+, true
+, unsigned
+, {
+, }
+-
+-  
+"- """
+- #
+"- $"
+- %
+- &
+- '
+- (
+- )
+- *
+- +
+- ,
+- -
+- .
+- /
+- 0
+- 0a
+- 0a0
+- 0a_
+- 0a_a
+- :
+- ;
+- <
+- =
+- >
+- ?
+- @
+- [
+- \
+- ]
+- ^
+- _
+- _0a0
+- _a
+- `
+- a
+- a0
+- a0_
+- a0_a
+- a0a
+- a_
+- a_0
+- a_a
+- a_a0_a
+- bool
+- case
+- catch
+- char
+- class
+- const
+- default
+- define
+- delete
+- double
+- false
+- for
+- if
+- include
+- int
+- mutable
+- namespace
+- operator
+- private
+- protected
+- public
+- register
+- static
+- static_cast
+- template
+- this
+- throw
+- token
+- true
+- try
+- using
+- virtual
+- void
+- volatile
+- while
+- |
+.
+.  
+". """
+. #
+. %
+. '
+. (
+. )
+. *
+. +
+. ,
+. -
+. .
+. /
+. 0
+. 0_
+. 0_a
+. 0a
+. 0a0
+. 0a_
+. :
+. ;
+. <
+. =
+. >
+. ?
+. [
+. \
+. ]
+. ^
+. _
+. _a
+. _a0
+. _a_
+. `
+. a
+. a0
+. a0_a
+. a0_a0
+. a0a
+. a0a_
+. a_
+. a_a
+. a_a0
+. a_a0_a
+. catch
+. do
+. new
+. operator
+. return
+. template
+. this
+. token
+. try
+. typeid
+. typename
+. using
+. {
+. |
+. }
+. ~
+/
+/ 	
+/  
+/ !
+"/ """
+/ #
+"/ $"
+/ %
+/ &
+/ '
+/ (
+/ )
+/ *
+/ +
+/ ,
+/ -
+/ .
+/ /
+/ 0
+/ 0_0
+/ 0_a
+/ 0a
+/ 0a0
+/ :
+/ ;
+/ <
+/ =
+/ >
+/ @
+/ [
+/ \
+/ ]
+/ ^
+/ _
+/ _a
+/ `
+/ a
+/ a0
+/ a0_a
+/ a0a
+/ a_
+/ a_0
+/ a_0a0
+/ a_a
+/ a_a0
+/ a_a0_a
+/ a_a0a
+/ asm
+/ auto
+/ bool
+/ catch
+/ char
+/ class
+/ default
+/ delete
+/ double
+/ else
+/ false
+/ float
+/ for
+/ if
+/ include
+/ int
+/ private
+/ public
+/ return
+/ short
+/ signed
+/ sizeof
+/ static
+/ this
+/ throw
+/ token
+/ true
+/ try
+/ unsigned
+/ using
+/ {
+/ }
+/ ~
+0
+0 	
+0  
+0 !
+"0 """
+0 #
+"0 $"
+0 %
+0 &
+0 '
+0 (
+0 )
+0 *
+0 +
+0 ,
+0 -
+0 .
+0 /
+0 :
+0 ;
+0 <
+0 =
+0 >
+0 ?
+0 @
+0 [
+0 \
+0 ]
+0 ^
+0 `
+0 {
+0 |
+0 }
+0 ~
+0_
+0_  
+0_ =
+0_0
+0_0 )
+0_0 .
+0_0 /
+0_a
+0_a  
+0_a )
+0_a ;
+0_a <
+0_a0
+"0_a0 $"
+0_a0 &
+0_a0 )
+0_a0 ,
+0_a0a
+0_a0a .
+0_a_0
+0_a_0 )
+0_a_0 ,
+0_a_0_a
+0_a_0_a  
+0_a_0_a )
+0_a_0_a ,
+0a
+0a  
+0a !
+"0a """
+0a #
+"0a $"
+0a %
+0a &
+0a '
+0a (
+0a )
+0a *
+0a +
+0a ,
+0a -
+0a .
+0a /
+0a :
+0a ;
+0a <
+0a =
+0a >
+0a ?
+0a @
+0a [
+0a \
+0a ]
+0a ^
+0a `
+0a {
+0a }
+0a0
+0a0 	
+0a0  
+"0a0 """
+0a0 #
+"0a0 $"
+0a0 %
+0a0 &
+0a0 '
+0a0 (
+0a0 )
+0a0 *
+0a0 +
+0a0 ,
+0a0 -
+0a0 .
+0a0 /
+0a0 :
+0a0 ;
+0a0 <
+0a0 =
+0a0 >
+0a0 @
+0a0 [
+0a0 ]
+0a0 ^
+0a0 |
+0a0 }
+0a0_
+0a0_0a
+0a0_0a ,
+0a0_a
+0a0_a &
+0a0_a0
+0a0_a0 )
+0a0_a0 ,
+0a_
+0a_ #
+0a_ %
+0a_ &
+0a_0a
+0a_0a )
+0a_0a +
+0a_0a ,
+0a_a
+"0a_a $"
+0a_a )
+0a_a ,
+0a_a ?
+:
+: 	
+:  
+: !
+": """
+: #
+": $"
+: %
+: &
+: '
+: (
+: )
+: *
+: +
+: ,
+: -
+: .
+: /
+: 0
+: 0a
+: 0a0
+: 0a_a
+: :
+: ;
+: <
+: =
+: >
+: @
+: [
+: \
+: ]
+: ^
+: _
+: _0
+: _a
+: _a0
+: _a_
+: `
+: a
+: a0
+: a0_0
+: a0_a
+: a0_a0_a
+: a0a
+: a0a_a
+: a_
+: a_0
+: a_0_a
+: a_0_a_0
+: a_0a0
+: a_a
+: a_a0
+: a_a0_
+: a_a0_a
+: a_a0_a_
+: auto
+: bool
+: break
+: continue
+: default
+: delete
+: double
+: false
+: float
+: int
+: long
+: new
+: operator
+: private
+: return
+: short
+: template
+: this
+: throw
+: token
+: true
+: try
+: typename
+: {
+: |
+: ~
+;
+; 	
+;  
+; !
+"; """
+; #
+"; $"
+; %
+; &
+; '
+; (
+; )
+; *
+; +
+; ,
+; -
+; .
+; /
+; 0
+; 0a
+; 0a_
+; ;
+; <
+; =
+; >
+; ?
+; [
+; \
+; ]
+; ^
+; _
+; _a
+; `
+; a
+; a0
+; a0a
+; a_
+; a_0
+; a_0a
+; a_a
+; class
+; static
+; }
+<
+<  
+< !
+"< """
+< #
+"< $"
+< %
+< &
+< '
+< (
+< )
+< *
+< ,
+< -
+< .
+< /
+< 0
+< 0a
+< 0a0
+< :
+< <
+< =
+< >
+< ?
+< [
+< ^
+< _
+< _a
+< _a0
+< _a0_a
+< _a0a
+< _a_
+< `
+< a
+< a0
+< a0_0
+< a0_a
+< a0a
+< a0a_
+< a0a_a
+< a_
+< a_a
+< a_a0
+< a_a0_a
+< auto
+< bool
+< case
+< catch
+< char
+< class
+< const
+< default
+< do
+< double
+< enum
+< explicit
+< false
+< float
+< if
+< int
+< long
+< mutable
+< new
+< operator
+< short
+< signed
+< sizeof
+< static_cast
+< struct
+< template
+< this
+< token
+< true
+< try
+< typename
+< unsigned
+< void
+< volatile
+< wchar_t
+< {
+=
+= 	
+=  
+"= """
+= #
+"= $"
+= %
+= &
+= '
+= (
+= )
+= *
+= +
+= ,
+= -
+= .
+= /
+= 0
+= 0a
+= 0a0
+= :
+= ;
+= <
+= =
+= >
+= ?
+= @
+= [
+= \
+= ]
+= ^
+= a
+= a0
+= a0a
+= a0a_a
+= a_
+= a_a
+= a_a0_a
+= a_a0a
+= char
+= false
+= sizeof
+= true
+= void
+= {
+>
+>  
+"> """
+> #
+"> $"
+> %
+> &
+> '
+> (
+> )
+> *
+> +
+> ,
+> -
+> .
+> /
+> 0
+> 0a
+> 0a0
+> :
+> ;
+> <
+> =
+> >
+> ?
+> @
+> [
+> \
+> ]
+> ^
+> _
+> _a
+> _a_
+> `
+> a
+> a0
+> a0_a
+> a0a
+> a_
+> a_0
+> a_a
+> a_a0
+> a_a0_a
+> int
+> template
+> token
+> typename
+> {
+> |
+> }
+> ~
+?
+?  
+? !
+"? """
+? #
+"? $"
+? %
+? &
+? '
+? (
+? )
+? +
+? ,
+? -
+? .
+? 0
+? 0a
+? 0a0
+? 0a_
+? 0a_0a
+? :
+? ;
+? <
+? =
+? >
+? ?
+? @
+? [
+? \
+? ]
+? ^
+? a
+? a0
+? a0a
+? a0a_a
+@
+@  
+"@ """
+@ #
+"@ $"
+@ %
+@ &
+@ '
+@ (
+@ )
+@ *
+@ +
+@ ,
+@ -
+@ .
+@ /
+@ 0
+@ 0a
+@ :
+@ ;
+@ >
+@ ?
+@ @
+@ [
+@ ]
+@ ^
+@ _a
+@ _a0
+@ _a0a
+@ `
+@ a
+@ a0
+@ a0a
+@ a_a
+@ class
+@ long
+@ return
+@ throw
+@ {
+@ }
+[
+[  
+"[ """
+[ #
+"[ $"
+[ %
+[ &
+[ '
+[ (
+[ )
+[ *
+[ +
+[ ,
+[ -
+[ .
+[ /
+[ 0
+[ 0a
+[ 0a0
+[ :
+[ <
+[ =
+[ >
+[ ?
+[ @
+[ [
+[ \
+[ ]
+[ ^
+[ _
+[ _0
+[ _a
+[ `
+[ a
+[ a0
+[ a0_a
+[ a0a
+[ a_
+[ a_0
+[ a_a
+[ a_a0
+[ a_a0_a
+[ const
+[ default
+[ for
+[ sizeof
+[ static_cast
+[ this
+[ token
+[ {
+\
+\  
+\ !
+"\ """
+\ #
+\ %
+\ '
+\ (
+\ )
+\ *
+\ +
+\ .
+\ /
+\ 0
+\ 0a
+\ ?
+\ [
+\ \
+\ ]
+\ _
+\ a
+\ a0
+\ a0a
+\ a_a
+\ class
+\ enum
+\ return
+\ struct
+\ throw
+\ typedef
+\ {
+\ }
+]
+]  
+] !
+"] """
+] #
+"] $"
+] %
+] &
+] '
+] (
+] )
+] *
+] +
+] ,
+] -
+] .
+] /
+] 0
+] 0a
+] :
+] ;
+] <
+] =
+] >
+] ?
+] @
+] [
+] \
+] ]
+] ^
+] _a
+] `
+] a
+] a0
+] a0_a
+] a0a
+] a_
+] a_a0_a
+] a_a0a
+] {
+] |
+] }
+^
+^  
+"^ """
+^ #
+"^ $"
+^ %
+^ &
+^ '
+^ (
+^ )
+^ *
+^ +
+^ ,
+^ -
+^ .
+^ /
+^ 0
+^ 0a
+^ 0a0
+^ :
+^ ;
+^ <
+^ =
+^ >
+^ ?
+^ @
+^ [
+^ \
+^ ]
+^ ^
+^ _
+^ `
+^ a
+^ a0
+^ a0a
+^ a_
+^ a_0a
+^ a_a
+^ {
+^ |
+_
+_  
+"_ """
+_ #
+_ %
+_ '
+_ (
+_ )
+_ ,
+_ -
+_ .
+_ /
+_ :
+_ ;
+_ <
+_ =
+_ >
+_ [
+_ {
+_ |
+_0
+_0 )
+_0 ,
+_0 >
+_0 ]
+_0_
+_0_ )
+_0_a
+_0_a :
+_0_a ;
+_0a
+_0a  
+_0a ;
+_0a0
+_0a0 #
+_0a0 (
+_0a0 +
+_a
+_a  
+"_a """
+_a #
+_a %
+_a &
+_a '
+_a (
+_a )
+_a *
+_a +
+_a ,
+_a -
+_a .
+_a /
+_a :
+_a ;
+_a <
+_a =
+_a >
+_a [
+_a ]
+_a `
+_a {
+_a |
+_a }
+_a0
+_a0  
+"_a0 """
+_a0 #
+"_a0 $"
+_a0 &
+_a0 (
+_a0 )
+_a0 ,
+_a0 .
+_a0 :
+_a0 ;
+_a0 >
+_a0 @
+_a0 `
+_a0_
+_a0_  
+_a0_ )
+_a0_a
+_a0_a  
+_a0_a (
+_a0_a )
+_a0_a .
+_a0_a /
+_a0_a >
+_a0_a {
+_a0_a_
+_a0_a_  
+_a0a
+_a0a  
+"_a0a """
+_a0a (
+_a0a )
+_a0a *
+_a0a -
+_a0a /
+_a0a_
+_a0a_a
+"_a0a_a """
+_a_
+_a_  
+"_a_ """
+_a_ #
+_a_ (
+_a_ )
+_a_ *
+_a_ ,
+_a_ .
+_a_ ;
+_a_ <
+_a_ >
+_a_ `
+_a_ }
+_a_0_0
+_a_0_0  
+_a_0_0 )
+_a_0_a
+_a_0_a  
+`
+`  
+` !
+"` """
+` #
+"` $"
+` %
+` &
+` '
+` (
+` )
+` *
+` +
+` ,
+` -
+` .
+` /
+` 0
+` 0_
+` 0_a
+` 0a
+` 0a0
+` :
+` ;
+` <
+` =
+` >
+` ?
+` @
+` [
+` \
+` ]
+` _a
+` _a0
+` _a_
+` `
+` a
+` a0
+` a0_a
+` a0a
+` a_
+` a_0
+` a_a
+` a_a0
+` auto
+` bool
+` break
+` catch
+` char
+` const
+` const_cast
+` delete
+` double
+` dynamic_cast
+` extern
+` false
+` if
+` int
+` long
+` new
+` operator
+` sizeof
+` static_cast
+` struct
+` template
+` this
+` throw
+` true
+` try
+` typedef
+` typeid
+` typename
+` union
+` unsigned
+` using
+` void
+` {
+` }
+a
+a 	
+a  
+a !
+"a """
+a #
+"a $"
+a %
+a &
+a '
+a (
+a )
+a *
+a +
+a ,
+a -
+a .
+a /
+a :
+a ;
+a <
+a =
+a >
+a ?
+a @
+a [
+a \
+a ]
+a ^
+a `
+a {
+a |
+a }
+a ~
+a0
+a0  
+"a0 """
+a0 #
+"a0 $"
+a0 %
+a0 &
+a0 '
+a0 (
+a0 )
+a0 *
+a0 +
+a0 ,
+a0 -
+a0 .
+a0 /
+a0 :
+a0 ;
+a0 <
+a0 =
+a0 >
+a0 ?
+a0 @
+a0 [
+a0 \
+a0 ]
+a0 ^
+a0 `
+a0 {
+a0 }
+a0_
+a0_  
+a0_ #
+a0_ (
+a0_ )
+a0_ ,
+a0_ -
+a0_ .
+a0_ ;
+a0_ [
+a0_0
+a0_0 	
+a0_0  
+a0_0 (
+a0_0 )
+a0_0 ,
+a0_0 -
+a0_0 .
+a0_0 :
+a0_a
+a0_a 	
+a0_a  
+"a0_a """
+a0_a &
+a0_a '
+a0_a (
+a0_a )
+a0_a *
+a0_a +
+a0_a ,
+a0_a -
+a0_a .
+a0_a /
+a0_a :
+a0_a ;
+a0_a <
+a0_a >
+a0_a [
+a0_a \
+a0_a ]
+a0_a `
+a0_a {
+a0_a0
+a0_a0  
+a0_a0 (
+a0_a0 )
+a0_a0 ,
+a0_a0 .
+a0_a0 [
+a0_a0 \
+a0_a0_a
+a0_a0_a (
+a0_a0_a )
+a0_a0_a ,
+a0_a0_a <
+a0_a0a
+a0_a0a  
+"a0_a0a """
+a0_a0a (
+a0_a0a ,
+a0_a0a ;
+a0_a0a_a
+a0_a0a_a  
+a0_a0a_a )
+a0_a_0_a
+a0_a_0_a ;
+a0_a_0a
+a0_a_0a (
+a0_a_0a0
+a0_a_0a0 (
+a0_a_0a_a
+a0_a_0a_a ,
+a0_a_0a_a ;
+a0a
+a0a 	
+a0a  
+a0a !
+"a0a """
+a0a #
+"a0a $"
+a0a %
+a0a &
+a0a '
+a0a (
+a0a )
+a0a *
+a0a +
+a0a ,
+a0a -
+a0a .
+a0a /
+a0a :
+a0a ;
+a0a <
+a0a =
+a0a >
+a0a ?
+a0a @
+a0a [
+a0a \
+a0a ]
+a0a ^
+a0a `
+a0a {
+a0a ~
+a0a_
+a0a_  
+a0a_ (
+a0a_ )
+a0a_ ,
+a0a_ .
+a0a_ /
+a0a_ ;
+a0a_ [
+a0a_0
+a0a_0 ,
+a0a_0_0
+a0a_0_0 ,
+a0a_0_0 ;
+a0a_a
+a0a_a 	
+a0a_a  
+"a0a_a """
+a0a_a &
+a0a_a '
+a0a_a (
+a0a_a )
+a0a_a *
+a0a_a ,
+a0a_a .
+a0a_a ;
+a0a_a >
+a0a_a \
+a0a_a |
+a0a_a0
+a0a_a0  
+a0a_a0 (
+a0a_a0 )
+a0a_a0 ,
+a0a_a0 ;
+a0a_a0_0a0
+a0a_a0_0a0 <
+a_
+a_  
+"a_ """
+a_ #
+"a_ $"
+a_ %
+a_ &
+a_ '
+a_ (
+a_ )
+a_ *
+a_ +
+a_ ,
+a_ -
+a_ .
+a_ /
+a_ :
+a_ ;
+a_ <
+a_ =
+a_ >
+a_ ?
+a_ [
+a_ \
+a_ ]
+a_ `
+a_ {
+a_ }
+a_0
+a_0  
+"a_0 """
+a_0 (
+a_0 )
+a_0 +
+a_0 ,
+a_0 -
+a_0 .
+a_0 ;
+a_0 \
+a_0 ]
+a_0 ^
+a_0 `
+a_0 }
+a_0_0
+a_0_0  
+"a_0_0 """
+a_0_0 (
+a_0_0 )
+a_0_0 *
+a_0_0 ,
+a_0_0 ;
+a_0_a
+a_0_a  
+a_0_a (
+a_0_a )
+a_0_a ,
+a_0_a ;
+a_0_a =
+a_0_a_0
+a_0_a_0  
+a_0_a_0 (
+a_0_a_0 ,
+a_0_a_0_a
+a_0_a_0_a  
+a_0_a_0_a (
+a_0_a_0_a ,
+a_0a
+a_0a  
+a_0a )
+a_0a *
+a_0a ,
+a_0a .
+a_0a :
+a_0a ;
+a_0a `
+a_0a0
+a_0a0  
+a_0a0 (
+a_0a0 )
+a_0a0 ;
+a_0a0 [
+a_0a0_a
+a_0a0_a  
+a_0a_0_0a
+a_0a_0_0a )
+a_0a_0_0a ,
+a_0a_a
+a_0a_a  
+a_0a_a )
+a_0a_a0_a
+a_0a_a0_a )
+a_a
+a_a 	
+a_a  
+a_a !
+"a_a """
+a_a #
+a_a %
+a_a &
+a_a '
+a_a (
+a_a )
+a_a *
+a_a +
+a_a ,
+a_a -
+a_a .
+a_a /
+a_a :
+a_a ;
+a_a <
+a_a =
+a_a >
+a_a ?
+a_a @
+a_a [
+a_a \
+a_a ]
+a_a ^
+a_a `
+a_a {
+a_a |
+a_a }
+a_a0
+a_a0  
+"a_a0 """
+a_a0 &
+a_a0 '
+a_a0 (
+a_a0 )
+a_a0 *
+a_a0 +
+a_a0 ,
+a_a0 -
+a_a0 .
+a_a0 /
+a_a0 :
+a_a0 ;
+a_a0 <
+a_a0 =
+a_a0 >
+a_a0 [
+a_a0 \
+a_a0 ]
+a_a0 `
+a_a0 |
+a_a0 }
+a_a0_
+a_a0_ (
+a_a0_0
+a_a0_0 )
+a_a0_0 ;
+a_a0_a
+a_a0_a  
+"a_a0_a """
+a_a0_a (
+a_a0_a )
+a_a0_a *
+a_a0_a +
+a_a0_a ,
+a_a0_a .
+a_a0_a /
+a_a0_a ;
+a_a0_a [
+a_a0_a \
+a_a0_a ]
+a_a0_a }
+a_a0_a_
+a_a0_a_ (
+a_a0_a_0
+a_a0_a_0 )
+a_a0_a_0 ,
+a_a0_a_0a0_a
+a_a0_a_0a0_a  
+a_a0a
+a_a0a 	
+a_a0a  
+a_a0a %
+a_a0a (
+a_a0a )
+a_a0a ,
+a_a0a -
+a_a0a .
+a_a0a ;
+a_a0a \
+a_a0a ^
+a_a0a }
+a_a0a_a
+a_a0a_a  
+a_a0a_a (
+a_a0a_a *
+a_a0a_a ;
+a_a0a_a \
+a_a0a_a0
+a_a0a_a0  
+a_a0a_a0_a
+a_a0a_a0_a  
+asm
+asm  
+asm (
+asm .
+asm /
+auto
+auto  
+"auto """
+auto &
+auto '
+auto )
+auto *
+auto ,
+auto -
+auto .
+auto /
+auto :
+auto >
+a’a
+a’a  
+bool
+bool  
+"bool """
+bool &
+bool (
+bool )
+bool *
+bool ,
+bool -
+bool .
+bool /
+bool :
+bool ;
+bool <
+bool >
+bool [
+bool `
+bool |
+break
+break  
+"break """
+break &
+break '
+break (
+break )
+break ,
+break -
+break .
+break :
+break ;
+break `
+case
+case  
+case (
+case )
+case ,
+case -
+case .
+case :
+case >
+catch
+catch  
+"catch """
+catch (
+catch ,
+catch -
+catch .
+catch /
+catch :
+catch ?
+catch `
+char
+char  
+"char """
+char &
+char (
+char )
+char *
+char ,
+char -
+char .
+char ;
+char >
+char [
+char `
+class
+class  
+"class """
+class &
+class '
+class )
+class *
+class ,
+class -
+class .
+class :
+class =
+class >
+const
+const  
+"const """
+const &
+const '
+const )
+const *
+const ,
+const -
+const .
+const /
+const :
+const ;
+const >
+const ?
+const `
+const {
+const }
+const_cast
+const_cast  
+const_cast .
+const_cast <
+const_cast `
+continue
+continue  
+"continue """
+continue )
+continue ,
+continue .
+continue ;
+default
+default  
+"default """
+default )
+default *
+default ,
+default -
+default .
+default /
+default :
+default ;
+default =
+default >
+default ?
+default \
+define
+define 	
+define  
+define )
+define ,
+define .
+define :
+delete
+delete  
+"delete """
+delete &
+delete (
+delete )
+delete ,
+delete .
+delete /
+delete ;
+delete <
+delete ?
+delete [
+delete \
+delete `
+do
+do  
+do (
+do )
+do ,
+do .
+do :
+do ?
+double
+double  
+"double """
+double &
+double '
+double (
+double )
+double *
+double ,
+double -
+double .
+double /
+double :
+double ;
+double >
+double [
+double `
+dynamic_cast
+dynamic_cast  
+dynamic_cast .
+dynamic_cast <
+dynamic_cast `
+else
+else  
+else )
+else ,
+else -
+else .
+else :
+else >
+else \
+else {
+enum
+enum  
+enum !
+"enum """
+enum )
+enum ,
+enum .
+enum :
+enum >
+enum \
+explicit
+explicit  
+"explicit """
+explicit (
+explicit ,
+explicit .
+explicit >
+export
+export  
+extern
+extern  
+false
+false  
+"false """
+false '
+false )
+false ,
+false .
+false :
+false ;
+false >
+false \
+false `
+false |
+false }
+float
+float  
+"float """
+float #
+float &
+float '
+float (
+float )
+float *
+float ,
+float .
+float :
+float ;
+float >
+float [
+for
+for  
+"for """
+for (
+for ,
+for -
+for .
+for :
+for ?
+friend
+friend  
+friend )
+friend ,
+friend .
+friend :
+goto
+goto  
+"goto """
+if
+if  
+if '
+if (
+if ,
+if -
+if .
+if /
+if :
+if <
+include
+include  
+include -
+include .
+include /
+include :
+include <
+inline
+inline  
+inline ,
+inline -
+inline .
+inline :
+inline ;
+int
+int 	
+int  
+"int """
+int #
+int &
+int '
+int (
+int )
+int *
+int ,
+int .
+int /
+int ;
+int >
+int [
+int `
+int {
+long
+long  
+long !
+"long """
+long '
+long (
+long )
+long *
+long ,
+long -
+long .
+long >
+long @
+long }
+mutable
+mutable  
+mutable '
+mutable )
+mutable ,
+mutable .
+mutable >
+namespace
+namespace  
+namespace )
+namespace ,
+namespace .
+namespace :
+namespace ;
+new
+new  
+"new """
+new '
+new (
+new ,
+new .
+new :
+new <
+new =
+new >
+new [
+new `
+operator
+operator  
+operator !
+"operator """
+operator %
+operator &
+operator (
+operator )
+operator *
+operator +
+operator ,
+operator -
+operator .
+operator /
+operator ;
+operator <
+operator =
+operator >
+operator [
+operator ^
+operator |
+operator ~
+private
+private  
+private (
+private )
+private *
+private ,
+private -
+private .
+private /
+private :
+private ;
+private <
+private >
+protected
+protected  
+protected ,
+protected .
+protected :
+protected =
+public
+public  
+public ,
+public -
+public /
+public :
+register
+register  
+"register """
+register #
+register (
+register )
+register ,
+register .
+reinterpret_cast
+reinterpret_cast  
+reinterpret_cast <
+return
+return  
+return &
+return (
+return ,
+return .
+return :
+return ;
+return >
+return ?
+short
+short  
+"short """
+short (
+short )
+short *
+short ,
+short -
+short :
+short ;
+short >
+short ?
+signed
+signed  
+signed !
+"signed """
+signed )
+signed ,
+signed -
+signed .
+signed /
+sizeof
+sizeof  
+sizeof (
+sizeof .
+static
+static  
+"static """
+static '
+static )
+static *
+static ,
+static -
+static .
+static /
+static ;
+static_cast
+static_cast  
+static_cast <
+static_cast `
+struct
+struct  
+struct &
+struct )
+struct ,
+struct .
+struct :
+struct `
+switch
+switch  
+switch (
+switch )
+switch -
+switch .
+template
+template  
+"template """
+template )
+template ,
+template .
+template :
+template <
+template `
+this
+this  
+this !
+"this """
+this &
+this )
+this *
+this ,
+this -
+this .
+this /
+this :
+this ;
+this =
+this >
+this ?
+this @
+this [
+this ]
+this `
+this }
+throw
+throw  
+throw !
+"throw """
+throw (
+throw )
+throw ,
+throw -
+throw .
+throw :
+throw ;
+throw >
+throw `
+token
+token  
+"token """
+token &
+token (
+token )
+token *
+token ,
+token -
+token .
+token :
+token ;
+token >
+true
+true  
+true !
+"true """
+true '
+true )
+true ,
+true -
+true .
+true /
+true :
+true ;
+true >
+true `
+true |
+true }
+try
+try  
+"try """
+try &
+try (
+try )
+try ,
+try -
+try .
+try /
+try ;
+try <
+try {
+try |
+typedef
+typedef  
+typedef '
+typedef )
+typedef -
+typedef .
+typeid
+typeid  
+typeid (
+typeid ,
+typeid ;
+typeid `
+typename
+typename  
+typename (
+typename ,
+typename .
+typename ;
+typename >
+typename `
+union
+union  
+union ,
+union .
+union `
+unsigned
+unsigned  
+"unsigned """
+unsigned (
+unsigned )
+unsigned *
+unsigned ,
+unsigned /
+unsigned >
+using
+using  
+using (
+using -
+using .
+using ?
+virtual
+virtual  
+virtual )
+virtual ,
+virtual -
+virtual .
+void
+void 	
+void  
+"void """
+void '
+void (
+void )
+void *
+void ,
+void -
+void .
+void ;
+void >
+void `
+volatile
+volatile  
+"volatile """
+volatile &
+volatile (
+volatile )
+volatile *
+volatile ,
+volatile .
+volatile ;
+volatile >
+wchar_t
+wchar_t  
+wchar_t )
+wchar_t *
+wchar_t ,
+wchar_t .
+wchar_t >
+while
+while  
+while (
+while ,
+while -
+while .
+{
+{  
+"{ """
+{ &
+{ '
+{ (
+{ *
+{ +
+{ ,
+{ -
+{ .
+{ /
+{ 0
+{ 0a
+{ 0a0
+{ :
+{ @
+{ [
+{ \
+{ _a
+{ `
+{ a
+{ a0
+{ a0_a
+{ a0a
+{ a_
+{ a_a
+{ a_a0_a
+{ char
+{ const_cast
+{ false
+{ new
+{ return
+{ sizeof
+{ static_cast
+{ this
+{ throw
+{ true
+{ typeid
+{ typename
+{ {
+{ |
+{ }
+|
+|  
+"| """
+"| $"
+| &
+| '
+| (
+| )
+| +
+| -
+| .
+| /
+| 0
+| 0a0
+| <
+| =
+| [
+| \
+| _
+| _a
+| a
+| a0a_a
+| a0a_a0
+| a_
+| a_a
+| a_a0
+| bool
+| false
+| try
+| |
+| }
+}
+}  
+"} """
+} '
+} (
+} )
+} *
+} ,
+} -
+} .
+} /
+} :
+} ;
+} <
+} >
+} @
+} \
+} ]
+} _
+} _a
+} `
+} a
+} a_a
+} private
+} {
+} }
+} ~
+~
+~  
+~ !
+"~ """
+~ '
+~ (
+~ *
+~ ,
+~ /
+~ 0
+~ 0a
+~ =
+~ \
+~ ]
+~ _0a
+~ _a0
+~ a
+~ a0
+~ a0_a
+~ a0a
+~ a_
+~ a_a
+~ a_a0_a
+~ static_cast
+~ try
+~ {
+~ ~
+©
+©  

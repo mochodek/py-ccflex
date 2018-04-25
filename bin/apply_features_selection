@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+
+# Reading input csv file with features, performs feature selection and storres the resulting features file
+
+import argparse
+import logging
+import warnings
+import pandas as pd
+from sklearn.feature_selection import VarianceThreshold
+import gc
+
+from common.configuration import ConfigurationHandler
+from common.workspace import WorkspaceHandler
+
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+if __name__ == '__main__':
+
+    logger.info("\n#### Running: {}".format(__file__))
+
+    # Parse input parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_file",
+                        help="Path to train csv file", type=str)
+    parser.add_argument("output_file",
+                        help="Path to train csv file", type=str)
+    parser.add_argument("selected_features_file",
+                        help="Path to a file containing names of selected features", type=str)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
+    parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
+                        type=int, required=False, default=10 ** 5)
+
+    args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
+
+    locations_file_path = args['locations_config']
+    files_format_file_path = args['files_format_config']
+
+    input_file = args['input_file']
+    output_file = args['output_file']
+    selected_features_file = args['selected_features_file']
+    chunk_size = args['chunk_size']
+
+    try:
+        locations_config = ConfigurationHandler(locations_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
+        exit(1)
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
+    csv_separator = files_format_config.get("csv_sep", ",")
+
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
+
+    logger.info(">>> Loading file {}".format(input_file))
+    input_file_path = workspace_dir.get_processing_file_path(input_file)
+    input_df_chunks = pd.read_csv(input_file_path, sep=csv_separator, encoding="utf-8",
+                                  chunksize=chunk_size, low_memory=False, dtype={'id': object})
+    output_file_path = workspace_dir.get_processing_file_path(output_file)
+
+    selected_features_file_path = workspace_dir.get_processing_file_path(selected_features_file)
+    selected_features = pd.read_csv(selected_features_file_path, sep=csv_separator, encoding="utf-8")
+    selected_features = ['id'] + list(selected_features['features'])
+
+    for i, input_df in enumerate(input_df_chunks):
+
+        if i == 0:
+            if "class_value" in list(input_df.columns):
+                selected_features.append("class_name")
+                selected_features.append("class_value")
+            if "contents" in list(input_df.columns):
+                selected_features.append("contents")
+
+        input_df = input_df[selected_features]
+
+        logger.info(
+            ">>> Saving {} lines to the output to the file {}".format(input_df.shape[0],
+                                                                      output_file_path))
+
+        if i == 0:
+            with open(output_file_path, 'w', newline='', encoding="utf-8") as f_res:
+                input_df.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
+                                header=True)
+        else:
+            with open(output_file_path, 'a', newline='', encoding="utf-8") as f_res:
+                input_df.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
+                                header=False)
+
+        del input_df
+        gc.collect()

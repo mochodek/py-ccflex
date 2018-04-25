@@ -1,7 +1,10 @@
 @objecta.methoda().invocationa_returning_object().get()
 @objectb.methodb().invocationb_returning_object().set()
 @objectc.methodc().invocationcObject().x()
-@objectd.methodd().invocationc().invocationa().invocationg().invocationz()
+
+/**
+objectd.methodd().invocationc().invocationa().invocationg().invocationz()
+*/
 
 objectda.methodda()
 objectdb.methoddb()

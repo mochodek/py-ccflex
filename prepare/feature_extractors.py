@@ -107,6 +107,19 @@ class CommentFeatureExtraction(object):
         feature = text.count("//") + text.count("/*") + text.count("*/")
         return {'comment': feature}
 
+class WholeLineCommentFeatureExtraction(object):
+    """
+       Extracts number of comments in the text
+       """
+
+    def __init__(self):
+        self.logger = logging.getLogger('pyccflex.common.configuration.CommentFeatureExtraction')
+        self.feature_names = ['whole_line_comment']
+
+    def extract(self, text):
+        feature = 0 if re.match(r'^(\s|\t)*//.*$', text) is None else 1
+        return {'whole_line_comment': feature}
+
 
 class WordCountFeatureExtraction(object):
     """
@@ -143,7 +156,8 @@ class CountVectorizerBasedFeatureExtraction(object):
         self.logger = logging.getLogger('pyccflex.common.configuration.CountVectorizerBasedFeatureExtraction')
         self.count_vect = count_vect
         self.feature_names = sorted(count_vect.vocabulary_.keys(), key=count_vect.vocabulary_.get)
-        self.feature_names = [x if x != separator else to_replace for x in self.feature_names]
+        #self.feature_names = [x.encode('utf-8') if separator not in x else "\"{}\"".format(x.encode('utf-8')) for x in self.feature_names]
+        self.feature_names = [x if separator != x else to_replace for x in self.feature_names]
 
     def extract(self, text):
         features = self.count_vect.transform([text]).todense().tolist()[0]

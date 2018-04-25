@@ -18,7 +18,7 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-chunk_size = 10 ** 2
+
 
 if __name__ == '__main__':
 
@@ -43,11 +43,15 @@ if __name__ == '__main__':
                         type=int, required=False, default=1)
     parser.add_argument("--max_ngrams", help="Max. number of n-grams",
                         type=int, required=False, default=1)
+    parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
+                        type=int, required=False, default=10 ** 3)
+
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
 
     locations_file_path = args['locations_config']
     files_format_file_path = args['files_format_config']
+    chunk_size = args['chunk_size']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -88,6 +92,7 @@ if __name__ == '__main__':
 
     internal_tokenizer = code_stop_words_tokenizer
     vocab_tokens = set(base_vocab.token)
+
     if token_signature_for_missing:
 
         def tokenize_with_signatures_for_missing(s):
@@ -129,7 +134,7 @@ if __name__ == '__main__':
     for lines_data in lines_data_chunks:
         lines_data.contents = lines_data.contents.fillna("")
         contents = list(lines_data.contents)
-        count_vect.fit(contents)
+        count_vect.fit_transform(contents)
         break
 
     extractors = [CountVectorizerBasedFeatureExtraction(count_vect, separator, "{}".format(separator))]

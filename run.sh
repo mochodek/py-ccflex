@@ -8,99 +8,295 @@ MANUAL_FEATURES_CONFIG="./manual_features.json"
 CLASSIFIERS_CONFIG="./classifiers_options.json"
 FEATURE_SELECTORS_CONFIG="./feature_selectors_options.json"
 
-CREATE_WORKSPACE=true
-LINES=true
-LEARN_COMMENT_FEATURE=true
-FEATURES=true
-MANUAL_FEATURES=false
-CTX_FEATURES=false
-BOW_FEATURES=true
+TRAIN_LOCATION="train"
+CLASSIFY_LOCATION="classify"
+
+# Processing options
+CREATE_WORKSPACE=false
+LINES=false
+FEATURES=false
+CONTEXT=false
 CLASSIFY=true
 REPORT=true
+TEAR_DOWN=true
 
-MANUAL_FEATURE_EXTRACTORS="PatternSubstringExctractor PatternWordExtractor CommentStringExtractor NoWordsExtractor NoCharsExtractor"
+# MAX_GRAM could be 1, 2 or 3 used for bag of words
+MIN_NGRAM=1
+MAX_NGRAM=3
 
-TRAIN_LOCATION="train"
-COMMENTS_TRAIN_LOCATION="comments-train"
+# If CONTEXT set to true how many lines
+CONTEXT_LINES_PREV=1
+CONTEXT_LINES_FRWD=1
 
-# Create workspace directory
+# Available extractors "PatternSubstringExctractor PatternWordExtractor WholeLineCommentFeatureExtraction CommentStringExtractor NoWordsExtractor NoCharsExtractor"
+MANUAL_FEATURE_EXTRACTORS="PatternSubstringExctractor PatternWordExtractor WholeLineCommentFeatureExtraction NoWordsExtractor NoCharsExtractor"
+
+CLASSIFIERS=( "CART" "RandomForest")
+
+
+
+# === Create workspace ===
 $CREATE_WORKSPACE && create_workspace --locations_config $LOCATIONS_CONFIG
 
-# Copy comments training file into the workspace
-$FEATURES && $LEARN_COMMENT_FEATURE  && copy_builtin_training_file "comments-train-lines.csv" --locations_config $LOCATIONS_CONFIG
+# === Copy vocabulary files ===
+$FEATURES && copy_builtin_training_file "base-cpp-${MAX_NGRAM}g-vocabulary.csv" --locations_config $LOCATIONS_CONFIG
 
-# Prepare vocabulary for bag of words
-$LINES && lines2csv "${TRAIN_LOCATION}" --locations_config $LOCATIONS_CONFIG --classes_config $CLASSES_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $BOW_FEATURES  && vocabulary_extractor "${TRAIN_LOCATION}-lines.csv"  "vocabulary.csv" --top_words_threshold 10 --token_signature_for_missing --min_ngrams 1 --max_ngrams 2 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# === TRAINING ===
 
-# Prepare dataset to train a classifier for adding block comment feature (blocks and one-line comments)
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES  && predefined_manual_features "$COMMENTS_TRAIN_LOCATION" --extractors $MANUAL_FEATURE_EXTRACTORS --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --manual_features_config $MANUAL_FEATURES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $CTX_FEATURES && $MANUAL_FEATURES && add_seq_context  "${COMMENTS_TRAIN_LOCATION}-manual.csv" "${COMMENTS_TRAIN_LOCATION}-manual-ctx.csv" --prev_cases 1 --next_cases 1 --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $BOW_FEATURES && bag_of_words "${COMMENTS_TRAIN_LOCATION}" "vocabulary.csv" --min_ngrams 1 --max_ngrams 2 --token_signature_for_missing --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# === Read training code ===
+$LINES && lines2csv "${TRAIN_LOCATION}" \
+	--locations_config $LOCATIONS_CONFIG \
+	--classes_config $CLASSES_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
 
-$FEATURES && $LEARN_COMMENT_FEATURE && ! $CTX_FEATURES && $MANUAL_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${COMMENTS_TRAIN_LOCATION}-manual.csv" "${COMMENTS_TRAIN_LOCATION}-bag-of-words.csv" --output_file "${COMMENTS_TRAIN_LOCATION}-manual-bow.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $CTX_FEATURES && $MANUAL_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${COMMENTS_TRAIN_LOCATION}-manual-ctx.csv" "${COMMENTS_TRAIN_LOCATION}-bag-of-words.csv" --output_file "${COMMENTS_TRAIN_LOCATION}-manual-ctx-bow.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# === Feature exctraction for training set ===
+
+$FEATURES  && vocabulary_extractor "${TRAIN_LOCATION}-lines.csv"  "cpp-${MAX_NGRAM}g-vocabulary.csv" \
+	--skip_generating_base_vocabulary \
+	--top_words_threshold 200 \
+	--token_signature_for_missing \
+	--min_ngrams $MIN_NGRAM --max_ngrams $MAX_NGRAM \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+# Manual features
+$FEATURES  && predefined_manual_features "$TRAIN_LOCATION" \
+	--extractors $MANUAL_FEATURE_EXTRACTORS \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--manual_features_config $MANUAL_FEATURES_CONFIG
+
+# Bag of words
+$FEATURES && bag_of_words "${TRAIN_LOCATION}" "cpp-${MAX_NGRAM}g-vocabulary.csv" \
+	--min_ngrams $MIN_NGRAM --max_ngrams $MAX_NGRAM \
+	--token_signature_for_missing \
+	--add_decision_class --add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+
+$FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-bag-of-words.csv" "${TRAIN_LOCATION}-manual.csv" \
+	--output_file "${TRAIN_LOCATION}-features.csv" \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Block comments
+$FEATURES && extract_block_features_from_features "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-comments.csv" "block_comment" --feature_start "/ *"  --feature_end "* /"  \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+$FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-comments.csv" \
+	--output_file "${TRAIN_LOCATION}-features.csv" \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Enums
+$FEATURES && extract_block_features_from_features "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-enum.csv" "in_enum" --feature_start "enum  "  --feature_end ";" "} ;"  \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--forbidding_features "block_comment" "whole_line_comment" \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+$FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-enum.csv" \
+	--output_file "${TRAIN_LOCATION}-features.csv" \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Feature selection low variance
+$FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
+	--feature_selector "VarianceThreshold" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG
+
+$FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Feature selection
+$FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
+	--feature_selector "SelectFpr" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG
+
+$FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Conext
+$FEATURES && $CONTEXT && add_seq_context  "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" \
+	--prev_cases $CONTEXT_LINES_PREV --next_cases $CONTEXT_LINES_FRWD \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && $CONTEXT && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+$FEATURES && $CONTEXT && select_features "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
+	--feature_selector "SelectFpr" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG
+
+$FEATURES && $CONTEXT && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && $CONTEXT && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 
-# Prepare a training set
-$FEATURES && $MANUAL_FEATURES  && predefined_manual_features "${TRAIN_LOCATION}" --extractors $MANUAL_FEATURE_EXTRACTORS --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --manual_features_config $MANUAL_FEATURES_CONFIG
-$FEATURES && $CTX_FEATURES && $MANUAL_FEATURES && add_seq_context  "${TRAIN_LOCATION}-manual.csv" "${TRAIN_LOCATION}-manual-ctx.csv" --prev_cases 1 --next_cases 1 --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $BOW_FEATURES && bag_of_words "${TRAIN_LOCATION}" "vocabulary.csv" --min_ngrams 1 --max_ngrams 2 --token_signature_for_missing --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# === PREPARE CLASSIFY ===
 
-$FEATURES && ! $CTX_FEATURES && $MANUAL_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-manual.csv" "${TRAIN_LOCATION}-bag-of-words.csv" --output_file "${TRAIN_LOCATION}-manual-bow.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $CTX_FEATURES && $MANUAL_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-manual-ctx.csv" "${TRAIN_LOCATION}-bag-of-words.csv" --output_file "${TRAIN_LOCATION}-manual-ctx-bow.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# === Read training code ===
+$LINES && lines2csv "${CLASSIFY_LOCATION}" \
+	--locations_config $LOCATIONS_CONFIG \
+	--classes_config $CLASSES_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
 
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && ! $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-manual.csv" "${TRAIN_LOCATION}-manual.csv" --classifier "CART" --output_prefix "comments-${TRAIN_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && ! $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-manual-ctx.csv" "${TRAIN_LOCATION}-manual-ctx.csv" --classifier "CART" --output_prefix "comments-${TRAIN_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && ! $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-bag-of-words.csv" "${TRAIN_LOCATION}-bag-of-words.csv" --classifier "CART" --output_prefix "comments-${TRAIN_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-manual-bow.csv" "${TRAIN_LOCATION}-manual-bow.csv" --classifier "CART" --output_prefix "comments-${TRAIN_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-manual-ctx-bow.csv" "${TRAIN_LOCATION}-manual-ctx-bow.csv" --classifier "CART" --output_prefix "comments-${TRAIN_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
 
-$FEATURES && $LEARN_COMMENT_FEATURE && extract_block_features "comments-${TRAIN_LOCATION}-classify-output-CART.csv" "${TRAIN_LOCATION}-comments.csv" "full_comment" --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --block_classes_config $BLOCK_CLASSES_CONFIG
+# === Feature exctraction for training set ===
 
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && ! $BOW_FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-manual.csv" "${TRAIN_LOCATION}-comments.csv" --output_file "${TRAIN_LOCATION}-merge-comments.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && ! $BOW_FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-manual-ctx.csv" "${TRAIN_LOCATION}-comments.csv" --output_file "${TRAIN_LOCATION}-merge-comments.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && ! $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-bag-of-words.csv" "${TRAIN_LOCATION}-comments.csv" --output_file "${TRAIN_LOCATION}-merge-comments.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-manual-bow.csv" "${TRAIN_LOCATION}-comments.csv" --output_file "${TRAIN_LOCATION}-merge-comments.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-manual-ctx-bow.csv" "${TRAIN_LOCATION}-comments.csv" --output_file "${TRAIN_LOCATION}-merge-comments.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# Manual features
+$FEATURES  && predefined_manual_features "$CLASSIFY_LOCATION" \
+	--extractors $MANUAL_FEATURE_EXTRACTORS \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--manual_features_config $MANUAL_FEATURES_CONFIG
 
-# Classify location  (if you have more locations defined, copy the whole part and change CLASSIFY_LOCATION)
-CLASSIFY_LOCATION="classify"
-$LINES && lines2csv "${CLASSIFY_LOCATION}" --locations_config $LOCATIONS_CONFIG --classes_config $CLASSES_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# Bag of words
+$FEATURES && bag_of_words "${CLASSIFY_LOCATION}" "cpp-${MAX_NGRAM}g-vocabulary.csv" \
+	--min_ngrams $MIN_NGRAM --max_ngrams $MAX_NGRAM \
+	--token_signature_for_missing \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
 
-$FEATURES && $MANUAL_FEATURES  && predefined_manual_features "${CLASSIFY_LOCATION}"  --extractors $MANUAL_FEATURE_EXTRACTORS --add_contents --locations_config $LOCATIONS_CONFIG --manual_features_config $MANUAL_FEATURES_CONFIG
-$FEATURES && $CTX_FEATURES && $MANUAL_FEATURES && add_seq_context  "${CLASSIFY_LOCATION}-manual.csv" "${CLASSIFY_LOCATION}-manual-ctx.csv" --prev_cases 1 --next_cases 1  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $BOW_FEATURES && bag_of_words "${CLASSIFY_LOCATION}" "vocabulary.csv" --min_ngrams 1 --max_ngrams 2 --token_signature_for_missing  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-bag-of-words.csv" "${CLASSIFY_LOCATION}-manual.csv" \
+	--output_file "${CLASSIFY_LOCATION}-features.csv" \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
-$FEATURES && ! $CTX_FEATURES && $MANUAL_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-manual.csv" "${CLASSIFY_LOCATION}-bag-of-words.csv" --output_file "${CLASSIFY_LOCATION}-manual-bow.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $CTX_FEATURES && $MANUAL_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-manual-ctx.csv" "${CLASSIFY_LOCATION}-bag-of-words.csv" --output_file "${CLASSIFY_LOCATION}-manual-ctx-bow.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# Block comments
+$FEATURES && extract_block_features_from_features "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-comments.csv" "block_comment" --feature_start "/ *"  --feature_end "* /"  \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
 
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && ! $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-manual.csv" "${CLASSIFY_LOCATION}-manual.csv" --classifier "CART" --output_prefix "comments-${CLASSIFY_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && ! $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-manual-ctx.csv" "${CLASSIFY_LOCATION}-manual-ctx.csv" --classifier "CART" --output_prefix "comments-${CLASSIFY_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && ! $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-bag-of-words.csv" "${CLASSIFY_LOCATION}-bag-of-words.csv" --classifier "CART" --output_prefix "comments-${CLASSIFY_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-manual-bow.csv" "${CLASSIFY_LOCATION}-manual-bow.csv" --classifier "CART" --output_prefix "comments-${CLASSIFY_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && $BOW_FEATURES && classify "${COMMENTS_TRAIN_LOCATION}-manual-ctx-bow.csv"  "${CLASSIFY_LOCATION}-manual-ctx-bow.csv" --classifier "CART" --output_prefix "comments-${CLASSIFY_LOCATION}-" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $BLOCK_CLASSES_CONFIG
+$FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-comments.csv" \
+	--output_file "${CLASSIFY_LOCATION}-features.csv" \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
-$FEATURES && $LEARN_COMMENT_FEATURE && extract_block_features "comments-${CLASSIFY_LOCATION}-classify-output-CART.csv" "${CLASSIFY_LOCATION}-comments.csv" "full_comment" --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --block_classes_config $BLOCK_CLASSES_CONFIG
+# Enums
+$FEATURES && extract_block_features_from_features "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-enum.csv" "in_enum" --feature_start "enum  "  --feature_end ";" "} ;"  \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--forbidding_features "block_comment" "whole_line_comment" \
+	--files_format_config $FILES_FORMAT_CONFIG
 
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && ! $BOW_FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-manual.csv" "${CLASSIFY_LOCATION}-comments.csv" --output_file "${CLASSIFY_LOCATION}-merge-comments.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && ! $BOW_FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-manual-ctx.csv" "${CLASSIFY_LOCATION}-comments.csv" --output_file "${CLASSIFY_LOCATION}-merge-comments.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && ! $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-bag-of-words.csv" "${CLASSIFY_LOCATION}-comments.csv" --output_file "${CLASSIFY_LOCATION}-merge-comments.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-manual-bow.csv" "${CLASSIFY_LOCATION}-comments.csv" --output_file "${CLASSIFY_LOCATION}-merge-comments.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && $BOW_FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-manual-ctx-bow.csv" "${CLASSIFY_LOCATION}-comments.csv" --output_file "${CLASSIFY_LOCATION}-merge-comments.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-enum.csv" \
+	--output_file "${CLASSIFY_LOCATION}-features.csv" \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
-# Classifying using a single classifier (to have more copy these line and change the classifier)
-$CLASSIFY && $LEARN_COMMENT_FEATURE && classify "${TRAIN_LOCATION}-merge-comments.csv" "${CLASSIFY_LOCATION}-merge-comments.csv" --classifier "CART" --chunk_size 20000 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-$CLASSIFY && ! $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && ! $BOW_FEATURES && classify "${TRAIN_LOCATION}-manual.csv" "${CLASSIFY_LOCATION}-manual.csv" --classifier "CART" --chunk_size 20000 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-$CLASSIFY && ! $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && ! $BOW_FEATURES && classify "${TRAIN_LOCATION}-manual-ctx.csv" "${CLASSIFY_LOCATION}-manual-ctx.csv" --classifier "CART" --chunk_size 20000 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-$CLASSIFY && ! $LEARN_COMMENT_FEATURE && ! $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && classify "${TRAIN_LOCATION}-bag-of-words.csv" "${CLASSIFY_LOCATION}-bag-of-words.csv" --classifier "CART" --chunk_size 20000 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-$CLASSIFY && ! $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && ! $CTX_FEATURES && $BOW_FEATURES && classify "${TRAIN_LOCATION}-manual-bow.csv" "${CLASSIFY_LOCATION}-manual-bow.csv" --classifier "CART" --chunk_size 20000 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-$CLASSIFY && ! $LEARN_COMMENT_FEATURE && $MANUAL_FEATURES && $CTX_FEATURES && $BOW_FEATURES && classify "${TRAIN_LOCATION}-manual-ctx-bow.csv" "${CLASSIFY_LOCATION}-manual-ctx-bow.csv" --classifier "CART" --chunk_size 20000 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+# Feature selection low variance
+$FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "low_var_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
+# Feature selection
+$FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "selected_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+# Conext
+$FEATURES && $CONTEXT && add_seq_context  "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" \
+	--prev_cases $CONTEXT_LINES_PREV --next_cases $CONTEXT_LINES_FRWD \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && $CONTEXT && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+$FEATURES && $CONTEXT && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "ctx_selected_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && $CONTEXT && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+
+# === REMOVING FEATURE EXTRACTION TEMPORARY FILES ===
+# This should be always at the end of feature selection
+$TEAR_DOWN && $FEATURES && delete_processing_file "${TRAIN_LOCATION}-features-tmp.csv"
+$TEAR_DOWN && $FEATURES && delete_processing_file "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+
+# === CLASSIFY ====
+for CLASSIFIER in "${CLASSIFIERS[@]}"
+do
+	$CLASSIFY && classify "${TRAIN_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features.csv" \
+	--classifier "${CLASSIFIER}" \
+	--chunk_size 20000 \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG \
+	--classes_config $CLASSES_CONFIG
+done
 
 # merge results to a single csv file
-$CLASSIFY && merge_results --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+$CLASSIFY && merge_results --locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG \
+	--classes_config $CLASSES_CONFIG
 
+
+# === REPORT ====
 # generate reports
-$REPORT && generate_html "results/classify-output-ALL.csv" "classified-lines-ALL.html" --all --split_files --chunk_size 20000 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-$REPORT && generate_html "results/classify-output-ALL-count.csv" "classified-lines-ALL-count.html" --all --split_files --chunk_size 20000 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+$REPORT && generate_html "results/classify-output-ALL.csv" "classified-lines-ALL.html" \
+	--all --split_files --chunk_size 20000 \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+$REPORT && generate_html "results/classify-output-ALL-count.csv" "classified-lines-ALL-count.html" \
+	--all --split_files --chunk_size 20000 \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+
+
+
+
+
+
+
+

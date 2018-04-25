@@ -131,6 +131,14 @@
     {
       "name": "equal",
       "string": ["=="]
+    },
+    {
+      "name": "block_comment_start",
+      "string": ["/*"]
+    },
+    {
+      "name": "block_comment_end",
+      "string": ["*/"]
     }
   ],
   "manual_whole_word_counting_features": [

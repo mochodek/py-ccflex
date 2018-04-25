@@ -5,6 +5,7 @@ import argparse
 import logging
 import os
 import json
+import time
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
@@ -44,6 +45,8 @@ if __name__ == '__main__':
                         type=int, required=False, default=1)
     parser.add_argument("--max_ngrams", help="Max. number of n-grams",
                         type=int, required=False, default=1)
+    parser.add_argument("--skip_generating_base_vocabulary", help="Assumes that the base vocabulary is available",
+                        default=False, action='store_true')
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
 
@@ -74,6 +77,7 @@ if __name__ == '__main__':
     token_signature_for_missing = args['token_signature_for_missing']
     min_ngrams = args['min_ngrams']
     max_ngrams = args['max_ngrams']
+    skip_generating_base_vocabulary = args['skip_generating_base_vocabulary']
 
     if os.path.exists(lines_file):
         input_file_path = lines_file
@@ -86,25 +90,29 @@ if __name__ == '__main__':
     base_output_json_file_path = workspace_dir.get_processing_file_path(
         "base-" + vocabulary_file_name.replace(".csv", ".json"))
 
-    logger.info(">>> Extracting base vocabulary")
-    vocab_extractor = VocabularyExtractor(input_file_path, separator)
-    vocab_extractor.extract()
+    if not skip_generating_base_vocabulary:
+        logger.info(">>> Extracting base vocabulary")
+        vocab_extractor = VocabularyExtractor(input_file_path, separator)
+        vocab_extractor.extract()
 
-    base_vocab = vocab_extractor.vocab
-    if top_words_threshold > 0:
-        logger.info(">>>> Taking {} most frequent words".format(top_words_threshold))
-        base_vocab = base_vocab.head(top_words_threshold)
+        base_vocab = vocab_extractor.vocab
+        if top_words_threshold > 0:
+            logger.info(">>>> Taking {} most frequent words".format(top_words_threshold))
+            base_vocab = base_vocab.head(top_words_threshold)
 
-    if include_statistics:
-        base_vocab.to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
+        if include_statistics:
+            base_vocab.to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
+        else:
+            base_vocab[['token']].to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
+        logger.info(">>> Base vocabulary stored in the file {}".format(base_output_file_path))
+
+        base_vocab_json = [{"name": x, "string": [x]} for x in list(base_vocab.token)]
+        with open(base_output_json_file_path, 'w') as fp:
+            json.dump(base_vocab_json, fp)
+            logger.info(">>> Base vocabulary stored in the file {}".format(base_output_json_file_path))
     else:
-        base_vocab[['token']].to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
-    logger.info(">>> Base vocabulary stored in the file {}".format(base_output_file_path))
+        base_vocab = pd.read_csv(base_output_file_path, sep=separator, encoding="utf-8")
 
-    base_vocab_json = [{"name": x, "string": [x]} for x in list(base_vocab.token)]
-    with open(base_output_json_file_path, 'w') as fp:
-        json.dump(base_vocab_json, fp)
-        logger.info(">>> Base vocabulary stored in the file {}".format(base_output_json_file_path))
 
     logger.info(">>> Creating vocabulary including n-grams")
 
@@ -139,6 +147,8 @@ if __name__ == '__main__':
         logger.info(">>> Using a tokenizer that will skip tokens outside of the base vocabulary")
         tokenizer = tokenize_skipping_missing
 
+    start = time.process_time()
+
     count_vect = CountVectorizer(ngram_range=(min_ngrams, max_ngrams),
                                  tokenizer=tokenizer)
     lines_data = pd.read_csv(input_file_path, sep=separator, encoding="utf-8")
@@ -150,5 +160,8 @@ if __name__ == '__main__':
     result_vocab = pd.DataFrame({"token": tokens})
 
     result_vocab.to_csv(output_file_path, sep=separator, index=False, encoding="utf-8")
+
+    end = time.process_time()
+    print(end - start)
 
     logger.info(">>> Vocabulary saved to {}".format(output_file_path))

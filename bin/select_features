@@ -6,8 +6,10 @@ import argparse
 import logging
 import warnings
 import pandas as pd
-from sklearn.feature_selection import VarianceThreshold
+from sklearn.feature_selection import VarianceThreshold, SelectPercentile, SelectFpr
 import gc
+import numpy as np
+
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
@@ -26,10 +28,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("train_file",
                         help="Path to train csv file", type=str)
-    parser.add_argument("classify_file",
+    parser.add_argument("selected_features_file",
                         help="Path to classify csv file", type=str)
-    parser.add_argument("--output_file_prefix", help="The prefix added to output files",
-                        type=str, required=False, default="./classes.json")
     parser.add_argument('--feature_selector', type=str, required=True)
     parser.add_argument("--locations_config", help="Path to locations configuration file",
                         type=str, required=False, default="./locations.json")
@@ -39,10 +39,6 @@ if __name__ == '__main__':
                         type=str, required=False, default="./classifiers_options.json")
     parser.add_argument("--feature_selectors_options", help="Path to feature selectors options file",
                         type=str, required=False, default="./feature_selectors_options.json")
-    parser.add_argument("--add_decision_class", help="Shall the decision class be added to output?",
-                        default=False, action='store_true')
-    parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
-                        default=False, action='store_true')
     parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
                         type=int, required=False, default=10 ** 5)
 
@@ -55,11 +51,8 @@ if __name__ == '__main__':
     feature_selectors_options_file_path = args['feature_selectors_options']
 
     train_file = args['train_file']
-    classify_file = args['classify_file']
-    output_file_prefix = args['output_file_prefix']
+    selected_features_file = args['selected_features_file']
     feature_selector = args['feature_selector']
-    add_decision_class = args['add_decision_class']
-    add_contents = args['add_contents']
     chunk_size = args['chunk_size']
 
     try:
@@ -95,14 +88,7 @@ if __name__ == '__main__':
     logger.info(">>> Loading training file {}".format(train_file))
     input_train_file_path = workspace_dir.get_processing_file_path(train_file)
     input_train_df = pd.read_csv(input_train_file_path, sep=csv_separator, encoding="utf-8")
-    output_train_file_path = workspace_dir.get_processing_file_path("{}{}".format(output_file_prefix, train_file))
-
-    logger.info(">>> Loading classify file {}".format(train_file))
-    input_classify_file_path = workspace_dir.get_processing_file_path(classify_file)
-    input_classify_df_chunks = pd.read_csv(input_classify_file_path, sep=csv_separator, encoding="utf-8",
-                                           chunksize=chunk_size, low_memory=False, dtype={'id': object})
-    output_classify_file_path = workspace_dir.get_processing_file_path(
-        "{}{}".format(output_file_prefix, classify_file))
+    output_train_file_path = workspace_dir.get_processing_file_path(selected_features_file)
 
     # temporary remove class and contents
     decision_class_name_column_train = None
@@ -133,58 +119,29 @@ if __name__ == '__main__':
             warnings.filterwarnings("ignore", category=FutureWarning)
             selector.fit(train_x, train_y)
             selected_features = train_x.columns[selector.get_support()]
-            train_x = pd.DataFrame(selector.transform(train_x), columns=selected_features)
+            selected_features = np.array(selected_features)
+
+    if feature_selector == "SelectPercentile":
+        logger.info(">>> {}: determining features".format(feature_selector))
+        selector = SelectPercentile(**selector_options)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=FutureWarning)
+            selector.fit(train_x, train_y)
+            selected_features = train_x.columns[selector.get_support()]
+            selected_features = np.array(selected_features)
+
+    if feature_selector == "SelectFpr":
+        logger.info(">>> {}: determining features".format(feature_selector))
+        selector = SelectFpr(**selector_options)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=FutureWarning)
+            selector.fit(train_x, train_y)
+            selected_features = train_x.columns[selector.get_support()]
+            selected_features = np.array(selected_features)
+
+    logger.info(">>> Selected {} out of {} features...".format(selected_features.shape[0], train_x.shape[1]))
+    selected_features_df = pd.DataFrame(selected_features, columns=["features"])
+
 
     logger.info(">>> Saving output to the file {}".format(output_train_file_path))
-    output_train_df = train_x
-    output_train_df = pd.concat([ids_column_train, output_train_df], axis=1)
-    if decision_class_name_column_train is not None:
-        output_train_df['class_name'] = decision_class_name_column_train
-        output_train_df['class_value'] = decision_class_value_column_train
-
-    if contents_column_train is not None:
-        output_train_df['contents'] = contents_column_train
-
-    output_train_df.to_csv(output_train_file_path, sep=csv_separator, index=False, encoding="utf-8")
-
-    with open(output_classify_file_path, 'w', newline='', encoding="utf-8") as f:
-        for i, input_classify_df in enumerate(input_classify_df_chunks):
-
-            decision_class_name_column_classify = None
-            decision_class_value_column_classify = None
-            contents_column_classify = None
-            ids_column_classify = input_classify_df['id']
-            columns_classify = list(input_classify_df.columns)
-            columns_to_drop_classify = ['id']
-            if 'class_value' in columns_classify:
-                decision_class_name_column_classify = input_classify_df['class_name']
-                decision_class_value_column_classify = input_classify_df['class_value']
-                columns_to_drop_classify.append('class_value')
-                columns_to_drop_classify.append('class_name')
-            if 'contents' in columns_classify:
-                contents_column_classify = input_classify_df['contents']
-                columns_to_drop_classify.append('contents')
-            input_classify_df = input_classify_df.drop(columns_to_drop_classify, inplace=False, axis=1)
-
-            classify_x = input_classify_df
-            classify_x = classify_x[classify_x.columns[selector.get_support(True)]]
-            del input_classify_df
-            gc.collect()
-
-            output_classify_df = classify_x
-            output_classify_df.insert(0, "id", ids_column_classify)
-            if decision_class_name_column_classify is not None:
-                output_classify_df['class_name'] = decision_class_name_column_classify
-                output_classify_df['class_value'] = decision_class_value_column_classify
-
-            if contents_column_classify is not None:
-                output_classify_df['contents'] = contents_column_classify
-
-            logger.info(
-                ">>> Saving {} lines to the output to the file {}".format(output_classify_df.shape[0],
-                                                                          output_classify_file_path))
-
-            output_classify_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=(i == 0))
-            del output_classify_df
-            del classify_x
-            gc.collect()
+    selected_features_df.to_csv(output_train_file_path, sep=csv_separator, index=False, encoding="utf-8", header=True)

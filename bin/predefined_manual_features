@@ -7,7 +7,8 @@ import logging
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
 from prepare.feature_extractors import SubstringCountingFeatureExtraction, WholeWordCountingFeatureExtraction, \
-    LineFeaturesExtractionController, CommentFeatureExtraction, WordCountFeatureExtraction, CharCountFeatureExtraction
+    LineFeaturesExtractionController, CommentFeatureExtraction, WordCountFeatureExtraction, CharCountFeatureExtraction, \
+    WholeLineCommentFeatureExtraction
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -104,6 +105,11 @@ if __name__ == '__main__':
         extractors.append(comment_extractor)
         logger.info(">>> Using {}".format("CommentStringExtractor"))
 
+    if "WholeLineCommentFeatureExtraction" in extractors_to_use:
+        comment_extractor = WholeLineCommentFeatureExtraction()
+        extractors.append(comment_extractor)
+        logger.info(">>> Using {}".format("WholeLineCommentFeatureExtraction"))
+
     if "NoWordsExtractor" in extractors_to_use:
         no_words_extractor = WordCountFeatureExtraction()
         extractors.append(no_words_extractor)
@@ -113,6 +119,8 @@ if __name__ == '__main__':
         no_chars_extractor = CharCountFeatureExtraction()
         extractors.append(no_chars_extractor)
         logger.info(">>> Using {}".format("NoCharsExtractor"))
+
+
 
 
     logger.info(">>> Extracting features")

@@ -1,8 +1,16 @@
 {
   "INFO": {
-    "VarianceThreshold": "http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html"
+    "VarianceThreshold": "http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html",
+  	"SelectPercentile" : "http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectPercentile.html#sklearn.feature_selection.SelectPercentile",
+  	"SelectFpr" : "http://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectFpr.html#sklearn.feature_selection.SelectFpr"
   },
   "VarianceThreshold":{
-    "threshold": 0.0
+    "threshold": 0.00
+  },
+  "SelectPercentile":{
+    "percentile": 60
+  },
+  "SelectFpr":{
+    "alpha": 0.30
   }
 }
