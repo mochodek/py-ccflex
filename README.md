@@ -145,80 +145,295 @@ run.sh:
 
 LOCATIONS_CONFIG="./locations.json"
 CLASSES_CONFIG="./classes.json"
+BLOCK_CLASSES_CONFIG="./block_classes.json"
 FILES_FORMAT_CONFIG="./files_format.json"
 MANUAL_FEATURES_CONFIG="./manual_features.json"
 CLASSIFIERS_CONFIG="./classifiers_options.json"
 FEATURE_SELECTORS_CONFIG="./feature_selectors_options.json"
 
+TRAIN_LOCATION="train"
+CLASSIFY_LOCATION="classify"
 
-# 1. create workspace
-create_workspace --locations_config $LOCATIONS_CONFIG
+# Processing options
+CREATE_WORKSPACE=true
+LINES=true
+FEATURES=true
+CONTEXT=true
+CLASSIFY=true
+REPORT=true
+TEAR_DOWN=true
 
-# 2. read codebases, transform them to CSV, and extract features
-lines2csv "train" --locations_config $LOCATIONS_CONFIG --classes_config $CLASSES_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-lines2csv "classify" --locations_config $LOCATIONS_CONFIG --classes_config $CLASSES_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# MAX_GRAM could be 1, 2 or 3 used for bag of words
+MIN_NGRAM=1
+MAX_NGRAM=3
 
-# manually defined features
-predefined_manual_features "train" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --manual_features_config $MANUAL_FEATURES_CONFIG
-predefined_manual_features "classify"  --add_contents --locations_config $LOCATIONS_CONFIG --manual_features_config $MANUAL_FEATURES_CONFIG
+# If CONTEXT set to true how many lines
+CONTEXT_LINES_PREV=1
+CONTEXT_LINES_FRWD=1
 
-# bag of words
-vocabulary_extractor "train-lines.csv"  "vocabulary.csv" --top_words_threshold 10 --token_signature_for_missing --min_ngrams 1 --max_ngrams 2 --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-bag_of_words "train" "vocabulary.csv" --min_ngrams 1 --max_ngrams 2 --token_signature_for_missing --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-bag_of_words "classify" "vocabulary.csv" --min_ngrams 1 --max_ngrams 2 --token_signature_for_missing --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# Available extractors "PatternSubstringExctractor PatternWordExtractor WholeLineCommentFeatureExtraction CommentStringExtractor NoWordsExtractor NoCharsExtractor"
+MANUAL_FEATURE_EXTRACTORS="PatternSubstringExctractor PatternWordExtractor WholeLineCommentFeatureExtraction NoWordsExtractor NoCharsExtractor"
 
-# merge manual features and bag of words
-merge_inputs --input_files "train-manual.csv" "train-bag-of-words.csv" --output_file "train-manual-and-bow.csv" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-merge_inputs --input_files "classify-manual.csv" "classify-bag-of-words.csv" --output_file "classify-manual-and-bow.csv"  --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-
-# add context +/- lines
-add_seq_context  "train-manual-and-bow.csv" "train-manual-and-bow-ctx.csv" --prev_cases 1 --next_cases 1 --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-add_seq_context  "classify-manual-and-bow.csv" "classify-manual-and-bow-ctx.csv" --prev_cases 1 --next_cases 1 --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-
-# perform feature selection - remove duplicated features
-select_features  "train-manual-and-bow-ctx.csv" "classify-manual-and-bow-ctx.csv" --output_file_prefix "min-" --feature_selector "VarianceThreshold" --add_decision_class --add_contents --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --feature_selectors_options $FEATURE_SELECTORS_CONFIG
-
-# 3. run classification algorithms
-# train and classify using bag-of-words feature
-#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "CART"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "RandomForest"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "C50"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "MultinomialNB"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-bag-of-words.csv" "classify-bag-of-words.csv" --classifier "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-
-# train and classify using manually defined features
-#classify "train-manual.csv" "classify-manual.csv" --classifier "CART" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-manual.csv" "classify-manual.csv" --classifier "RandomForest" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-manual.csv" "classify-manual.csv" --classifier "C50" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-manual.csv" "classify-manual.csv" --classifier "MultinomialNB" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-manual.csv" "classify-manual.csv" --classifier "KNN"  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+CLASSIFIERS=( "CART" "RandomForest")
 
 
-# train and classify using both manually defined and bag-of-words feature
-#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "CART" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "RandomForest" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "C50" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "MultinomialNB" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-#classify "train-manual-and-bow.csv" "classify-manual-and-bow.csv" --classifier "KNN" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
 
-# train and classify using both manually defined and bag-of-words feature with +/- context lines
-classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "CART" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "RandomForest" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "C50" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "MultinomialNB" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
-classify "min-train-manual-and-bow-ctx.csv" "min-classify-manual-and-bow-ctx.csv" --classifier "KNN" --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+# === Create workspace ===
+$CREATE_WORKSPACE && create_workspace --locations_config $LOCATIONS_CONFIG
 
-# 4. merge results to a single csv file
-merge_results --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG --classifiers_options $CLASSIFIERS_CONFIG --classes_config $CLASSES_CONFIG
+# === Copy vocabulary files ===
+$FEATURES && copy_builtin_training_file "base-cpp-vocabulary.csv" --locations_config $LOCATIONS_CONFIG
 
-# 5. generate html reports
-generate_html "processing/train-manual.csv" "training-lines-manual-features.html" --all  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-generate_html "processing/train-bag-of-words.csv" "training-lines-bow-features.html" --all  --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-generate_html "results/classify-output-ALL.csv" "classified-lines-ALL.html" --all --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-generate_html "results/classify-output-ALL-count.csv" "classified-lines-ALL-count.html" --all --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
-generate_html "results/classify-output-C50-count.csv" "classified-lines-C50-count.html" --all --locations_config $LOCATIONS_CONFIG --files_format_config $FILES_FORMAT_CONFIG
+# === TRAINING ===
+
+# === Read training code ===
+$LINES && lines2csv "${TRAIN_LOCATION}" \
+	--locations_config $LOCATIONS_CONFIG \
+	--classes_config $CLASSES_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+# === Feature exctraction for training set ===
+
+$FEATURES  && vocabulary_extractor "${TRAIN_LOCATION}-lines.csv"  "cpp-vocabulary.csv" \
+	--skip_generating_base_vocabulary \
+	--top_words_threshold 200 \
+	--token_signature_for_missing \
+	--min_ngrams $MIN_NGRAM --max_ngrams $MAX_NGRAM \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+# Manual features
+$FEATURES  && predefined_manual_features "$TRAIN_LOCATION" \
+	--extractors $MANUAL_FEATURE_EXTRACTORS \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--manual_features_config $MANUAL_FEATURES_CONFIG
+
+# Bag of words
+$FEATURES && bag_of_words "${TRAIN_LOCATION}" "cpp-vocabulary.csv" \
+	--min_ngrams $MIN_NGRAM --max_ngrams $MAX_NGRAM \
+	--token_signature_for_missing \
+	--add_decision_class --add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+
+$FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-bag-of-words.csv" "${TRAIN_LOCATION}-manual.csv" \
+	--output_file "${TRAIN_LOCATION}-features.csv" \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Block comments
+$FEATURES && extract_block_features_from_features "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-comments.csv" "block_comment" --feature_start "/ *"  --feature_end "* /"  \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+$FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-comments.csv" \
+	--output_file "${TRAIN_LOCATION}-features.csv" \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Enums
+$FEATURES && extract_block_features_from_features "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-enum.csv" "in_enum" --feature_start "enum  "  --feature_end ";" "} ;"  \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--forbidding_features "block_comment" "whole_line_comment" \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+$FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-enum.csv" \
+	--output_file "${TRAIN_LOCATION}-features.csv" \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Feature selection low variance
+$FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
+	--feature_selector "VarianceThreshold" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG
+
+$FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Feature selection
+$FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
+	--feature_selector "SelectFpr" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG
+
+$FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+# Conext
+$FEATURES && $CONTEXT && add_seq_context  "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" \
+	--prev_cases $CONTEXT_LINES_PREV --next_cases $CONTEXT_LINES_FRWD \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+
+$FEATURES && $CONTEXT && select_features "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
+	--feature_selector "SelectFpr" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG
+
+$FEATURES && $CONTEXT && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 
+# === PREPARE CLASSIFY ===
+
+# === Read training code ===
+$LINES && lines2csv "${CLASSIFY_LOCATION}" \
+	--locations_config $LOCATIONS_CONFIG \
+	--classes_config $CLASSES_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+
+# === Feature exctraction for training set ===
+
+# Manual features
+$FEATURES  && predefined_manual_features "$CLASSIFY_LOCATION" \
+	--extractors $MANUAL_FEATURE_EXTRACTORS \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--manual_features_config $MANUAL_FEATURES_CONFIG
+
+# Bag of words
+$FEATURES && bag_of_words "${CLASSIFY_LOCATION}" "cpp-vocabulary.csv" \
+	--min_ngrams $MIN_NGRAM --max_ngrams $MAX_NGRAM \
+	--token_signature_for_missing \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+
+$FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-bag-of-words.csv" "${CLASSIFY_LOCATION}-manual.csv" \
+	--output_file "${CLASSIFY_LOCATION}-features.csv" \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+# Block comments
+$FEATURES && extract_block_features_from_features "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-comments.csv" "block_comment" --feature_start "/ *"  --feature_end "* /"  \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+$FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-comments.csv" \
+	--output_file "${CLASSIFY_LOCATION}-features.csv" \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+# Enums
+$FEATURES && extract_block_features_from_features "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-enum.csv" "in_enum" --feature_start "enum  "  --feature_end ";" "} ;"  \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--forbidding_features "block_comment" "whole_line_comment" \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+$FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-enum.csv" \
+	--output_file "${CLASSIFY_LOCATION}-features.csv" \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+# Feature selection low variance
+$FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "low_var_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+# Feature selection
+$FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "selected_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+# Conext
+$FEATURES && $CONTEXT && add_seq_context  "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" \
+	--prev_cases $CONTEXT_LINES_PREV --next_cases $CONTEXT_LINES_FRWD \
+	--add_decision_class \
+	--add_contents \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+$FEATURES && $CONTEXT && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "ctx_selected_features.csv" \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--chunk_size 10000
+$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+
+# === REMOVING FEATURE EXTRACTION TEMPORARY FILES ===
+# This should be always at the end of feature selection
+$TEAR_DOWN && $FEATURES && delete_processing_file "${TRAIN_LOCATION}-features-tmp.csv"
+$TEAR_DOWN && $FEATURES && delete_processing_file "${CLASSIFY_LOCATION}-features-tmp.csv"
+
+
+# === CLASSIFY ====
+for CLASSIFIER in "${CLASSIFIERS[@]}"
+do
+	$CLASSIFY && classify "${TRAIN_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features.csv" \
+	--classifier "${CLASSIFIER}" \
+	--chunk_size 20000 \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG \
+	--classes_config $CLASSES_CONFIG
+done
+
+# merge results to a single csv file
+$CLASSIFY && merge_results --locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG \
+	--classifiers_options $CLASSIFIERS_CONFIG \
+	--classes_config $CLASSES_CONFIG
+
+
+# === REPORT ====
+# generate reports
+$REPORT && generate_html "results/classify-output-ALL.csv" "classified-lines-ALL.html" \
+	--all --split_files --chunk_size 20000 \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
+
+$REPORT && generate_html "results/classify-output-ALL-count.csv" "classified-lines-ALL-count.html" \
+	--all --split_files --chunk_size 20000 \
+	--locations_config $LOCATIONS_CONFIG \
+	--files_format_config $FILES_FORMAT_CONFIG
 
 ```
 
@@ -278,6 +493,30 @@ Copies one of the built-in training files into the workspace.
  which if set to true will clear the folder each time the script is executed 
 
 *Output:* the file is copied into the workspace processing directory.
+
+
+### delete_processing_file
+Removes a given file in the procssing subfolder of the workspace.
+
+*Input:*
+* the first parameter is the name of the file to be removed
+* --locations_config - path to locations configuration (json). The file shall contain
+ the "workspace_dir" key that defines path to the workspace folder. There is also the *erase* option
+ which if set to true will clear the folder each time the script is executed 
+
+*Output:* the file is removed from the workspace processing directory.
+
+### copy_feature_file
+Makes a copy of a given feature file.
+
+*Input:*
+* the first parameter is the name of the features file to be copied
+* the second parameter is the name of the output file 
+* --locations_config - path to locations configuration (json). The file shall contain
+ the "workspace_dir" key that defines path to the workspace folder. There is also the *erase* option
+ which if set to true will clear the folder each time the script is executed 
+
+*Output:* the feature file is copied.
 
 ### predefined_manual_features
 This script analyses the lines.csv file to extract manually crafted features, e.g., presence of some 
@@ -358,6 +597,62 @@ will be added to the output file with the original text of the line.
 *Output:* 
 * \<location key>-bag-of-words.csv - a file containing extracted features that could be used to train a classifer
 
+
+### extract_block_features_from_class
+This scripts can be used to add a new "block" feature based on previously classified code. To do that, you need to first
+classify the code using three classes:
+* start - a line that is the beginning of the block
+* end - a line that ends the block
+* start_end - a line that contains the whole block
+You can see an example of how to define such classes in the block_classes.json file.
+
+The script will create a new feature file with a single feature (1 if within a block, otherwise 0).
+
+*Input:* 
+* the first parameter is the path to the file containing classified code
+* the second parameter is a new feature file containing the block feature
+* the third parameter is the name of the feature to create
+* --locations_config - path to locations configuration (json). 
+* --files_format_config - a json file with configuration of file format (e.g., the separator
+used in csv files).
+* --add_decision_class - the flag is used without parameters; if present two columns will be added
+to the output csv file - class_value and class_name.
+* --add_contents -  the flag is used without parameters; if present a column 'contents'
+will be added to the output file with the original text of the line.
+* --block_classes_config - a json file containing definitions of decision classes for finding the blocks. 
+
+*Output:* 
+* \<the second paramter>- - a file containing the new feature
+
+### extract_block_features_from_features
+This scripts can be used to add a new "block: feature based on a combination of existing features
+that are used to determine start and end of a block.
+ 
+The script will create a new feature file with a single feature (1 if within a block, otherwise 0).
+
+*Input:* 
+* the first parameter is the path to the file containing classified code
+* the second parameter is a new feature file containing the block feature
+* the third parameter is the name of the feature to create
+* --feature_start - a list of feature names; if any of them is greater than 0 the line is treated 
+as the beginning of a block
+* --feature_end - a list of feature names; if any of them is greater than 0 the line is treated 
+as the ending of a block
+* --forbidding_features - a list of feature names; if any of them is greater than 0 it prevents from
+treating the line as a beginning or ending of a block
+* --locations_config - path to locations configuration (json). 
+* --files_format_config - a json file with configuration of file format (e.g., the separator
+used in csv files).
+* --add_decision_class - the flag is used without parameters; if present two columns will be added
+to the output csv file - class_value and class_name.
+* --add_contents -  the flag is used without parameters; if present a column 'contents'
+will be added to the output file with the original text of the line.
+
+
+*Output:* 
+* \<the second paramter>- - a file containing the new feature
+
+
 ### merge_inputs
 This script is used to merge the input files with cases (features files)
 
@@ -397,29 +692,41 @@ will be added to the output file with the original text of the line.
 * the name of output file with added features from previous / next lines
 
 ### select_features
-This scripts allows to perform feature selection.
+Selects the most promising features and stores their names in a file.
 
 *Input:*
 * the first parameter is the name of the file containing features for training set
-* the second parameter is the name of the file containing features for set to classify
-* --output_file_prefix - the prefix that will be added to output features files (training and classify) 
+* the second parameter is the name of the output file containing the list of feature to preserve
 * --feature_selector - a feature selection algorithms:
     * VarianceThreshold - variance threshold - useful in eliminating duplicate features (sklearn)
+    * SelectPercentile - selects features according to a percentile of the highest scores (sklearn)
+    * SelectFpr - selects the pvalues below alpha based on a FPR test (sklearn)
 * --feature_selectors_options - a json file with feature selector options. If it contains a key equal to 
 the name of the feature selection algorithm its contents will be used to configure the feature selection algorithm
 * --locations_config - path to locations configuration (json). 
 * --files_format_config - a json file with configuration of file format (e.g., the separator
 used in csv files).
-* --add_decision_class - the flag is used without parameters; if present two columns will be added
-to the output csv file - class_value and class_name.
-* --add_contents -  the flag is used without parameters; if present a column 'contents'
-will be added to the output file with the original text of the line.
 * --classifiers_options - a json file with classifiers options. 
 * --chunk_size - the size of the batch of lines that will be read and processed (allows to read big files).
 
 *Output:* 
-* <output_file_prefix><first parameter> - reduced training feature file
-* <output_file_prefix><second parameter> - reduced classify feature file
+* <second parameter> - a csv file with names of features to preserve 
+
+
+### apply_feature_selection
+Reads a feature file and select columns based on the output file produced by the select_features script.  
+
+*Input:*
+* the first parameter is the name of the input feature file
+* the second parameter is the name of the output feature file
+* the thirds parameter is the name of the csv file containing list of selected features
+* --locations_config - path to locations configuration (json). 
+* --files_format_config - a json file with configuration of file format (e.g., the separator
+used in csv files).
+* --chunk_size - the size of the batch of lines that will be read and processed (allows to read big files).
+
+*Output:* 
+* <the second parameter> - a reduced training feature file
 
 ### classify
 This scripts uses different algorithms to classify lines.
@@ -519,3 +826,21 @@ will be added to the output file with the original text of the line.
 
 *Output:* 
 * <output file name> - a csv file stored in the processing folder of the workspace. 
+
+### find_similar
+This can be used to find inconsistencies in your training set (the same or very similar
+lines labeled differently).
+
+*Input:*
+* the first parameter is the path to a feature file.
+* --threshold_distance - a minimum Manhattan distance to treat a pair of lines as similar
+(default 0)
+* --tsne - if given, a t-SNE plot will be generated
+* --files_format_config - a json file with configuration of file format (e.g., the separator
+used in csv files).
+
+
+*Output:* 
+* <the first paramter>-similar.csv - file containing similar lines
+* <the first paramter>-similar-dendr.csv - file containing a dendrogram tree showing similarities
+* <the first paramter>-similar-tsne.csv - file containing a 2D t-SNE plot 

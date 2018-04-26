@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Reading input csv file with features, performs feature selection and storres the resulting features file
+# Reading input csv file with features and preserves only the selected features
 
 import argparse
 import logging

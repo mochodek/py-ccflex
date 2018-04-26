@@ -12,10 +12,10 @@ TRAIN_LOCATION="train"
 CLASSIFY_LOCATION="classify"
 
 # Processing options
-CREATE_WORKSPACE=false
-LINES=false
-FEATURES=false
-CONTEXT=false
+CREATE_WORKSPACE=true
+LINES=true
+FEATURES=true
+CONTEXT=true
 CLASSIFY=true
 REPORT=true
 TEAR_DOWN=true
@@ -39,7 +39,7 @@ CLASSIFIERS=( "CART" "RandomForest")
 $CREATE_WORKSPACE && create_workspace --locations_config $LOCATIONS_CONFIG
 
 # === Copy vocabulary files ===
-$FEATURES && copy_builtin_training_file "base-cpp-${MAX_NGRAM}g-vocabulary.csv" --locations_config $LOCATIONS_CONFIG
+$FEATURES && copy_builtin_training_file "base-cpp-vocabulary.csv" --locations_config $LOCATIONS_CONFIG
 
 # === TRAINING ===
 
@@ -51,7 +51,7 @@ $LINES && lines2csv "${TRAIN_LOCATION}" \
 
 # === Feature exctraction for training set ===
 
-$FEATURES  && vocabulary_extractor "${TRAIN_LOCATION}-lines.csv"  "cpp-${MAX_NGRAM}g-vocabulary.csv" \
+$FEATURES  && vocabulary_extractor "${TRAIN_LOCATION}-lines.csv"  "cpp-vocabulary.csv" \
 	--skip_generating_base_vocabulary \
 	--top_words_threshold 200 \
 	--token_signature_for_missing \
@@ -68,7 +68,7 @@ $FEATURES  && predefined_manual_features "$TRAIN_LOCATION" \
 	--manual_features_config $MANUAL_FEATURES_CONFIG
 
 # Bag of words
-$FEATURES && bag_of_words "${TRAIN_LOCATION}" "cpp-${MAX_NGRAM}g-vocabulary.csv" \
+$FEATURES && bag_of_words "${TRAIN_LOCATION}" "cpp-vocabulary.csv" \
 	--min_ngrams $MIN_NGRAM --max_ngrams $MAX_NGRAM \
 	--token_signature_for_missing \
 	--add_decision_class --add_contents \
@@ -82,7 +82,7 @@ $FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-bag-of-words.csv" "${
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 # Block comments
 $FEATURES && extract_block_features_from_features "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-comments.csv" "block_comment" --feature_start "/ *"  --feature_end "* /"  \
@@ -96,7 +96,7 @@ $FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-features-tmp.csv" "${
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 # Enums
 $FEATURES && extract_block_features_from_features "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-enum.csv" "in_enum" --feature_start "enum  "  --feature_end ";" "} ;"  \
@@ -111,7 +111,7 @@ $FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-features-tmp.csv" "${
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 # Feature selection low variance
 $FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
@@ -125,7 +125,7 @@ $FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TR
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 # Feature selection
 $FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
@@ -139,7 +139,7 @@ $FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TR
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 # Conext
 $FEATURES && $CONTEXT && add_seq_context  "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" \
@@ -148,7 +148,7 @@ $FEATURES && $CONTEXT && add_seq_context  "${TRAIN_LOCATION}-features-tmp.csv" "
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $CONTEXT && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 $FEATURES && $CONTEXT && select_features "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
 	--feature_selector "SelectFpr" \
@@ -161,7 +161,7 @@ $FEATURES && $CONTEXT && apply_features_selection "${TRAIN_LOCATION}-features-tm
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && $CONTEXT && cp_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
 
 
 # === PREPARE CLASSIFY ===
@@ -183,7 +183,7 @@ $FEATURES  && predefined_manual_features "$CLASSIFY_LOCATION" \
 	--manual_features_config $MANUAL_FEATURES_CONFIG
 
 # Bag of words
-$FEATURES && bag_of_words "${CLASSIFY_LOCATION}" "cpp-${MAX_NGRAM}g-vocabulary.csv" \
+$FEATURES && bag_of_words "${CLASSIFY_LOCATION}" "cpp-vocabulary.csv" \
 	--min_ngrams $MIN_NGRAM --max_ngrams $MAX_NGRAM \
 	--token_signature_for_missing \
 	--add_contents \
@@ -196,7 +196,7 @@ $FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-bag-of-words.csv" 
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
 # Block comments
 $FEATURES && extract_block_features_from_features "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-comments.csv" "block_comment" --feature_start "/ *"  --feature_end "* /"  \
@@ -209,7 +209,7 @@ $FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-features-tmp.csv" 
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
 # Enums
 $FEATURES && extract_block_features_from_features "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-enum.csv" "in_enum" --feature_start "enum  "  --feature_end ";" "} ;"  \
@@ -223,21 +223,21 @@ $FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-features-tmp.csv" 
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
 # Feature selection low variance
 $FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "low_var_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
 # Feature selection
 $FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "selected_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
 # Conext
 $FEATURES && $CONTEXT && add_seq_context  "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" \
@@ -246,13 +246,13 @@ $FEATURES && $CONTEXT && add_seq_context  "${CLASSIFY_LOCATION}-features-tmp.csv
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $CONTEXT && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
 $FEATURES && $CONTEXT && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "ctx_selected_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && $CONTEXT && cp_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
 
 
 # === REMOVING FEATURE EXTRACTION TEMPORARY FILES ===
