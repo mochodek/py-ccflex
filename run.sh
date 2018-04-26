@@ -82,7 +82,8 @@ $FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-bag-of-words.csv" "${
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Block comments
 $FEATURES && extract_block_features_from_features "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-comments.csv" "block_comment" --feature_start "/ *"  --feature_end "* /"  \
@@ -96,7 +97,8 @@ $FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-features-tmp.csv" "${
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Enums
 $FEATURES && extract_block_features_from_features "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-enum.csv" "in_enum" --feature_start "enum  "  --feature_end ";" "} ;"  \
@@ -111,7 +113,8 @@ $FEATURES && merge_inputs --input_files "${TRAIN_LOCATION}-features-tmp.csv" "${
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Feature selection low variance
 $FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
@@ -125,7 +128,8 @@ $FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TR
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Feature selection
 $FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
@@ -139,7 +143,8 @@ $FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TR
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Conext
 $FEATURES && $CONTEXT && add_seq_context  "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" \
@@ -148,7 +153,8 @@ $FEATURES && $CONTEXT && add_seq_context  "${TRAIN_LOCATION}-features-tmp.csv" "
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 $FEATURES && $CONTEXT && select_features "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
 	--feature_selector "SelectFpr" \
@@ -161,7 +167,8 @@ $FEATURES && $CONTEXT && apply_features_selection "${TRAIN_LOCATION}-features-tm
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv"
+$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 
 # === PREPARE CLASSIFY ===
@@ -196,7 +203,8 @@ $FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-bag-of-words.csv" 
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Block comments
 $FEATURES && extract_block_features_from_features "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-comments.csv" "block_comment" --feature_start "/ *"  --feature_end "* /"  \
@@ -209,7 +217,8 @@ $FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-features-tmp.csv" 
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Enums
 $FEATURES && extract_block_features_from_features "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-enum.csv" "in_enum" --feature_start "enum  "  --feature_end ";" "} ;"  \
@@ -223,21 +232,24 @@ $FEATURES && merge_inputs --input_files "${CLASSIFY_LOCATION}-features-tmp.csv" 
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Feature selection low variance
 $FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "low_var_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Feature selection
 $FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "selected_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 # Conext
 $FEATURES && $CONTEXT && add_seq_context  "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" \
@@ -246,13 +258,15 @@ $FEATURES && $CONTEXT && add_seq_context  "${CLASSIFY_LOCATION}-features-tmp.csv
 	--add_contents \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
-$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 $FEATURES && $CONTEXT && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "ctx_selected_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv"
+$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+    --locations_config $LOCATIONS_CONFIG
 
 
 # === REMOVING FEATURE EXTRACTION TEMPORARY FILES ===
