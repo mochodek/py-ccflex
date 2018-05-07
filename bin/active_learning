@@ -194,6 +194,7 @@ if __name__ == '__main__':
 
     print("Please, label the following lines:")
 
+    count_line = 1
     while True:
         query_idx = query_idx[0]
         file_name = file_names[query_idx]
@@ -206,9 +207,10 @@ if __name__ == '__main__':
                 spacer = ">>>"
             else:
                 spacer = "   "
-            print("{} {}  {}".format(spacer, ids_column_list[line_id].split(":")[-1], contents_list[line_id]))
-        cmd = input("# Choose: {}".format(prompt_message))
+            print('{} {}  {}'.format(spacer, ids_column_list[line_id].split(":")[-1], contents_list[line_id]))
+        cmd = input("{}# Choose: {}".format(count_line, prompt_message))
         print("\n")
+        count_line += 1
 
         label = 0
         if cmd == "q":
@@ -267,7 +269,7 @@ if __name__ == '__main__':
         lines_df = pd.concat(
             [output_df['id'], line_numbers, output_df['contents'], output_df[['class_name', 'class_value']], files],
             axis=1)
-        lines_df.set_axis(['id', 'line', 'contents', 'class_name', 'class_value', 'path'], axis=1, inplace=True)
+        lines_df.set_axis(labels=('id', 'line', 'contents', 'class_name', 'class_value', 'path'), axis=1, inplace=True)
         lines_output_file_path = workspace_dir.get_processing_file_path("lines-" + output_file)
         lines_df.to_csv(lines_output_file_path, sep=csv_separator, index=False, encoding="utf-8")
 
