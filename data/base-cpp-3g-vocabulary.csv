@@ -6,13 +6,13 @@ token
 *
 char
 [
-float
-(
-'
-\
-#
-@
-"$"
+    float
+        (
+        ' \
+ \
+        #
+        @
+        "$"
 ]
 short
 unsigned
@@ -37,7 +37,7 @@ struct
 include
 ;
 define
- 
+
 do
 dynamic_cast
 .
@@ -95,4 +95,6 @@ for
 class
 typename
 reinterpret_cast
-	
+
+ifdef
+endif
