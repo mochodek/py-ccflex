@@ -1,4 +1,6 @@
 token
+ifdef
+endif
 ?
 /
 <
@@ -96,5 +98,3 @@ class
 typename
 reinterpret_cast
 	
-ifdef
-endif
