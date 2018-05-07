@@ -1,5 +1,6 @@
 token
 ifdef
+ifndef
 endif
 ?
 /
