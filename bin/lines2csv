@@ -65,7 +65,8 @@ if __name__ == '__main__':
         exit(1)
 
     lines_extractor = LinesCaseExtractor(code_loc, output_file_path, decision_classes,
-                                         sep=files_format_config.get("csv_sep", ","))
+                                         sep=files_format_config.get("csv_sep", ","),
+                                         quotechar=files_format_config.get("quotechar", "\""))
     lines_extractor.extract()
 
 
