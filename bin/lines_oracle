@@ -1,0 +1,382 @@
+#!/usr/bin/env python
+
+# Allows to label lines manualy by "hand-written" script
+
+import argparse
+import logging
+import csv
+import re
+
+from common.configuration import ConfigurationHandler
+from common.workspace import WorkspaceHandler
+
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+
+def braces_compound(file_lines, classes_names):
+    if_pattern = re.compile("^if(\\s)*[(]")
+    for_pattern = re.compile("^for(\\s)*[(]")
+    open_brace_pattern = re.compile("[{]")
+    close_bracket_pattern = re.compile("[)](\\s)*$")
+
+    result = []
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"].strip()
+
+        is_if = if_pattern.search(contents) is not None
+        is_for = for_pattern.search(contents) is not None
+        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+
+        if is_for or is_if and not is_comment:
+            if open_brace_pattern.search(contents) is None:
+                semicolons = contents.count(";")
+                if is_if and semicolons > 0:
+                    class_value = 1
+                elif is_for and semicolons > 2:
+                    class_value = 1
+                else:
+                    if close_bracket_pattern.search(contents):  # is complete if or for
+                        if i + 1 < len(file_lines):
+                            contents_next = file_lines[i + 1]["contents"].strip()
+                            if open_brace_pattern.search(contents_next) is None:
+                                class_value = 1
+                        else:
+                            class_value = 1
+                    else:  # is partial if or for
+                        for j in range(i + 1, i + 6):
+                            if j < len(file_lines):
+                                contents_next = file_lines[j]["contents"].strip()
+                                if open_brace_pattern.search(contents_next) is None:
+                                    semicolons += contents_next.count(";")
+                                    if is_if and semicolons > 0:
+                                        class_value = 1
+                                    elif is_for and semicolons > 3:
+                                        class_value = 1
+                                else:
+                                    break
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}: {}".format(line['id'], line['contents']))
+
+    return result
+
+
+def ifdefine(file_lines, classes_names):
+    result = []
+    pattern = re.compile("^[#](ifdef|ifndef|else)")
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"].strip()
+        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+
+        if pattern.search(contents) and not is_comment:
+            class_value = 1
+
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}: {}".format(line['id'], line['contents']))
+    return result
+
+
+def define(file_lines, classes_names):
+    result = []
+    pattern = re.compile("^[#]define")
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"].strip()
+        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+
+        if pattern.search(contents) and not is_comment:
+            class_value = 1
+
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}: {}".format(line['id'], line['contents']))
+    return result
+
+
+def enum_class(file_lines, classes_names):
+    result = []
+    enum_class_pattern = re.compile("((\\s)|^)+enum(\\s)(struct|class)")
+    enum_pattern = re.compile("((\\s)|^)enum(\\s)+")
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"].strip()
+        is_enum_class = enum_class_pattern.search(contents) is not None
+        is_enum = enum_pattern.search(contents) is not None
+        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+
+        if is_enum and not is_comment:
+            class_value = not is_enum_class
+
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}: {}".format(line['id'], line['contents']))
+    return result
+
+
+def one_statement_in_line(file_lines, classes_names):
+    for_pattern = re.compile("^for(\\s)*[(]")
+    braces_pattern = re.compile("[{].*[}](\\s)*$")
+
+    result = []
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"].strip()
+
+        is_for = for_pattern.search(contents) is not None
+        is_braces = braces_pattern.search(contents) is not None
+        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+
+        if not is_comment:
+            semicolons = contents.count(";")
+            if is_for and semicolons > 2:
+                class_value = 1
+            elif not is_for and semicolons > 1:
+                class_value = 1
+            elif is_braces and semicolons > 0:
+                class_value = 1
+
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}: {}".format(line['id'], line['contents']))
+
+    return result
+
+
+def len_max_120chars(file_lines, classes_names):
+    result = []
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"]
+
+        if len(contents) > 120:
+            class_value = 1
+
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}: {}".format(line['id'], line['contents']))
+    return result
+
+
+def named_constants(file_lines, classes_names):
+    result = []
+    number_pattern = re.compile("\\d")
+    string_pattern = re.compile("[\"].*[\"]")
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"].strip()
+
+        is_number = number_pattern.search(contents) is not None
+        is_string_pattern = string_pattern.search(contents) is not None
+        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+
+        if is_number or is_string_pattern and not is_comment:
+            class_value = 1
+
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}: {}".format(line['id'], line['contents']))
+    return result
+
+
+def func_lower_camel_case(file_lines, classes_names):
+    result = []
+    func_pattern = re.compile("([A-Za-z][A-Za-z0-9]*)(\\s)+[A-Za-z09_]+[(]")
+    method_pattern = re.compile("([A-Za-z][A-Za-z0-9]*)(\\s)+([A-Za-z][A-Za-z0-9]*)::(\\s)*[A-Za-z09_]+[(]")
+    const_init_pattern = re.compile("new(\\s)+[A-Za-z09_]+[(]")
+    lower_camel_case_pattern = "[a-z]+[a-zA-Z0-9]*"
+    lower_cample_case_func_pattern = re.compile("([.:]|->|\\s){}[(]".format(lower_camel_case_pattern))
+    define_pattern = re.compile("^[#]define")
+    keywords_pattern = re.compile("(throw|explicit|return|if|for|while)")
+
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"].strip()
+
+        is_func = func_pattern.search(contents) is not None
+        is_method = method_pattern.search(contents) is not None
+        is_define = define_pattern.search(contents) is not None
+        is_const_init = const_init_pattern.search(contents) is not None
+        is_keyword = keywords_pattern.search(contents) is not None
+        is_lower_camel_case_func = lower_cample_case_func_pattern.search(contents) is not None
+        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+
+        if (is_func or is_method) and not is_comment and not is_define and not is_keyword:
+            if not is_lower_camel_case_func and not is_const_init:
+                class_value = 1
+
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}: {}".format(line['id'], line['contents']))
+    return result
+
+
+if __name__ == '__main__':
+
+    oracles = {
+        "braces_compound": braces_compound,
+        "ifdefine": ifdefine,
+        "define": define,
+        "enum_class": enum_class,
+        "one_statement_in_line": one_statement_in_line,
+        "len_max_120chars": len_max_120chars,
+        "named_constants": named_constants,
+        "func_lower_camel_case": func_lower_camel_case
+    }
+
+    logger.info("\n#### Running: {}".format(__file__))
+
+    # Parse input parameters
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("input_file",
+                        help="Path to a feature file", type=str)
+    parser.add_argument("output_file",
+                        help="Path to output csv file", type=str)
+    parser.add_argument("--oracle", type=str,
+                        help="The names of oracles to use", required=True)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
+    parser.add_argument("--classes_config", help="Path to classes configuration file",
+                        type=str, required=False, default="./classes.json")
+    parser.add_argument("--add_contents", help="Shall the content of the line be added to output?",
+                        default=False, action='store_true')
+
+    args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
+
+    input_file = args['input_file']
+    output_file = args['output_file']
+    oracle_name = args['oracle']
+    locations_file_path = args['locations_config']
+    files_format_file_path = args['files_format_config']
+    classes_file_path = args['classes_config']
+    add_contents = args['add_contents']
+
+    try:
+        locations_config = ConfigurationHandler(locations_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
+        exit(1)
+
+    try:
+        classes_config = ConfigurationHandler(classes_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(classes_file_path))
+        exit(1)
+    decision_classes = classes_config.get("classes", {})
+    classes_names = {decision_classes['default']['value']: decision_classes['default']['name']}
+    for label_class in decision_classes['labeled']:
+        classes_names[label_class['value']] = label_class['name']
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+    csv_separator = files_format_config.get("csv_sep", ",")
+    q = files_format_config.get("csv_sep", ",")
+
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
+
+    logger.info(">>> Loading input the file {}".format(input_file))
+
+    input_file_path = workspace_dir.get_processing_file_path(input_file)
+    output_file_path = workspace_dir.get_results_file_path(output_file)
+
+    i = 1
+    with open(input_file_path, "r", newline='', encoding="utf-8") as in_csv:
+        reader = csv.DictReader(in_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        with open(output_file_path, "w", newline='', encoding="utf-8") as out_csv:
+            writer = csv.writer(out_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+            header_row = ['id']
+            if add_contents:
+                header_row.append('contents')
+            header_row.append('class_name')
+            header_row.append('class_value')
+            writer.writerow(header_row)
+
+            last_filename = None
+            file_lines = []
+
+            for row in reader:
+                filename = row['id'].split(":")[0]
+                if last_filename is None:
+                    last_filename = filename
+
+                if filename != last_filename:
+                    if i % 10000 == 0:
+                        logger.info(">>> Processing file number {}: {}".format(i, last_filename))
+                    i += 1
+                    lines_with_class = oracles[oracle_name](file_lines, classes_names)
+
+                    for line_with_class in lines_with_class:
+                        out_row = [line_with_class['id']]
+                        if add_contents:
+                            out_row.append(line_with_class['contents'])
+                        out_row.append(line_with_class['class_name'])
+                        out_row.append(line_with_class['class_value'])
+                        writer.writerow(out_row)
+
+                    del file_lines
+                    file_lines = []
+                    last_filename = filename
+
+                file_lines.append(row)
+
+            if i % 10000 == 0:
+                logger.info(">>> Processing file number {}: {}".format(i, last_filename))
+            lines_with_class = oracles[oracle_name](file_lines, classes_names)
+
+            for line_with_class in lines_with_class:
+                out_row = [line_with_class['id']]
+                if add_contents:
+                    out_row.append(line_with_class['contents'])
+                out_row.append(line_with_class['class_name'])
+                out_row.append(line_with_class['class_value'])
+                writer.writerow(out_row)
+
+    logger.info(">>> Output saved to the file {}".format(output_file))
