@@ -14,7 +14,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
 
-from modAL.models import ActiveLearner
+from modAL.models import ActiveLearner, Committee
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
@@ -41,6 +41,9 @@ if __name__ == '__main__':
                         help="The already added labels will be used; lines that are not explicitly "
                              "labeled will be treated as unknown",
                         default=False, action='store_true')
+    parser.add_argument("--committee",
+                        help="Uses committe of classifiers to select samples.",
+                        default=False, action='store_true')
     parser.add_argument("--locations_config", help="Path to locations configuration file",
                         type=str, required=False, default="./locations.json")
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
@@ -53,6 +56,7 @@ if __name__ == '__main__':
                         default=False, action='store_true')
     parser.add_argument("--max_lines", help="The maximum number of lines to read from each input file",
                         type=int, required=False, default=10 ** 5)
+
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -67,6 +71,7 @@ if __name__ == '__main__':
     base_learner = args['base_learner']
     use_existing_labels = args['use_existing_labels']
     max_lines = args['max_lines']
+    committee = args['committee']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -162,25 +167,45 @@ if __name__ == '__main__':
     X_train = None
     y_train = None
     if use_existing_labels:
-        y_train = train_df['class_value']
+        y_train = train_df['class_value'].astype('int')
         output_ids = list(train_df['id'])
         output_contents = list(train_df['contents'])
         train_df.drop(columns_to_drop, inplace=True, axis=1)
         X_train = train_df.values
 
-    model = None
-    model_options = classifiers_options_config.get(base_learner, {})
-    if base_learner == "CART":
-        model = DecisionTreeClassifier(**model_options)
+    if not committee:
+        model = None
+        model_options = classifiers_options_config.get(base_learner, {})
+        if base_learner == "CART":
+            model = DecisionTreeClassifier(**model_options)
 
-    elif base_learner == "RandomForest":
-        model = RandomForestClassifier(**model_options)
+        elif base_learner == "RandomForest":
+            model = RandomForestClassifier(**model_options)
 
-    # active learner - default - uncertainty
-    learner = ActiveLearner(
-        estimator=model,
-        X_training=X_train, y_training=y_train,
-    )
+        # active learner - default - uncertainty
+        learner = ActiveLearner(
+            estimator=model,
+            X_training=np.copy(X_train), y_training=np.copy(y_train),
+        )
+    else:
+        learner_list = []
+        models = ["RandomForest", "RandomForest", "CART", "KNN"]
+        for base_learner in models:
+            model_options = classifiers_options_config.get(base_learner, {})
+            if base_learner == "CART":
+                model = DecisionTreeClassifier(**model_options)
+            elif base_learner == "RandomForest":
+                model = RandomForestClassifier(**model_options)
+            elif base_learner == "KNN":
+                model = KNeighborsClassifier(**model_options)
+            member_learner = ActiveLearner(
+                estimator=model,
+                X_training=np.copy(X_train), y_training=np.copy(y_train),
+            )
+            learner_list.append(member_learner)
+
+        learner = Committee(learner_list=learner_list)
+
 
     query_idx = list(np.random.choice(range(0, X_pool.shape[0]), 1, replace=False))
 
@@ -242,8 +267,12 @@ if __name__ == '__main__':
 
     print("Saving results to the file".format(output_file_path))
 
-    output_x = learner.X_training
-    output_y = learner.y_training
+    if committee:
+        output_x = learner.learner_list[0].X_training
+        output_y = learner.learner_list[0].y_training
+    else:
+        output_x = learner.X_training
+        output_y = learner.y_training
 
     class_values = np.array(output_y)
 
