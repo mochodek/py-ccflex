@@ -1,0 +1,201 @@
+#!/usr/bin/env python
+
+# Evaluates accuracy with respect to oracle
+
+import argparse
+import logging
+import os
+import pprint
+
+import pandas as pd
+import gc
+import numpy as np
+import csv
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+import matplotlib.pyplot as plt
+import itertools
+
+from common.configuration import ConfigurationHandler
+from common.workspace import WorkspaceHandler
+
+logger = logging.getLogger('pyccflex')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
+
+
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    np.set_printoptions(precision=2)
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+
+if __name__ == '__main__':
+
+    logger.info("\n#### Running: {}".format(__file__))
+
+    # Parse input parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument("oracle_file",
+                        help="Path to a file containing class_value column used as an oracle", type=str)
+    parser.add_argument("pred_file",
+                        help="Path to prediction file", type=str)
+    parser.add_argument("--locations_config", help="Path to locations configuration file",
+                        type=str, required=False, default="./locations.json")
+    parser.add_argument("--files_format_config", help="Path to files format configuration file",
+                        type=str, required=False, default="./files_format.json")
+    parser.add_argument("--classes_config", help="Path to classes configuration file",
+                        type=str, required=False, default="./classes.json")
+
+    args = vars(parser.parse_args())
+    logger.info("Run parameters: {}".format(str(args)))
+
+    oracle_file = args['oracle_file']
+    pred_file = args['pred_file']
+    locations_file_path = args['locations_config']
+    files_format_file_path = args['files_format_config']
+    classes_file_path = args['classes_config']
+
+    try:
+        locations_config = ConfigurationHandler(locations_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(locations_file_path))
+        exit(1)
+
+    try:
+        files_format_config = ConfigurationHandler(files_format_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(files_format_file_path))
+        exit(1)
+
+    try:
+        classes_config = ConfigurationHandler(classes_file_path)
+    except Exception as e:
+        logger.error("Couldn't load configuration file {}".format(classes_file_path))
+        exit(1)
+    decision_classes = classes_config.get("classes", {})
+    classes_labels = [decision_classes['default']['name']]
+    for class_labeled in decision_classes['labeled']:
+        classes_labels.append(class_labeled['name'])
+
+    csv_separator = files_format_config.get("csv_sep", ",")
+
+    workspace_dir_conf = locations_config.get('workspace_dir', None)
+    workspace_dir_path = workspace_dir_conf.get("path", "")
+    workspace_dir = WorkspaceHandler(workspace_dir_path)
+
+    logger.info(">>>> Starting to merge the result csv files...")
+
+    output_file_path = workspace_dir.get_results_file_path("acc-" + pred_file)
+    output_oracle_vs_pred_file_path = workspace_dir.get_results_file_path("oracle-vs-" + pred_file)
+    output_file_confusion_matrix_path = workspace_dir.get_results_file_path("acc-" + pred_file.replace(".csv", ".pdf"))
+
+    oracle_file_path = workspace_dir.get_results_file_path(oracle_file)
+    pred_file_path = workspace_dir.get_results_file_path(pred_file)
+
+    preds = []
+    oracle = []
+
+    with open(oracle_file_path, "r", newline='', encoding="utf-8") as oracle_csv:
+        with open(pred_file_path, "r", newline='', encoding="utf-8") as pred_csv:
+            with open(output_oracle_vs_pred_file_path, "w", newline='', encoding="utf-8") as out_csv:
+                writer = csv.writer(out_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                reader_oracle = csv.DictReader(oracle_csv, delimiter=csv_separator, quotechar='"',
+                                               quoting=csv.QUOTE_MINIMAL)
+                reader_pred = csv.DictReader(pred_csv, delimiter=csv_separator, quotechar='"',
+                                             quoting=csv.QUOTE_MINIMAL)
+
+                header_row = ['id']
+                header_row.append('contents')
+                header_row.append('class_value')
+                header_row.append('class_pred')
+                writer.writerow(header_row)
+
+                for pred_row in reader_pred:
+                    oracle_row = next(reader_oracle)
+                    if oracle_row['id'] != oracle_row['id']:
+                        raise Exception("Lines do not match! {} != {}".format(oracle_row['id'], oracle_row['id']))
+
+                    preds.append(int(pred_row['pred_class']))
+                    oracle.append(int(oracle_row['class_value']))
+
+                    out_row = [oracle_row['id']]
+                    out_row.append(oracle_row['contents'])
+                    out_row.append(oracle_row['class_value'])
+                    out_row.append(pred_row['pred_class'])
+                    writer.writerow(out_row)
+
+    acc = accuracy_score(y_true=oracle, y_pred=preds)
+    precision = precision_score(y_true=oracle, y_pred=preds)
+    recall = recall_score(y_true=oracle, y_pred=preds)
+    f1score = f1_score(y_true=oracle, y_pred=preds)
+
+    cnf_matrix = confusion_matrix(y_true=oracle, y_pred=preds)
+    tp = cnf_matrix[1, 1]
+    fp = cnf_matrix[0, 1]
+
+    tn = cnf_matrix[0, 0]
+    fn = cnf_matrix[1, 0]
+
+    n = len(preds)
+
+    print("Accuracy = {}".format(acc))
+    print("Precision = {}".format(precision))
+    print("Recall = {}".format(recall))
+    print("F1-score = {}".format(f1score))
+    print("TP = {}, TN = {}, FP = {}, FN = {}, N = {}".format(tp, tn, fp, fn, n))
+    pprint.pprint(cnf_matrix)
+
+    fig = plt.figure(figsize=(15, 6))
+
+    plt.subplot(1, 2, 1)
+    plot_confusion_matrix(cnf_matrix, classes=classes_labels,
+                          title='Confusion matrix, without normalization')
+
+    # Plot normalized confusion matrix
+    plt.subplot(1, 2, 2)
+    plot_confusion_matrix(cnf_matrix, classes=classes_labels, normalize=True,
+                          title='Normalized confusion matrix')
+
+    fig.savefig(output_file_confusion_matrix_path)
+
+    with open(output_file_path, "w", newline='', encoding="utf-8") as out_csv:
+        writer = csv.writer(out_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        header_row = ['name', 'classifer', 'rule',
+                      'N', 'TP', 'FP', 'TN', 'FN',
+                      "Accuracy", "Precision", "Recall", "F1-Score"]
+        writer.writerow(header_row)
+
+        row = ['', '', '',
+               n, tp, fp, tn, fn,
+               acc, precision, recall, f1score]
+        writer.writerow(row)

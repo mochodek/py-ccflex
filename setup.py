@@ -35,5 +35,7 @@ setup(name='pyccflex',
           'bin/find_similar',
           'bin/copy_feature_file',
           'bin/apply_features_selection',
-          'bin/delete_processing_file'],
+          'bin/delete_processing_file',
+          'bin/lines_oracle',
+          'bin/evaluate_accuracy'],
       zip_safe=False)
