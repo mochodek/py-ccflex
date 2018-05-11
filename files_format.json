@@ -1,5 +1,6 @@
 {
-  "csv_sep": "$"
+  "csv_sep": "$",
+  "quotechar": "\""
 }
 
 

@@ -13,7 +13,7 @@ class BaseCaseExtractor(abc.ABC):
     Base class for extracting cases / objects from code files. Intended for subclassing.
     """
 
-    def __init__(self, code_location, output_file_path, decision_classes, sep=",", verbosity=100):
+    def __init__(self, code_location, output_file_path, decision_classes, sep=",", quotechar="\"", verbosity=100):
         self.logger = logging.getLogger('pyccflex.common.configuration.BaseCaseExtractor')
         self.code_location = code_location
         self.locations = code_location.get("locations", [])
@@ -21,11 +21,12 @@ class BaseCaseExtractor(abc.ABC):
         self.sep = sep
         self.decision_classes = decision_classes
         self.baseline_dir = code_location.get("baseline_dir", "/")
+        self.quotechar = quotechar
         self.verbosity = verbosity
 
     def extract(self):
         with open(self.output_file_path, "w", newline='', encoding="utf-8") as output_file:
-            writer = csv.writer(output_file, delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer = csv.writer(output_file, delimiter=self.sep, quotechar=self.quotechar, quoting=csv.QUOTE_MINIMAL)
 
             self._save_header(writer)
 
@@ -117,7 +118,7 @@ class LinesCaseExtractor(BaseCaseExtractor):
 
                     row = ["{}:{}".format(file_relative_path, number),
                            str(number),
-                           line.replace("\"", "\"\"").replace("\n", ""),
+                           line.replace("\n", ""),
                            decision_class_name,
                            str(decision_class_value),
                            file_path.replace("\n", "")]
