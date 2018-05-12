@@ -217,9 +217,10 @@ def func_lower_camel_case(file_lines, classes_names):
     result = []
     func_pattern = re.compile("([A-Za-z][A-Za-z0-9]*)(\\s)+[A-Za-z09_]+[(]")
     method_pattern = re.compile("([A-Za-z][A-Za-z0-9]*)(\\s)+([A-Za-z][A-Za-z0-9]*)::(\\s)*[A-Za-z09_]+[(]")
-    const_init_pattern = re.compile("new(\\s)+[A-Za-z09_]+[(]")
+    construct_init_pattern = re.compile("new(\\s)+[A-Za-z09_]+[(]")
     lower_camel_case_pattern = "[a-z]+[a-zA-Z0-9]*"
-    lower_cample_case_func_pattern = re.compile("([.:]|->|\\s){}[(]".format(lower_camel_case_pattern))
+    lower_camel_case_func_pattern = re.compile("([.:]|->|\\s){}[(]".format(lower_camel_case_pattern))
+    lower_camel_case_test_func_pattern = re.compile("([.:]|->|\\s)test_{}[(]".format(lower_camel_case_pattern))
     define_pattern = re.compile("^[#]define")
     keywords_pattern = re.compile("(throw|explicit|return|if|for|while)")
 
@@ -231,13 +232,14 @@ def func_lower_camel_case(file_lines, classes_names):
         is_func = func_pattern.search(contents) is not None
         is_method = method_pattern.search(contents) is not None
         is_define = define_pattern.search(contents) is not None
-        is_const_init = const_init_pattern.search(contents) is not None
+        is_construct_init = construct_init_pattern.search(contents) is not None
         is_keyword = keywords_pattern.search(contents) is not None
-        is_lower_camel_case_func = lower_cample_case_func_pattern.search(contents) is not None
+        is_lower_camel_case_func = lower_camel_case_func_pattern.search(contents) is not None
+        is_lower_camel_case_test_func = lower_camel_case_test_func_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
         if (is_func or is_method) and not is_comment and not is_define and not is_keyword:
-            if not is_lower_camel_case_func and not is_const_init:
+            if not is_lower_camel_case_func and not is_construct_init and not is_lower_camel_case_test_func:
                 class_value = 1
 
         line['class_value'] = class_value
