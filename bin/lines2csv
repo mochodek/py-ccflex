@@ -29,12 +29,16 @@ if __name__ == '__main__':
                         type=str, required=False, default="./files_format.json")
     parser.add_argument("code_location_config_key",
                         help="Name of the node in configuration defining path to code", type=str)
+    parser.add_argument("--remove_duplicates", help="Will not add duplicated lines (research only)",
+                        default=False, action='store_true')
+
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
 
     locations_file_path = args['locations_config']
     classes_file_path = args['classes_config']
     files_format_file_path = args['files_format_config']
+    remove_duplicates = args['remove_duplicates']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -66,7 +70,8 @@ if __name__ == '__main__':
 
     lines_extractor = LinesCaseExtractor(code_loc, output_file_path, decision_classes,
                                          sep=files_format_config.get("csv_sep", ","),
-                                         quotechar=files_format_config.get("quotechar", "\""))
+                                         quotechar=files_format_config.get("quotechar", "\""),
+                                         remove_duplicates=remove_duplicates)
     lines_extractor.extract()
 
 

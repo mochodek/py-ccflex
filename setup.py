@@ -37,5 +37,6 @@ setup(name='pyccflex',
           'bin/apply_features_selection',
           'bin/delete_processing_file',
           'bin/lines_oracle',
-          'bin/evaluate_accuracy'],
+          'bin/evaluate_accuracy',
+          'bin/sample_lines'],
       zip_safe=False)

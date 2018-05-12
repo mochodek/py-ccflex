@@ -4,6 +4,7 @@ import os
 import csv
 
 import re
+import hashlib
 
 module_logger = logging.getLogger('pyccflex.prepare.case_extractors')
 
@@ -13,7 +14,8 @@ class BaseCaseExtractor(abc.ABC):
     Base class for extracting cases / objects from code files. Intended for subclassing.
     """
 
-    def __init__(self, code_location, output_file_path, decision_classes, sep=",", quotechar="\"", verbosity=100):
+    def __init__(self, code_location, output_file_path, decision_classes, sep=",",
+                 quotechar="\"", remove_duplicates=False, verbosity=100):
         self.logger = logging.getLogger('pyccflex.common.configuration.BaseCaseExtractor')
         self.code_location = code_location
         self.locations = code_location.get("locations", [])
@@ -23,6 +25,7 @@ class BaseCaseExtractor(abc.ABC):
         self.baseline_dir = code_location.get("baseline_dir", "/")
         self.quotechar = quotechar
         self.verbosity = verbosity
+        self.remove_duplicates = remove_duplicates
 
     def extract(self):
         with open(self.output_file_path, "w", newline='', encoding="utf-8") as output_file:
@@ -95,6 +98,8 @@ class LinesCaseExtractor(BaseCaseExtractor):
 
         file_relative_path = os.path.relpath(file_path, self.baseline_dir)
 
+        completed_lines_hash = set()
+
         with open(file_path, "r", encoding="utf-8") as input_file:
             number = 0
             while True:
@@ -103,6 +108,15 @@ class LinesCaseExtractor(BaseCaseExtractor):
                     line = input_file.readline()
                     if not line:
                         break
+
+                    if self.remove_duplicates and len(line.strip()) > 0:
+                        hashValue = hashlib.md5(line.encode('utf-8')).hexdigest()
+                        if hashValue not in completed_lines_hash:
+                            completed_lines_hash.add(hashValue)
+                        else:
+                            self.logger.info("Skipping duplicated line {}: {}".format(number, line))
+                            continue
+
                     decision_class_name = None
                     decision_class_value = None
                     for c in self.decision_classes.get("labeled", []):

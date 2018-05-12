@@ -15,10 +15,30 @@ CLASSIFY_LOCATION="classify"
 CREATE_WORKSPACE=true
 LINES=true
 FEATURES=true
-CONTEXT=true
+FEATURE_SELECTION=false
+CONTEXT=false
 CLASSIFY=true
 REPORT=true
 TEAR_DOWN=true
+
+# To sample lines from classification output (could be used to label and train)
+SAMPLE_LINES=true
+LINES_PER_FILE_TO_SAMPLE=50
+
+# Shall the codebase to classify be preprocess - sometimes it is not
+# required and codebase is big so you want to skip it and manually copy the files that would generate for hours
+PREPROCESS_CLASSIFY=true
+
+# To evaluate accuracy you have to edit these two variables
+EVALUATE_ACCURACY=true
+# available oracles: "braces_compound" "ifdefine" "define" "enum_class"
+#       "one_statement_in_line" "len_max_120chars"
+#        "named_constants"
+#        "func_lower_camel_case"
+ORACLE="define"
+
+# True if you want to remove duplicates from a training set
+REMOVE_DUPLICATES_FROM_TRAINING=false
 
 # MAX_GRAM could be 1, 2 or 3 used for bag of words
 MIN_NGRAM=1
@@ -34,6 +54,12 @@ MANUAL_FEATURE_EXTRACTORS="PatternSubstringExctractor PatternWordExtractor Whole
 CLASSIFIERS=( "CART" "RandomForest")
 
 
+if $REMOVE_DUPLICATES_FROM_TRAINING
+then
+    REMOVE_DUPLICATE_PARAM="--remove_duplicates"
+else
+    REMOVE_DUPLICATE_PARAM=""
+fi
 
 # === Create workspace ===
 $CREATE_WORKSPACE && create_workspace --locations_config $LOCATIONS_CONFIG
@@ -44,7 +70,7 @@ $FEATURES && copy_builtin_training_file "base-cpp-vocabulary.csv" --locations_co
 # === TRAINING ===
 
 # === Read training code ===
-$LINES && lines2csv "${TRAIN_LOCATION}" \
+$LINES && lines2csv "${TRAIN_LOCATION}" $REMOVE_DUPLICATE_PARAM \
 	--locations_config $LOCATIONS_CONFIG \
 	--classes_config $CLASSES_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG
@@ -133,33 +159,33 @@ $FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATIO
     --locations_config $LOCATIONS_CONFIG
 
 # Feature selection low variance
-$FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
+$FEATURE_SELECTION && $FEATURES && select_features "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
 	--feature_selector "VarianceThreshold" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
 	--classifiers_options $CLASSIFIERS_CONFIG
 
-$FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
+$FEATURE_SELECTION && $FEATURES && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "low_var_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+$FEATURE_SELECTION &&  $FEATURES && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
     --locations_config $LOCATIONS_CONFIG
 
 # Feature selection
-$FEATURES && ! $CONTEXT && select_features "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
+$FEATURE_SELECTION && $FEATURES && ! $CONTEXT && select_features "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
 	--feature_selector "SelectFpr" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
 	--classifiers_options $CLASSIFIERS_CONFIG
 
-$FEATURES && ! $CONTEXT && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
+$FEATURE_SELECTION && $FEATURES && ! $CONTEXT && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "selected_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && ! $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+$FEATURE_SELECTION && $FEATURES && ! $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
     --locations_config $LOCATIONS_CONFIG
 
 # Conext
@@ -172,22 +198,25 @@ $FEATURES && $CONTEXT && add_seq_context  "${TRAIN_LOCATION}-features-tmp.csv" "
 $FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
     --locations_config $LOCATIONS_CONFIG
 
-$FEATURES && $CONTEXT && select_features "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
+$FEATURE_SELECTION && $FEATURES && $CONTEXT && select_features "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
 	--feature_selector "SelectFpr" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--feature_selectors_options $FEATURE_SELECTORS_CONFIG \
 	--classifiers_options $CLASSIFIERS_CONFIG
 
-$FEATURES && $CONTEXT && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
+$FEATURE_SELECTION && $FEATURES && $CONTEXT && apply_features_selection "${TRAIN_LOCATION}-features-tmp.csv" "${TRAIN_LOCATION}-features.csv" "ctx_selected_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
+$FEATURE_SELECTION && $FEATURES && $CONTEXT && copy_feature_file "${TRAIN_LOCATION}-features.csv" "${TRAIN_LOCATION}-features-tmp.csv" \
     --locations_config $LOCATIONS_CONFIG
 
 
 # === PREPARE CLASSIFY ===
+
+if $PREPROCESS_CLASSIFY
+then
 
 # === Read training code ===
 $LINES && lines2csv "${CLASSIFY_LOCATION}" \
@@ -267,19 +296,19 @@ $FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_L
     --locations_config $LOCATIONS_CONFIG
 
 # Feature selection low variance
-$FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "low_var_features.csv" \
+$FEATURE_SELECTION && $FEATURES && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "low_var_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+$FEATURE_SELECTION && $FEATURES && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
     --locations_config $LOCATIONS_CONFIG
 
 # Feature selection
-$FEATURES && ! $CONTEXT && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "selected_features.csv" \
+$FEATURE_SELECTION && $FEATURES && ! $CONTEXT && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "selected_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && ! $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+$FEATURE_SELECTION && $FEATURES && ! $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
     --locations_config $LOCATIONS_CONFIG
 
 # Conext
@@ -292,11 +321,11 @@ $FEATURES && $CONTEXT && add_seq_context  "${CLASSIFY_LOCATION}-features-tmp.csv
 $FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
     --locations_config $LOCATIONS_CONFIG
 
-$FEATURES && $CONTEXT && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "ctx_selected_features.csv" \
+$FEATURE_SELECTION && $FEATURES && $CONTEXT && apply_features_selection "${CLASSIFY_LOCATION}-features-tmp.csv" "${CLASSIFY_LOCATION}-features.csv" "ctx_selected_features.csv" \
 	--locations_config $LOCATIONS_CONFIG \
 	--files_format_config $FILES_FORMAT_CONFIG \
 	--chunk_size 10000
-$FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
+$FEATURE_SELECTION && $FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "${CLASSIFY_LOCATION}-features-tmp.csv" \
     --locations_config $LOCATIONS_CONFIG
 
 
@@ -305,6 +334,7 @@ $FEATURES && $CONTEXT && copy_feature_file "${CLASSIFY_LOCATION}-features.csv" "
 $TEAR_DOWN && $FEATURES && delete_processing_file "${TRAIN_LOCATION}-features-tmp.csv" --locations_config $LOCATIONS_CONFIG
 $TEAR_DOWN && $FEATURES && delete_processing_file "${CLASSIFY_LOCATION}-features-tmp.csv" --locations_config $LOCATIONS_CONFIG
 
+fi
 
 # === CLASSIFY ====
 for CLASSIFIER in "${CLASSIFIERS[@]}"
@@ -338,10 +368,29 @@ $REPORT && generate_html "results/classify-output-ALL-count.csv" "classified-lin
 	--files_format_config $FILES_FORMAT_CONFIG
 
 
+# ===== SAMPLE LINES ====
+$SAMPLE_LINES &&  sample_lines sample_lines.txt --files "classify-output-ALL-ignore.csv" "classify-output-ALL-count.csv"  \
+    --lines $LINES_PER_FILE_TO_SAMPLE \
+    --locations_config $LOCATIONS_CONFIG \
+    --files_format_config $FILES_FORMAT_CONFIG
 
 
+#==== EVALUATE ACCURACY ===
 
+$EVALUATE_ACCURACY && lines_oracle  "classify-features.csv" "classify-output-oracle.csv"  \
+    --oracle $ORACLE \
+    --add_contents \
+    --locations_config $LOCATIONS_CONFIG \
+    --files_format_config $FILES_FORMAT_CONFIG \
+    --classes_config $CLASSES_CONFIG
 
+for CLASSIFIER in "${CLASSIFIERS[@]}"
+do
+$EVALUATE_ACCURACY && evaluate_accuracy  "classify-output-oracle.csv" "classify-output-${CLASSIFIER}.csv"  \
+    --locations_config $LOCATIONS_CONFIG \
+    --files_format_config $FILES_FORMAT_CONFIG \
+    --classes_config $CLASSES_CONFIG
+done
 
 
 
