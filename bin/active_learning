@@ -302,4 +302,18 @@ if __name__ == '__main__':
         lines_output_file_path = workspace_dir.get_processing_file_path("lines-" + output_file)
         lines_df.to_csv(lines_output_file_path, sep=csv_separator, index=False, encoding="utf-8")
 
+        source_output_file_path = workspace_dir.get_processing_file_path("source-" + output_file.replace(".csv", ".txt"))
+        contents = list(lines_df['contents'])
+        class_values = list(lines_df['class_value'])
+        classes_to_prefix = {}
+        for labeled_class in decision_classes['labeled']:
+            classes_to_prefix[labeled_class['value']] = labeled_class['line_prefix']
+
+        with open(source_output_file_path, 'w', newline='', encoding="utf-8") as out_file:
+            for i, content in enumerate(contents):
+                if decision_classes['default']['value'] == class_values[i]:
+                    out_file.write(content + "\n")
+                else:
+                    out_file.write(classes_to_prefix[class_values[i]]+content + "\n")
+
     output_df.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
