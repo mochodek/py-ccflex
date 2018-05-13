@@ -117,7 +117,8 @@ class WholeLineCommentFeatureExtraction(object):
         self.feature_names = ['whole_line_comment']
 
     def extract(self, text):
-        feature = 0 if re.match(r'^(\s|\t)*//.*$', text) is None else 1
+        pattern = re.compile("^(\\s)*//.*$")
+        feature = 0 if pattern.search(text) is None else 1
         return {'whole_line_comment': feature}
 
 
