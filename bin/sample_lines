@@ -81,7 +81,10 @@ if __name__ == '__main__':
                 for row in reader:
                     count += 1
 
-            lines_indices = random.sample(range(0, count), lines)
+            if count <= lines:
+                lines_indices = [x for x in range(0, count)]
+            else:
+                lines_indices = random.sample(range(0, count), lines)
 
             count = 0
             with open(file_path, "r", newline='', encoding="utf-8") as in_csv:
