@@ -153,7 +153,7 @@ def one_statement_in_line(file_lines, classes_names):
         is_braces = braces_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
-        if not is_comment or is_pattern_block_comment_after:
+        if not is_comment:
             semicolons = contents.count(";")
             if is_for and semicolons > 2:
                 class_value = 1
