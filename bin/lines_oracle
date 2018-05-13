@@ -73,13 +73,15 @@ def braces_compound(file_lines, classes_names):
 def ifdefine(file_lines, classes_names):
     result = []
     pattern = re.compile("^[#](ifdef|ifndef|else|endif)")
+    pattern_block_comment_after_pattern = re.compile("^[#](ifdef|ifndef|else|endif).*[/][*].*[*][/]")
 
     for i, line in enumerate(file_lines):
         class_value = 0
         contents = line["contents"].strip()
+        is_pattern_block_comment_after = pattern_block_comment_after_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
-        if pattern.search(contents) and not is_comment:
+        if pattern.search(contents) and not is_comment and not is_pattern_block_comment_after:
             class_value = 1
 
         line['class_value'] = class_value
