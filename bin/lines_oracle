@@ -141,6 +141,7 @@ def enum_class(file_lines, classes_names):
 def one_statement_in_line(file_lines, classes_names):
     for_pattern = re.compile("^for(\\s)*[(]")
     braces_pattern = re.compile("[{].*[}](\\s)*$")
+    pattern_block_comment_after_pattern = re.compile("^[A-Za-z0-9(),]*[/][*].*[*][/]")
 
     result = []
 
@@ -151,8 +152,9 @@ def one_statement_in_line(file_lines, classes_names):
         is_for = for_pattern.search(contents) is not None
         is_braces = braces_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+        is_pattern_block_comment_after = pattern_block_comment_after_pattern.search(contents) is not None
 
-        if not is_comment:
+        if not is_comment or is_pattern_block_comment_after:
             semicolons = contents.count(";")
             if is_for and semicolons > 2:
                 class_value = 1
