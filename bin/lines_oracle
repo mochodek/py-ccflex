@@ -81,7 +81,7 @@ def ifdefine(file_lines, classes_names):
         is_pattern_block_comment_after = pattern_block_comment_after_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
-        if pattern.search(contents) and not is_comment and not is_pattern_block_comment_after:
+        if pattern.search(contents) and (not is_comment or is_pattern_block_comment_after):
             class_value = 1
 
         line['class_value'] = class_value
