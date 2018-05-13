@@ -140,7 +140,7 @@ def enum_class(file_lines, classes_names):
 
 def one_statement_in_line(file_lines, classes_names):
     for_pattern = re.compile("^for(\\s)*[(]")
-    braces_pattern = re.compile("[{].*[}](\\s)*$")
+    braces_pattern = re.compile("[{].*[}](\\s)*[;]*$")
     result = []
 
     for i, line in enumerate(file_lines):
