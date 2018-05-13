@@ -160,7 +160,10 @@ def one_statement_in_line(file_lines, classes_names):
             elif not is_for and semicolons > 1:
                 class_value = 1
             elif is_braces and semicolons > 0:
-                class_value = 1
+                if semicolons == 1 and contents.endswith("};"):
+                    pass
+                else:
+                    class_value = 1
 
         line['class_value'] = class_value
         line['class_name'] = classes_names[class_value]
