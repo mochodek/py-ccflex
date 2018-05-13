@@ -72,7 +72,7 @@ def braces_compound(file_lines, classes_names):
 
 def ifdefine(file_lines, classes_names):
     result = []
-    pattern = re.compile("^[#](ifdef|ifndef|else)")
+    pattern = re.compile("^[#](ifdef|ifndef|else|endif)")
 
     for i, line in enumerate(file_lines):
         class_value = 0
