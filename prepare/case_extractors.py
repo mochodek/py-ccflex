@@ -131,10 +131,10 @@ class LinesCaseExtractor(BaseCaseExtractor):
                         decision_class_value = default_class['value']
 
                     row = ["{}:{}".format(file_relative_path, number),
-                           str(number),
+                           number,
                            line.replace("\n", ""),
                            decision_class_name,
-                           str(decision_class_value),
+                           decision_class_value,
                            file_path.replace("\n", "")]
                     writer.writerow(row)
 

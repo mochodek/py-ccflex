@@ -229,12 +229,14 @@ if __name__ == '__main__':
         for line_id in lines_to_display:
             if line_id == query_idx:
                 spacer = ">>>"
+                stats = "   | char={}, space={}, tab={}".format(len(contents_list[line_id]),
+                                                           contents_list[line_id].count(" "),
+                                                           contents_list[line_id].count("   "))
             else:
                 spacer = "   "
-            stats = "char={}, space={}, tab={}".format(len(contents_list[line_id]),
-                                                       contents_list[line_id].count(" "),
-                                                       contents_list[line_id].count("   "))
-            print('{} {}  {}    | {}'.format(spacer, ids_column_list[line_id].split(":")[-1], contents_list[line_id], stats))
+                stats = ""
+
+            print('{} {}  {}{}'.format(spacer, ids_column_list[line_id].split(":")[-1], contents_list[line_id], stats))
         cmd = input("{}# Choose: {}".format(count_line, prompt_message))
         print("\n")
         count_line += 1
