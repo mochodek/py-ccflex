@@ -77,7 +77,7 @@ if __name__ == '__main__':
             # count the lines
             count = 0
             with open(file_path, "r", newline='', encoding="utf-8") as in_csv:
-                reader = csv.DictReader(in_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                reader = csv.DictReader(in_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
                 for row in reader:
                     count += 1
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
             count = 0
             with open(file_path, "r", newline='', encoding="utf-8") as in_csv:
-                reader = csv.DictReader(in_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                reader = csv.DictReader(in_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
                 for row in reader:
                     if count in lines_indices:
                         out_file.write(row['contents']+"\n")

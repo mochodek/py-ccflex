@@ -127,11 +127,11 @@ if __name__ == '__main__':
     with open(oracle_file_path, "r", newline='', encoding="utf-8") as oracle_csv:
         with open(pred_file_path, "r", newline='', encoding="utf-8") as pred_csv:
             with open(output_oracle_vs_pred_file_path, "w", newline='', encoding="utf-8") as out_csv:
-                writer = csv.writer(out_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                writer = csv.writer(out_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
                 reader_oracle = csv.DictReader(oracle_csv, delimiter=csv_separator, quotechar='"',
-                                               quoting=csv.QUOTE_MINIMAL)
+                                               quoting=csv.QUOTE_NONNUMERIC)
                 reader_pred = csv.DictReader(pred_csv, delimiter=csv_separator, quotechar='"',
-                                             quoting=csv.QUOTE_MINIMAL)
+                                             quoting=csv.QUOTE_NONNUMERIC)
 
                 header_row = ['id']
                 header_row.append('contents')
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     fig.savefig(output_file_confusion_matrix_path)
 
     with open(output_file_path, "w", newline='', encoding="utf-8") as out_csv:
-        writer = csv.writer(out_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(out_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
         header_row = ['name', 'classifer', 'rule',
                       'N', 'TP', 'FP', 'TN', 'FN',

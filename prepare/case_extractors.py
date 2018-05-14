@@ -29,7 +29,7 @@ class BaseCaseExtractor(abc.ABC):
 
     def extract(self):
         with open(self.output_file_path, "w", newline='', encoding="utf-8") as output_file:
-            writer = csv.writer(output_file, delimiter=self.sep, quotechar=self.quotechar, quoting=csv.QUOTE_MINIMAL)
+            writer = csv.writer(output_file, delimiter=self.sep, quotechar=self.quotechar, quoting=csv.QUOTE_NONNUMERIC)
 
             self._save_header(writer)
 

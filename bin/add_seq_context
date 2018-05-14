@@ -82,7 +82,7 @@ if __name__ == '__main__':
     output_file_path = workspace_dir.get_processing_file_path(output_file)
 
     with open(output_file_path, "w", newline='', encoding="utf-8") as f:
-        writer = csv.writer(f, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(f, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
         for chunk_id, input_df in enumerate(input_df_chunks):
 
