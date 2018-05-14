@@ -127,7 +127,8 @@ def enum_class(file_lines, classes_names):
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
         if is_enum and not is_comment:
-            class_value = not is_enum_class
+            if not is_enum_class:
+                class_value = 1
 
         line['class_value'] = class_value
         line['class_name'] = classes_names[class_value]
