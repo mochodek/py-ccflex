@@ -3,6 +3,7 @@
 # Reading input csv file with features and preserves only the selected features
 
 import argparse
+import csv
 import logging
 import warnings
 import pandas as pd
@@ -94,11 +95,11 @@ if __name__ == '__main__':
         if i == 0:
             with open(output_file_path, 'w', newline='', encoding="utf-8") as f_res:
                 input_df.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
-                                header=True)
+                                header=True, quoting=csv.QUOTE_NONNUMERIC)
         else:
             with open(output_file_path, 'a', newline='', encoding="utf-8") as f_res:
                 input_df.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
-                                header=False)
+                                header=False, quoting=csv.QUOTE_NONNUMERIC)
 
         del input_df
         gc.collect()

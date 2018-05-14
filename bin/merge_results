@@ -3,6 +3,7 @@
 # Merges results file into one showing classification by different algorithms
 
 import argparse
+import csv
 import logging
 import os
 import pandas as pd
@@ -120,7 +121,8 @@ if __name__ == '__main__':
             gc.collect()
 
             logger.info(">>>> Saving {} lines of merged results to {}".format(merged_df.shape[0], output_file_path))
-            merged_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=(i == 0))
+            merged_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=(i == 0),
+                             quoting=csv.QUOTE_NONNUMERIC)
 
             for decision_class in decision_classes["labeled"]:
                 output_file_path_class = workspace_dir.get_results_file_path(
@@ -130,11 +132,11 @@ if __name__ == '__main__':
                 if i == 0:
                     with open(output_file_path_class, 'w', newline='', encoding="utf-8") as f_res:
                         output_class.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
-                                            header=True)
+                                            header=True, quoting=csv.QUOTE_NONNUMERIC)
                 else:
                     with open(output_file_path_class, 'a', newline='', encoding="utf-8") as f_res:
                         output_class.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
-                                            header=False)
+                                            header=False, quoting=csv.QUOTE_NONNUMERIC)
                 logger.info(">>>> Saving {} lines of merged results to {}".format(output_class.shape[0],
                                                                                   output_file_path_class))
                 del output_class
@@ -144,17 +146,19 @@ if __name__ == '__main__':
                 "classify-output-ALL-{}.csv".format(decision_classes["default"]['name']))
             output_class = merged_df[merged_df[pred_colnames].apply(
                 lambda x: list(x).count(decision_classes["default"]['value']) > 0, axis=1)]
-            output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8")
+            output_class.to_csv(output_file_path_class, sep=csv_separator, index=False, encoding="utf-8",
+                                quoting=csv.QUOTE_NONNUMERIC)
 
             if i == 0:
                 with open(output_file_path_class, 'w', newline='', encoding="utf-8") as f_res:
                     output_class.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
-                                        header=True)
+                                        header=True, quoting=csv.QUOTE_NONNUMERIC)
             else:
                 with open(output_file_path_class, 'a', newline='', encoding="utf-8") as f_res:
                     output_class.to_csv(f_res, sep=csv_separator, index=False, encoding="utf-8",
-                                        header=False)
-            logger.info(">>>> Saving {} lines of merged results to {}".format(output_class.shape[0], output_file_path_class))
+                                        header=False, quoting=csv.QUOTE_NONNUMERIC)
+            logger.info(
+                ">>>> Saving {} lines of merged results to {}".format(output_class.shape[0], output_file_path_class))
             del output_class
             merged_df
             gc.collect()

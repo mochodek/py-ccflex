@@ -6,6 +6,7 @@ import logging
 import os
 import json
 import time
+import csv
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
@@ -101,9 +102,11 @@ if __name__ == '__main__':
             base_vocab = base_vocab.head(top_words_threshold)
 
         if include_statistics:
-            base_vocab.to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
+            base_vocab.to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8",
+                              quoting=csv.QUOTE_NONNUMERIC)
         else:
-            base_vocab[['token']].to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8")
+            base_vocab[['token']].to_csv(base_output_file_path, sep=separator, index=False, encoding="utf-8",
+                                         quoting=csv.QUOTE_NONNUMERIC)
         logger.info(">>> Base vocabulary stored in the file {}".format(base_output_file_path))
 
         base_vocab_json = [{"name": x, "string": [x]} for x in list(base_vocab.token)]
@@ -112,7 +115,6 @@ if __name__ == '__main__':
             logger.info(">>> Base vocabulary stored in the file {}".format(base_output_json_file_path))
     else:
         base_vocab = pd.read_csv(base_output_file_path, sep=separator, encoding="utf-8")
-
 
     logger.info(">>> Creating vocabulary including n-grams")
 
@@ -159,7 +161,7 @@ if __name__ == '__main__':
     tokens = sorted(count_vect.vocabulary_.keys(), key=count_vect.vocabulary_.get)
     result_vocab = pd.DataFrame({"token": tokens})
 
-    result_vocab.to_csv(output_file_path, sep=separator, index=False, encoding="utf-8")
+    result_vocab.to_csv(output_file_path, sep=separator, index=False, encoding="utf-8", quoting=csv.QUOTE_NONNUMERIC)
 
     end = time.process_time()
     print(end - start)

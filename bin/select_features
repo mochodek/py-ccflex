@@ -3,13 +3,13 @@
 # Reading input csv file with features, performs feature selection and storres the resulting features file
 
 import argparse
+import csv
 import logging
 import warnings
 import pandas as pd
 from sklearn.feature_selection import VarianceThreshold, SelectPercentile, SelectFpr
 import gc
 import numpy as np
-
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
@@ -142,6 +142,6 @@ if __name__ == '__main__':
     logger.info(">>> Selected {} out of {} features...".format(selected_features.shape[0], train_x.shape[1]))
     selected_features_df = pd.DataFrame(selected_features, columns=["features"])
 
-
     logger.info(">>> Saving output to the file {}".format(output_train_file_path))
-    selected_features_df.to_csv(output_train_file_path, sep=csv_separator, index=False, encoding="utf-8", header=True)
+    selected_features_df.to_csv(output_train_file_path, sep=csv_separator, index=False, encoding="utf-8", header=True,
+                                quoting=csv.QUOTE_NONNUMERIC)

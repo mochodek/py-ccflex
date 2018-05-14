@@ -3,13 +3,12 @@
 # Removes a given column from a csv file or recursively for all csv files if folder is given
 
 import argparse
+import csv
 import logging
 import os
 import pandas as pd
 
-
 from common.configuration import ConfigurationHandler
-
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -19,7 +18,6 @@ logger.addHandler(ch)
 
 
 def remove_columns(input_path, columns, csv_separator):
-
     if not os.path.exists(input_path):
         logger.info("File / folder {} does not exist".format(input_path))
         return
@@ -32,7 +30,7 @@ def remove_columns(input_path, columns, csv_separator):
 
         if len(available_columns) > 0:
             csv_data.drop(available_columns, axis=1, inplace=True)
-            csv_data.to_csv(input_path, sep=csv_separator, index=False, encoding="utf-8")
+            csv_data.to_csv(input_path, sep=csv_separator, index=False, encoding="utf-8", quoting=csv.QUOTE_NONNUMERIC)
             logger.info(">>> Removed columns {} from file {}".format(", ".join(available_columns), input_path))
 
     elif os.path.isdir(input_path):
@@ -50,7 +48,7 @@ if __name__ == '__main__':
     parser.add_argument("path",
                         help="A path to a file or directory", type=str)
     parser.add_argument('--columns', nargs='+', type=str,
-                                            help="The names of columns to remove", required=True)
+                        help="The names of columns to remove", required=True)
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
                         type=str, required=False, default="./files_format.json")
 
@@ -70,6 +68,5 @@ if __name__ == '__main__':
     csv_separator = files_format_config.get("csv_sep", ",")
 
     remove_columns(input_path, columns, csv_separator)
-
 
     logger.info(">>> Columns successfuly removed")

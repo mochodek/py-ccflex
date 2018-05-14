@@ -3,6 +3,7 @@
 # Removes a given column from a csv file or recursively for all csv files if folder is given
 
 import argparse
+import csv
 import logging
 import os
 import pandas as pd
@@ -81,9 +82,11 @@ if __name__ == '__main__':
         else:
             return "{}: {}".format(idx, input_data.class_name.loc[idx])
 
+
     try:
         fig = plt.figure(figsize=(20, input_data.shape[0] * 0.2))
-        dendrogram(data_link, labels=input_data.contents.values if "contents" in columns_names else input_data.id.values,
+        dendrogram(data_link,
+                   labels=input_data.contents.values if "contents" in columns_names else input_data.id.values,
                    show_leaf_counts=True,
                    orientation='right',
                    leaf_font_size=10,
@@ -127,15 +130,16 @@ if __name__ == '__main__':
             if i != j and d_matrix[i, j] <= threshold_distance and input_data.class_value.values[i] != \
                     input_data.class_value.values[j]:
                 print("Inconsistent pair:")
-                print(" {}-> {}:{}".format(int(input_data.class_value.values[i]), i+1,
+                print(" {}-> {}:{}".format(int(input_data.class_value.values[i]), i + 1,
                                            input_data.contents[i] if "contents" in columns_names else input_data.id[i]))
-                print(" {}-> {}:{}".format(int(input_data.class_value.values[j]), j+1,
+                print(" {}-> {}:{}".format(int(input_data.class_value.values[j]), j + 1,
                                            input_data.contents[j] if "contents" in columns_names else input_data.id[j]))
                 inconsistent_indices.add(i)
                 inconsistent_indices.add(j)
 
     inconsistent_df = input_data.loc[inconsistent_indices, :]
 
-    inconsistent_df.to_csv(output_csv_file, sep=csv_separator, index=False, encoding="utf-8")
+    inconsistent_df.to_csv(output_csv_file, sep=csv_separator, index=False, encoding="utf-8",
+                           quoting=csv.QUOTE_NONNUMERIC)
 
     logger.info(">>> Similarity files created sucessfully")

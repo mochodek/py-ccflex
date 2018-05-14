@@ -3,6 +3,7 @@
 # Merges inputs csv file into one
 
 import argparse
+import csv
 import logging
 import pandas as pd
 import gc
@@ -10,13 +11,11 @@ import gc
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
 
-
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
-
 
 if __name__ == '__main__':
 
@@ -78,7 +77,6 @@ if __name__ == '__main__':
 
     output_file_path = workspace_dir.get_processing_file_path(output_file)
 
-
     input_file_path = workspace_dir.get_processing_file_path(input_files[0])
     first_input_file_df_chunks = pd.read_csv(input_file_path, sep=csv_separator,
                                              encoding="utf-8", chunksize=chunk_size, iterator=False)
@@ -90,7 +88,6 @@ if __name__ == '__main__':
             input_df_chunks = pd.read_csv(input_file_path, sep=csv_separator,
                                           encoding="utf-8", chunksize=chunk_size, iterator=False)
             input_files_dfs_chunks.append(input_df_chunks)
-
 
     with open(output_file_path, 'w', newline='', encoding="utf-8") as f:
 
@@ -134,7 +131,6 @@ if __name__ == '__main__':
                 if contents_column is None and 'contents' in columns:
                     contents_column = input_df_chunk['contents']
 
-
                 columns_to_drop = ['id']
                 if 'class_value' in columns:
                     columns_to_drop.append('class_value')
@@ -160,16 +156,7 @@ if __name__ == '__main__':
                 merged_df['contents'] = contents_column
 
             logger.info(">>> Saving the merged chunks to file {}".format(output_file))
-            merged_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=(i == 0))
+            merged_df.to_csv(f, sep=csv_separator, index=False, encoding="utf-8", header=(i == 0),
+                             quoting=csv.QUOTE_NONNUMERIC)
             del merged_df
             gc.collect()
-
-
-
-
-
-
-
-
-
-

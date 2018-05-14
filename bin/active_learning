@@ -3,6 +3,7 @@
 # An independent script for manually selecting and labeling data
 
 import argparse
+import csv
 import logging
 import os
 import pandas as pd
@@ -56,7 +57,6 @@ if __name__ == '__main__':
                         default=False, action='store_true')
     parser.add_argument("--max_lines", help="The maximum number of lines to read from each input file",
                         type=int, required=False, default=10 ** 5)
-
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -206,7 +206,6 @@ if __name__ == '__main__':
 
         learner = Committee(learner_list=learner_list)
 
-
     query_idx = list(np.random.choice(range(0, X_pool.shape[0]), 1, replace=False))
 
     prompt_message = ", ".join(["[{}]-{}".format(x['value'], x['name']) for x in decision_classes['labeled']])
@@ -261,7 +260,6 @@ if __name__ == '__main__':
 
         query_idx, query_sample = learner.query(X_pool)
 
-
         if cmd == "q":
             break
 
@@ -300,9 +298,11 @@ if __name__ == '__main__':
             axis=1)
         lines_df.set_axis(labels=('id', 'line', 'contents', 'class_name', 'class_value', 'path'), axis=1, inplace=True)
         lines_output_file_path = workspace_dir.get_processing_file_path("lines-" + output_file)
-        lines_df.to_csv(lines_output_file_path, sep=csv_separator, index=False, encoding="utf-8")
+        lines_df.to_csv(lines_output_file_path, sep=csv_separator, index=False, encoding="utf-8",
+                        quoting=csv.QUOTE_NONNUMERIC)
 
-        source_output_file_path = workspace_dir.get_processing_file_path("source-" + output_file.replace(".csv", ".txt"))
+        source_output_file_path = workspace_dir.get_processing_file_path(
+            "source-" + output_file.replace(".csv", ".txt"))
         contents = list(lines_df['contents'])
         class_values = list(lines_df['class_value'])
         classes_to_prefix = {}
@@ -314,6 +314,6 @@ if __name__ == '__main__':
                 if decision_classes['default']['value'] == class_values[i]:
                     out_file.write(content + "\n")
                 else:
-                    out_file.write(classes_to_prefix[class_values[i]]+content + "\n")
+                    out_file.write(classes_to_prefix[class_values[i]] + content + "\n")
 
-    output_df.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8")
+    output_df.to_csv(output_file_path, sep=csv_separator, index=False, encoding="utf-8", quoting=csv.QUOTE_NONNUMERIC)
