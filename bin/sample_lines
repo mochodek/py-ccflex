@@ -11,7 +11,7 @@ import random
 
 from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
-
+from collections import deque
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -36,6 +36,11 @@ if __name__ == '__main__':
                         type=str, required=False, default="./locations.json")
     parser.add_argument("--files_format_config", help="Path to files format configuration file",
                         type=str, required=False, default="./files_format.json")
+    parser.add_argument("--ctx_next", help="How many following lines add to each line",
+                        default=0, type=int)
+    parser.add_argument("--ctx_prev", help="How many preceding lines add to each line",
+                        default=0, type=int)
+
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -45,6 +50,8 @@ if __name__ == '__main__':
     files = args['files']
     lines = args['lines']
     output_file = args['output_file']
+    ctx_next = args['ctx_next']
+    ctx_prev = args['ctx_prev']
 
 
     try:
@@ -87,12 +94,25 @@ if __name__ == '__main__':
                 lines_indices = random.sample(range(0, count), lines)
 
             count = 0
+            lines_to_print = 0
+            prev_lines = deque([], ctx_prev)
             with open(file_path, "r", newline='', encoding="utf-8") as in_csv:
                 reader = csv.DictReader(in_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
                 for row in reader:
                     if count in lines_indices:
+                        out_file.write("".join(["\n"]*ctx_prev))
+                        while len(prev_lines) > 0:
+                            out_file.write(prev_lines.popleft()['contents'] + "\n")
                         out_file.write(row['contents']+"\n")
+
+                        lines_to_print = ctx_next
+                    else:
+                        if lines_to_print > 0:
+                            out_file.write(row['contents'] + "\n")
+                            lines_to_print -= 1
+
                     count += 1
+                    prev_lines.append(row)
 
     logger.info(">>> Sample lines saved to {}".format(output_file_path))
 
