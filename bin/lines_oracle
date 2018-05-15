@@ -198,6 +198,7 @@ def named_constants(file_lines, classes_names):
     result = []
     number_pattern = re.compile("\\d")
     string_pattern = re.compile("[\"].*[\"]")
+    hash_start_pattern = re.compile("^[#](ifdef|ifndef|else|endif|define|include)")
 
     for i, line in enumerate(file_lines):
         class_value = 0
@@ -205,9 +206,10 @@ def named_constants(file_lines, classes_names):
 
         is_number = number_pattern.search(contents) is not None
         is_string_pattern = string_pattern.search(contents) is not None
+        is_hash_start_pattern = hash_start_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
-        if is_number or is_string_pattern and not is_comment:
+        if is_number or is_string_pattern and not is_comment and not is_hash_start_pattern:
             class_value = 1
 
         line['class_value'] = class_value
