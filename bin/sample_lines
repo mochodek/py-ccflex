@@ -95,19 +95,25 @@ if __name__ == '__main__':
 
             count = 0
             lines_to_print = 0
+            filename = ""
             prev_lines = deque([], ctx_prev)
             with open(file_path, "r", newline='', encoding="utf-8") as in_csv:
                 reader = csv.DictReader(in_csv, delimiter=csv_separator, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
                 for row in reader:
                     if count in lines_indices:
+                        filename = row['id'].split(":")[0]
+
                         out_file.write("".join(["\n"]*ctx_prev))
                         while len(prev_lines) > 0:
-                            out_file.write(prev_lines.popleft()['contents'] + "\n")
+                            prev_line = prev_lines.popleft()
+                            if prev_line['id'].split(":")[0] == filename:
+                                out_file.write(prev_line['contents'] + "\n")
+
                         out_file.write(row['contents']+"\n")
 
                         lines_to_print = ctx_next
                     else:
-                        if lines_to_print > 0:
+                        if lines_to_print > 0 and row['id'].split(":")[0] == filename:
                             out_file.write(row['contents'] + "\n")
                             lines_to_print -= 1
 
