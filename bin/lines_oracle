@@ -139,7 +139,7 @@ def enum_class(file_lines, classes_names):
     return result
 
 
-def one_statement_in_line(file_lines, classes_names):
+def one_statement_in_line2(file_lines, classes_names):
     for_pattern = re.compile("for(\\s)*[(]")
     braces_pattern = re.compile("[{].*[}](\\s)*[;]*(\\s)*$")
     braces_with_semicolon_pattern = re.compile("[{].*;.*[}](\\s)*$")
@@ -147,7 +147,7 @@ def one_statement_in_line(file_lines, classes_names):
     array_pattern = re.compile("[A-Za-z:_0-9]+(\\s)+[A-Za-z:_0-9\\[\\]]+(\\s)*=(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
     braces_with_token_pattern = re.compile("[A-Za-z_09]*(\\s)*[{]")
-    retrun_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
+    return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
     result = []
 
     for i, line in enumerate(file_lines):
@@ -156,12 +156,13 @@ def one_statement_in_line(file_lines, classes_names):
         contents = contents.split("/*")[0]
         contents = contents.split("//")[0]
         contents = re.sub('\".+\"', "\"\"", contents)
+        contents = contents.replace("';'", '')
 
         is_for = for_pattern.search(contents) is not None
         is_braces = braces_pattern.search(contents) is not None \
                     or braces_with_semicolon_pattern.search(contents) is not None \
                     or empty_braces_after_braces_with_semicolon_pattern.search(contents) is not None
-        is_return = retrun_array_pattern.search(contents) is not None
+        is_return = return_array_pattern.search(contents) is not None
         is_braces_with_token = braces_with_token_pattern.search(contents) is not None
         is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
@@ -192,6 +193,68 @@ def one_statement_in_line(file_lines, classes_names):
 
         if class_value != 0:
             logger.info("{}: {}".format(line['id'], line['contents']))
+
+    return result
+
+
+def one_statement_in_line(file_lines, classes_names):
+    array_pattern = re.compile("[A-Za-z:_0-9]+(\\s)+[A-Za-z:_0-9\\[\\]]+(\\s)*=(\\s)*[{]")
+    for_pattern = re.compile("for(\\s)*[(]")
+    braces_pattern = re.compile("[{].*[}]")
+    return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
+    const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
+
+    braces_pattern = re.compile("[{].*[}](\\s)*[;]*(\\s)*$")
+    braces_with_semicolon_pattern = re.compile("[{].*;.*[}](\\s)*$")
+    empty_braces_after_braces_with_semicolon_pattern = re.compile("[)](\\s)*[{][}];$")
+
+    braces_with_token_pattern = re.compile("[A-Za-z_09]*(\\s)*[{]")
+
+    result = []
+
+    for i, line in enumerate(file_lines):
+        class_value = 0
+        contents = line["contents"].strip()
+        contents = contents.split("/*")[0]
+        contents = contents.split("//")[0]
+        contents = re.sub('\".+\"', "\"\"", contents)
+        contents = contents.replace("';'", '')
+
+        is_for = for_pattern.search(contents) is not None
+        is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
+        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
+
+        rule = ""
+        if not is_comment and not is_array:
+            semicolons = contents.count(";")
+            if not is_for:
+                if semicolons > 3:
+                    rule = "R1"
+                    class_value = 1
+                else:
+                    is_braces = braces_pattern.search(contents) is not None
+                    if semicolons > 2 and is_braces:
+                        rule = "R2"
+                        class_value = 1
+            else:
+                if semicolons > 1:
+                    rule = "R3"
+                    class_value = 1
+                elif semicolons > 0:
+                    is_braces = braces_pattern.search(contents) is not None
+                    if is_braces:
+                        is_return = return_array_pattern.search(contents) is not None
+                        is_braces_with_token = braces_with_token_pattern.search(contents) is not None
+                        if not is_return and not is_braces_with_token:
+                            rule = "R4"
+                            class_value = 1
+
+        line['class_value'] = class_value
+        line['class_name'] = classes_names[class_value]
+        result.append(line)
+
+        if class_value != 0:
+            logger.info("{}->{}: {}".format(line['id'], rule, line['contents']))
 
     return result
 
