@@ -164,6 +164,7 @@ def one_statement_in_line(file_lines, classes_names):
 
         rule = ""
         if not is_comment and not is_array:
+            logger.info("checked {}".format(contents))
             semicolons = contents.count(";")
             if is_for:
                 if semicolons > 3:
