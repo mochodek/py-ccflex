@@ -203,11 +203,6 @@ def one_statement_in_line(file_lines, classes_names):
     braces_pattern = re.compile("[{].*[}]")
     return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
-
-    braces_pattern = re.compile("[{].*[}](\\s)*[;]*(\\s)*$")
-    braces_with_semicolon_pattern = re.compile("[{].*;.*[}](\\s)*$")
-    empty_braces_after_braces_with_semicolon_pattern = re.compile("[)](\\s)*[{][}];$")
-
     braces_with_token_pattern = re.compile("[A-Za-z_09]*(\\s)*[{]")
 
     result = []
