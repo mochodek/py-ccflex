@@ -163,8 +163,8 @@ def one_statement_in_line(file_lines, classes_names):
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
         rule = ""
+        logger.info("{} {} {}".format(is_comment, is_array, contents))
         if not is_comment and not is_array:
-            logger.info("checked {}".format(contents))
             semicolons = contents.count(";")
             if is_for:
                 if semicolons > 3:
