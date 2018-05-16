@@ -143,6 +143,7 @@ def one_statement_in_line(file_lines, classes_names):
     for_pattern = re.compile("^for(\\s)*[(]")
     braces_pattern = re.compile("[{].*[}](\\s)*[;]*$")
     array_pattern = re.compile("[\\]](\\s)*=(\\s)*[{]")
+    const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
     result = []
 
     for i, line in enumerate(file_lines):
@@ -153,7 +154,7 @@ def one_statement_in_line(file_lines, classes_names):
 
         is_for = for_pattern.search(contents) is not None
         is_braces = braces_pattern.search(contents) is not None
-        is_array = array_pattern.search(contents) is not None
+        is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
         if not is_comment and not is_array:
