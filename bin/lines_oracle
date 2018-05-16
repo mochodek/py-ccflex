@@ -141,11 +141,12 @@ def enum_class(file_lines, classes_names):
 
 def one_statement_in_line(file_lines, classes_names):
     for_pattern = re.compile("for(\\s)*[(]")
-    braces_pattern = re.compile("[{].*[}](\\s)*[;]*$")
+    braces_pattern = re.compile("[{].*[}](\\s)*[;]*(\\s)*$")
+    braces_with_semicolon_pattern = re.compile("[{].*;.*[}](\\s)*$")
     array_pattern = re.compile("[A-Za-z:_0-9]+(\\s)+[A-Za-z:_0-9\\[\\]]+(\\s)*=(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
     braces_with_token_pattern = re.compile("[A-Za-z_09]*(\\s)*[{]")
-    retrun_array_pattern = re.compile("return(\\s)*[{]")
+    retrun_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
     result = []
 
     for i, line in enumerate(file_lines):
@@ -156,7 +157,7 @@ def one_statement_in_line(file_lines, classes_names):
         contents = re.sub('\".+\"', "\"\"", contents)
 
         is_for = for_pattern.search(contents) is not None
-        is_braces = braces_pattern.search(contents) is not None
+        is_braces = braces_pattern.search(contents) is not None or braces_with_semicolon_pattern is not None
         is_return = retrun_array_pattern.search(contents) is not None
         is_braces_with_token = braces_with_token_pattern.search(contents) is not None
         is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
@@ -174,7 +175,7 @@ def one_statement_in_line(file_lines, classes_names):
                 # ;;
                 class_value = 1
             elif is_braces and not is_braces_with_token and not is_return and semicolons > 0:
-                # {}; but not aa{};
+                # {}; and {;} but not aa{};
                 class_value = 1
 
         line['class_value'] = class_value
