@@ -170,15 +170,19 @@ def one_statement_in_line(file_lines, classes_names):
             semicolons = contents.count(";")
             if is_for and semicolons > 2 and is_braces:
                 # for (;;) {};
+                print("Rule: 1")
                 class_value = 1
             elif is_for and semicolons > 3 and not is_braces:
                 # for (;;) x; x;
+                print("Rule: 2")
                 class_value = 1
             elif not is_for and semicolons > 1:
                 # ;;
+                print("Rule: 3")
                 class_value = 1
             elif is_braces and not is_braces_with_token and not is_return and semicolons > 0:
                 # {}; and {;} but not aa{};
+                print("Rule: 4")
                 class_value = 1
 
         line['class_value'] = class_value
