@@ -142,6 +142,7 @@ def enum_class(file_lines, classes_names):
 def one_statement_in_line(file_lines, classes_names):
     array_pattern = re.compile(
         "[A-Za-z:_0-9\\<\\>]+(\\s)+([A-Za-z:_0-9\\[\\],](\\s)*)+(\\s)*=(\\s)*[A-Za-z:_0-9\\<\\>]*(\\s)*[{]")
+    array_assignment = re.compile("[A-Za-z:_0-9\\<\\>.\\-]+(\\s)*=(\\s)*[{].*[}]")
     for_pattern = re.compile("for(\\s)*[(]")
     braces_pattern = re.compile("[{].*[}]")
     return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
@@ -160,7 +161,7 @@ def one_statement_in_line(file_lines, classes_names):
         contents = re.sub('\".+\"', "\"\"", contents)
         contents = contents.replace("';'", '')
 
-        is_for = for_pattern.search(contents) is not None
+        is_for = for_pattern.search(contents) is not None or array_assignment.search(contents)
         is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
