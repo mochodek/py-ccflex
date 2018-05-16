@@ -222,7 +222,7 @@ def one_statement_in_line(file_lines, classes_names):
         rule = ""
         if not is_comment and not is_array:
             semicolons = contents.count(";")
-            if not is_for:
+            if is_for:
                 if semicolons > 3:
                     rule = "R1"
                     class_value = 1
