@@ -143,6 +143,7 @@ def one_statement_in_line(file_lines, classes_names):
     for_pattern = re.compile("for(\\s)*[(]")
     braces_pattern = re.compile("[{].*[}](\\s)*[;]*(\\s)*$")
     braces_with_semicolon_pattern = re.compile("[{].*;.*[}](\\s)*$")
+    empty_braces_after_braces_with_semicolon_pattern = re.compile("[)](\\s)*[{][}];$")
     array_pattern = re.compile("[A-Za-z:_0-9]+(\\s)+[A-Za-z:_0-9\\[\\]]+(\\s)*=(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
     braces_with_token_pattern = re.compile("[A-Za-z_09]*(\\s)*[{]")
@@ -157,7 +158,9 @@ def one_statement_in_line(file_lines, classes_names):
         contents = re.sub('\".+\"', "\"\"", contents)
 
         is_for = for_pattern.search(contents) is not None
-        is_braces = braces_pattern.search(contents) is not None or braces_with_semicolon_pattern is not None
+        is_braces = braces_pattern.search(
+            contents) is not None or braces_with_semicolon_pattern is not None \
+                    or empty_braces_after_braces_with_semicolon_pattern is not None
         is_return = retrun_array_pattern.search(contents) is not None
         is_braces_with_token = braces_with_token_pattern.search(contents) is not None
         is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
@@ -213,7 +216,7 @@ def named_constants(file_lines, classes_names):
     string_pattern = re.compile("[\"].*[\"]")
     const_pattern = re.compile("const.*=(\\s)*(([\"].*[\"])|(\\d))")
     const_like_pattern = re.compile("[A-Z_]+(\\s)*=(\\s)*(([\"].*[\"])|(\\d))")
-    #hash_start_pattern = re.compile("^[#](ifdef|ifndef|else|endif|define|include)")
+    # hash_start_pattern = re.compile("^[#](ifdef|ifndef|else|endif|define|include)")
     define_pattern = re.compile("^#define(\\s)+[A-Za-z0-9_]+(\\s)+(([\"].*[\"])|(\\d))")
     include_patter = re.compile("^#include(\\s)+([\"].*[\"])")
 
@@ -223,7 +226,8 @@ def named_constants(file_lines, classes_names):
 
         is_number = number_pattern.search(contents) is not None
         is_string_pattern = string_pattern.search(contents) is not None
-        is_hash_start_pattern = define_pattern.search(contents) is not None or include_patter.search(contents) is not None
+        is_hash_start_pattern = define_pattern.search(contents) is not None or include_patter.search(
+            contents) is not None
         is_const_pattern = const_pattern.search(contents) is not None or const_like_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
@@ -249,7 +253,6 @@ def func_lower_camel_case(file_lines, classes_names):
     lower_camel_case_test_func_pattern = re.compile("([.:]|->|\\s)test_{}[(]".format(lower_camel_case_pattern))
     define_pattern = re.compile("^[#]define")
     keywords_pattern = re.compile("(throw|explicit|return|if|for|while)")
-
 
     for i, line in enumerate(file_lines):
         class_value = 0
