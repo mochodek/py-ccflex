@@ -183,6 +183,7 @@ def one_statement_in_line(file_lines, classes_names):
             elif is_braces and not is_braces_with_token and not is_return and semicolons > 0:
                 # {}; and {;} but not aa{};
                 logger.info("Rule: 4")
+                logger.info("{}{}{}{}".format(is_braces, not is_braces_with_token, not is_return, semicolons > 0))
                 class_value = 1
 
         line['class_value'] = class_value
