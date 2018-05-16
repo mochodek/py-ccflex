@@ -146,6 +146,7 @@ def one_statement_in_line(file_lines, classes_names):
     return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
     braces_with_token_pattern = re.compile("[A-Za-z_09]+(\\s)*[{]")
+    only_braces_pattern = re.compile("^(\\s)*[{].*[}](\\s)*(;)?(\\s)*$")
 
     result = []
 
