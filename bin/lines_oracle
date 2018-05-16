@@ -139,71 +139,13 @@ def enum_class(file_lines, classes_names):
     return result
 
 
-def one_statement_in_line2(file_lines, classes_names):
-    for_pattern = re.compile("for(\\s)*[(]")
-    braces_pattern = re.compile("[{].*[}](\\s)*[;]*(\\s)*$")
-    braces_with_semicolon_pattern = re.compile("[{].*;.*[}](\\s)*$")
-    empty_braces_after_braces_with_semicolon_pattern = re.compile("[)](\\s)*[{][}];$")
-    array_pattern = re.compile("[A-Za-z:_0-9]+(\\s)+[A-Za-z:_0-9\\[\\]]+(\\s)*=(\\s)*[{]")
-    const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
-    braces_with_token_pattern = re.compile("[A-Za-z_09]*(\\s)*[{]")
-    return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
-    result = []
-
-    for i, line in enumerate(file_lines):
-        class_value = 0
-        contents = line["contents"].strip()
-        contents = contents.split("/*")[0]
-        contents = contents.split("//")[0]
-        contents = re.sub('\".+\"', "\"\"", contents)
-        contents = contents.replace("';'", '')
-
-        is_for = for_pattern.search(contents) is not None
-        is_braces = braces_pattern.search(contents) is not None \
-                    or braces_with_semicolon_pattern.search(contents) is not None \
-                    or empty_braces_after_braces_with_semicolon_pattern.search(contents) is not None
-        is_return = return_array_pattern.search(contents) is not None
-        is_braces_with_token = braces_with_token_pattern.search(contents) is not None
-        is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
-        is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
-
-        if not is_comment and not is_array:
-            semicolons = contents.count(";")
-            if is_for and semicolons > 2 and is_braces:
-                # for (;;) {};
-                logger.info("Rule: 1")
-                class_value = 1
-            elif is_for and semicolons > 3 and not is_braces:
-                # for (;;) x; x;
-                logger.info("Rule: 2")
-                class_value = 1
-            elif not is_for and semicolons > 1:
-                # ;;
-                logger.info("Rule: 3")
-                class_value = 1
-            elif is_braces and not is_braces_with_token and not is_return and semicolons > 0:
-                # {}; and {;} but not aa{};
-                logger.info("Rule: 4")
-                logger.info("{}{}{}{}".format(is_braces, not is_braces_with_token, not is_return, semicolons > 0))
-                class_value = 1
-
-        line['class_value'] = class_value
-        line['class_name'] = classes_names[class_value]
-        result.append(line)
-
-        if class_value != 0:
-            logger.info("{}: {}".format(line['id'], line['contents']))
-
-    return result
-
-
 def one_statement_in_line(file_lines, classes_names):
     array_pattern = re.compile("[A-Za-z:_0-9]+(\\s)+[A-Za-z:_0-9\\[\\]]+(\\s)*=(\\s)*[{]")
     for_pattern = re.compile("for(\\s)*[(]")
     braces_pattern = re.compile("[{].*[}]")
     return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
-    braces_with_token_pattern = re.compile("[A-Za-z_09]*(\\s)*[{]")
+    braces_with_token_pattern = re.compile("[A-Za-z_09]+(\\s)*[{]")
 
     result = []
 
