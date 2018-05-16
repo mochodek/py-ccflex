@@ -182,7 +182,9 @@ def one_statement_in_line(file_lines, classes_names):
                     if is_braces:
                         is_return = return_array_pattern.search(contents) is not None
                         is_braces_with_token = braces_with_token_pattern.search(contents) is not None
-                        if not is_return and not is_braces_with_token:
+                        is_only_braces = only_braces_pattern.search(contents) is not None
+
+                        if not is_return and not is_braces_with_token and not is_only_braces:
                             rule = "R4"
                             class_value = 1
 
