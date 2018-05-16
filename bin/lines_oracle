@@ -153,6 +153,7 @@ def one_statement_in_line(file_lines, classes_names):
         contents = line["contents"].strip()
         contents = contents.split("/*")[0]
         contents = contents.split("//")[0]
+        contents = re.sub('\".+\"', "\"\"", contents)
 
         is_for = for_pattern.search(contents) is not None
         is_braces = braces_pattern.search(contents) is not None
