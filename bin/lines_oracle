@@ -144,6 +144,7 @@ def one_statement_in_line(file_lines, classes_names):
     braces_pattern = re.compile("[{].*[}](\\s)*[;]*$")
     array_pattern = re.compile("[\\]](\\s)*=(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
+    braces_with_token_pattern = re.compile("[A-Za-z_09]*(\\s)*[{]")
     result = []
 
     for i, line in enumerate(file_lines):
@@ -154,16 +155,23 @@ def one_statement_in_line(file_lines, classes_names):
 
         is_for = for_pattern.search(contents) is not None
         is_braces = braces_pattern.search(contents) is not None
+        is_braces_with_token = braces_with_token_pattern.search(contents) is not None
         is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
         if not is_comment and not is_array:
             semicolons = contents.count(";")
-            if is_for and semicolons > 2:
+            if is_for and semicolons > 2 and is_braces:
+                # for (;;) {};
+                class_value = 1
+            elif is_for and semicolons > 3 and not is_braces:
+                # for (;;) x; x;
                 class_value = 1
             elif not is_for and semicolons > 1:
+                # ;;
                 class_value = 1
-            elif is_braces and semicolons > 0:
+            elif is_braces and not is_braces_with_token and semicolons > 0:
+                # {}; but not aa{};
                 class_value = 1
 
         line['class_value'] = class_value
