@@ -158,9 +158,9 @@ def one_statement_in_line(file_lines, classes_names):
         contents = re.sub('\".+\"', "\"\"", contents)
 
         is_for = for_pattern.search(contents) is not None
-        is_braces = braces_pattern.search(
-            contents) is not None or braces_with_semicolon_pattern is not None \
-                    or empty_braces_after_braces_with_semicolon_pattern is not None
+        is_braces = braces_pattern.search(contents) is not None \
+                    or braces_with_semicolon_pattern.search(contents) is not None \
+                    or empty_braces_after_braces_with_semicolon_pattern.search(contents) is not None
         is_return = retrun_array_pattern.search(contents) is not None
         is_braces_with_token = braces_with_token_pattern.search(contents) is not None
         is_array = array_pattern.search(contents) is not None or const_array_pattern.search(contents) is not None
