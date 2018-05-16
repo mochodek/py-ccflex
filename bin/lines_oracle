@@ -141,7 +141,7 @@ def enum_class(file_lines, classes_names):
 
 def one_statement_in_line(file_lines, classes_names):
     #array_pattern = re.compile("[A-Za-z:_0-9<>]+(\\s)+([A-Za-z:_0-9\\[\\]]+(\\s)*([,])?(\\s)*)+(\\s)*=(\\s)*[{]")
-    array_pattern = re.compile("[A-Za-z:_0-9]+(\\s)+([A-Za-z:_0-9\\[\\],]+(\\s)*=(\\s)*[{]")
+    array_pattern = re.compile("[A-Za-z:_0-9]+(\\s)+([A-Za-z:_0-9\\[\\],](\\s)*)+(\\s)*=(\\s)*[{]")
     for_pattern = re.compile("for(\\s)*[(]")
     braces_pattern = re.compile("[{].*[}]")
     return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
