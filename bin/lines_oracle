@@ -163,7 +163,7 @@ def one_statement_in_line(file_lines, classes_names):
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
         rule = ""
-        logger.info("{} {} {}".format(is_comment, is_array, contents))
+        logger.info("{} {} {}".format(not is_comment, not is_array, contents))
         if not is_comment and not is_array:
             semicolons = contents.count(";")
             if is_for:
