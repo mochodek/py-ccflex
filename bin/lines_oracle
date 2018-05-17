@@ -28,6 +28,7 @@ def braces_compound(file_lines, classes_names):
     for i, line in enumerate(file_lines):
         class_value = 0
         contents = str(line["contents"]).strip()
+        logger.info(contents)
 
         is_if = if_pattern.search(contents) is not None
         is_for = for_pattern.search(contents) is not None
@@ -43,7 +44,7 @@ def braces_compound(file_lines, classes_names):
                 else:
                     if close_bracket_pattern.search(contents):  # is complete if or for
                         if i + 1 < len(file_lines):
-                            contents_next = file_lines[i + 1]["contents"].strip()
+                            contents_next = str(file_lines[i + 1]["contents"]).strip()
                             if open_brace_pattern.search(contents_next) is None:
                                 class_value = 1
                         else:
