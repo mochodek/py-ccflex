@@ -103,7 +103,7 @@ if __name__ == '__main__':
                     if count in lines_indices:
                         filename = row['id'].split(":")[0]
 
-                        out_file.write("".join(["\n"]*ctx_prev))
+                        out_file.write("".join(["\n"] * max(ctx_prev, ctx_next)))
                         while len(prev_lines) > 0:
                             prev_line = prev_lines.popleft()
                             if prev_line['id'].split(":")[0] == filename:
