@@ -28,7 +28,6 @@ def braces_compound(file_lines, classes_names):
     for i, line in enumerate(file_lines):
         class_value = 0
         contents = str(line["contents"]).strip()
-        logger.info(contents)
 
         is_if = if_pattern.search(contents) is not None
         is_for = for_pattern.search(contents) is not None
