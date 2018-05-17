@@ -28,6 +28,8 @@ def braces_compound(file_lines, classes_names):
     for i, line in enumerate(file_lines):
         class_value = 0
         contents = str(line["contents"]).strip()
+        if contents == "nan":
+            contents = ""
 
         is_if = if_pattern.search(contents) is not None
         is_for = for_pattern.search(contents) is not None
@@ -44,6 +46,8 @@ def braces_compound(file_lines, classes_names):
                     if close_bracket_pattern.search(contents):  # is complete if or for
                         if i + 1 < len(file_lines):
                             contents_next = str(file_lines[i + 1]["contents"]).strip()
+                            if contents_next == "nan":
+                                contents_next = ""
                             if open_brace_pattern.search(contents_next) is None:
                                 class_value = 1
                         else:
@@ -51,7 +55,9 @@ def braces_compound(file_lines, classes_names):
                     else:  # is partial if or for
                         for j in range(i + 1, i + 6):
                             if j < len(file_lines):
-                                contents_next = file_lines[j]["contents"].strip()
+                                contents_next = str(file_lines[j]["contents"]).strip()
+                                if contents_next == "nan":
+                                    contents_next = ""
                                 if open_brace_pattern.search(contents_next) is None:
                                     semicolons += contents_next.count(";")
                                     if is_if and semicolons > 0:
@@ -67,7 +73,10 @@ def braces_compound(file_lines, classes_names):
         if class_value != 0:
             logger.info("{}: {}".format(line['id'], line['contents']))
             if i + 1 < len(file_lines):
-                logger.info("{}: {}".format(file_lines[i + 1]['id'],  file_lines[i + 1]['contents']))
+                contents_next = str(file_lines[i + 1]["contents"]).strip()
+                if contents_next == "nan":
+                    contents_next = ""
+                logger.info("{}: {}".format(file_lines[i + 1]['id'],  contents_next))
             logger.info("----------------------------------------------------------------")
 
 
