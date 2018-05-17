@@ -66,6 +66,10 @@ def braces_compound(file_lines, classes_names):
 
         if class_value != 0:
             logger.info("{}: {}".format(line['id'], line['contents']))
+            if i + 1 < len(file_lines):
+                logger.info("{}: {}".format(file_lines[i + 1]['id'],  file_lines[i + 1]['contents']))
+            logger.info("----------------------------------------------------------------")
+
 
     return result
 
