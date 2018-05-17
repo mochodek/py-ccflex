@@ -18,7 +18,7 @@ logger.addHandler(ch)
 
 
 def braces_compound(file_lines, classes_names):
-    if_pattern = re.compile("^if(\\s)*[(]")
+    if_pattern = re.compile("^(if|else|else(\\s)*if)(\\s)*[(]")
     for_pattern = re.compile("^for(\\s)*[(]")
     open_brace_pattern = re.compile("[{]")
     close_bracket_pattern = re.compile("[)](\\s)*$")
