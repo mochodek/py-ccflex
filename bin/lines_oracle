@@ -141,13 +141,13 @@ def enum_class(file_lines, classes_names):
 
 def one_statement_in_line(file_lines, classes_names):
     array_pattern = re.compile(
-        "[A-Za-z:_0-9\\<\\>]+(\\s)+([A-Za-z:_0-9\\[\\],](\\s)*)+(\\s)*=(\\s)*[A-Za-z:_0-9\\<\\>]*(\\s)*[{]")
+        "[A-Za-z:_0-9\\<\\>*]+(\\s)+([A-Za-z:_0-9\\[\\],](\\s)*)+(\\s)*=(\\s)*[A-Za-z:_0-9\\<\\>]*(\\s)*[{]")
     array_assignment = re.compile("[A-Za-z:_0-9\\<\\>.\\-]+(\\s)*=(\\s)*[{].*[}]")
     for_pattern = re.compile("for(\\s)*[(]")
     braces_pattern = re.compile("[{].*[}]")
     return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
-    braces_with_token_pattern = re.compile("[A-Za-z_0-9]+(\\s)*[{]")
+    braces_with_token_pattern = re.compile("[A-Za-z_0-9\\<\\>]+(\\s)*[{]")
     only_braces_pattern = re.compile("^(\\s)*[{].*[}]([)]?)(\\s)*(;)?(\\s)*$")
     braces_within_brackets_pattern = re.compile("[(].*[{].*[}].*[)]")
     braces_const_braces_pattern = re.compile("[)](\\s)*const(\\s)*[{]")
