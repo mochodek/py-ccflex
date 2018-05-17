@@ -48,14 +48,14 @@ def braces_compound(file_lines, classes_names):
                             contents_next = str(file_lines[i + 1]["contents"]).strip()
                             if contents_next == "nan":
                                 contents_next = ""
-                            if open_brace_pattern.search(contents_next) is None and not contents_next == "":
+                            if open_brace_pattern.search(contents_next) is None and contents_next != "":
                                 class_value = 1
                             else:
                                 if i + 2 < len(file_lines):
                                     contents_next = str(file_lines[i + 2]["contents"]).strip()
                                     if contents_next == "nan":
                                         contents_next = ""
-                                        if open_brace_pattern.search(contents_next) is None and not contents_next == "":
+                                        if open_brace_pattern.search(contents_next) is None and contents_next != "":
                                             class_value = 1
 
                         else:
