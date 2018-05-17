@@ -150,6 +150,7 @@ def one_statement_in_line(file_lines, classes_names):
     braces_with_token_pattern = re.compile("[A-Za-z_09]+(\\s)*[{]")
     only_braces_pattern = re.compile("^(\\s)*[{].*[}]([)]?)(\\s)*(;)?(\\s)*$")
     braces_within_brackets_pattern = re.compile("[(].*[{].*[}].*[)]")
+    braces_const_braces_pattern = re.compile("[)](\\s)*const(\\s)*[{]")
 
     result = []
 
@@ -189,8 +190,10 @@ def one_statement_in_line(file_lines, classes_names):
                         is_braces_with_token = braces_with_token_pattern.search(contents) is not None
                         is_only_braces = only_braces_pattern.search(contents) is not None
                         is_braces_between_brackets = braces_within_brackets_pattern.search(contents) is not None
+                        is_braces_const_brackets = braces_const_braces_pattern.search(contents) is not None
 
-                        if not is_return and not is_braces_with_token and not is_only_braces and not is_braces_between_brackets:
+                        if not is_return and (not is_braces_with_token or is_braces_const_brackets) \
+                                and not is_only_braces and not is_braces_between_brackets:
                             rule = "R4"
                             class_value = 1
 
