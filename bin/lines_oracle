@@ -18,7 +18,8 @@ logger.addHandler(ch)
 
 
 def braces_compound(file_lines, classes_names):
-    if_pattern = re.compile("^(\\s)*((if)|(else)|(else(\\s)*if))(\\s)*[(]")
+    if_pattern = re.compile("^(\\s)*((if)||(else(\\s)*if))(\\s)*[(]")
+    else_pattern = re.compile("^(\\s)*else(\\s)*")
     for_pattern = re.compile("^(\\s)*for(\\s)*[(]")
     open_brace_pattern = re.compile("[{]")
     close_bracket_pattern = re.compile("[)](\\s)*$")
@@ -32,10 +33,11 @@ def braces_compound(file_lines, classes_names):
             contents = ""
 
         is_if = if_pattern.search(contents) is not None
+        is_else = else_pattern.search(contents) is not None
         is_for = for_pattern.search(contents) is not None
         is_comment = int(line['block_comment']) > 0 or int(line['whole_line_comment']) > 0
 
-        if is_for or is_if and not is_comment:
+        if is_for or is_if or is_else and not is_comment:
             if open_brace_pattern.search(contents) is None:
                 semicolons = contents.count(";")
                 if is_if and semicolons > 0:
