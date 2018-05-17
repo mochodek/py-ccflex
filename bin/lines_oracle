@@ -147,7 +147,7 @@ def one_statement_in_line(file_lines, classes_names):
     braces_pattern = re.compile("[{].*[}]")
     return_array_pattern = re.compile("^(\\s)*return(\\s)*[{]")
     const_array_pattern = re.compile("const.+(\\s)*=(\\s)*[{]")
-    braces_with_token_pattern = re.compile("[A-Za-z_09]+(\\s)*[{]")
+    braces_with_token_pattern = re.compile("[A-Za-z_0-9]+(\\s)*[{]")
     only_braces_pattern = re.compile("^(\\s)*[{].*[}]([)]?)(\\s)*(;)?(\\s)*$")
     braces_within_brackets_pattern = re.compile("[(].*[{].*[}].*[)]")
     braces_const_braces_pattern = re.compile("[)](\\s)*const(\\s)*[{]")
