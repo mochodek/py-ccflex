@@ -152,7 +152,7 @@ if __name__ == '__main__':
     start = time.process_time()
 
     count_vect = CountVectorizer(ngram_range=(min_ngrams, max_ngrams),
-                                 tokenizer=tokenizer)
+                                 tokenizer=tokenizer, lowercase=False)
     lines_data = pd.read_csv(input_file_path, sep=separator, encoding="utf-8")
     lines_data.contents = lines_data.contents.fillna("")
     contents = list(lines_data.contents)
