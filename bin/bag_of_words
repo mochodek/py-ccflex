@@ -127,7 +127,7 @@ if __name__ == '__main__':
     tokens = list(vocabulary['token'])
     vocab = dict((key, value) for value, key in enumerate(tokens))
 
-    count_vect = CountVectorizer(ngram_range=(min_ngrams, max_ngrams), tokenizer=tokenizer, vocabulary=vocab)
+    count_vect = CountVectorizer(ngram_range=(min_ngrams, max_ngrams), tokenizer=tokenizer, vocabulary=vocab, lowercase=False)
 
     lines_data_chunks = pd.read_csv(input_file_path, sep=separator, encoding="utf-8", chunksize=chunk_size)
 
