@@ -119,13 +119,12 @@ if __name__ == '__main__':
         no_chars_extractor = CharCountFeatureExtraction()
         extractors.append(no_chars_extractor)
         logger.info(">>> Using {}".format("NoCharsExtractor"))
-	
-	if "BlankLineFeatureExtraction" in extractors_to_use:
+        
+    if "BlankLineFeatureExtraction" in extractors_to_use:
         blank_line_extractor = BlankLineFeatureExtraction()
         extractors.append(blank_line_extractor)
         logger.info(">>> Using {}".format("BlankLineFeatureExtraction"))
 		
-
     logger.info(">>> Extracting features")
 
     controller = LineFeaturesExtractionController(extractors,
