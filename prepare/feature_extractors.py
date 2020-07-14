@@ -121,6 +121,20 @@ class WholeLineCommentFeatureExtraction(object):
         feature = 0 if pattern.search(text) is None else 1
         return {'whole_line_comment': feature}
 
+		
+class BlankLineFeatureExtraction(object):
+    """
+       Returns 1 if a line is blank (contains white characters only or is empty).
+       """
+
+    def __init__(self):
+        self.logger = logging.getLogger('pyccflex.common.configuration.BlankLineFeatureExtraction')
+        self.feature_names = ['blank_line']
+
+    def extract(self, text):
+        pattern = re.compile("^(\\s)*$")
+        feature = 0 if pattern.search(text) is None else 1
+        return {'blank_line': feature}
 
 class WordCountFeatureExtraction(object):
     """
