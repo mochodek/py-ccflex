@@ -132,7 +132,7 @@ class LinesCaseExtractor(BaseCaseExtractor):
 
                     row = ["{}:{}".format(file_relative_path, number),
                            number,
-                           line.replace("\n", ""),
+                           line.replace("\n", "").replace('\0', ''),
                            decision_class_name,
                            decision_class_value,
                            file_path.replace("\n", "")]

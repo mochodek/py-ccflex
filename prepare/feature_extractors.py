@@ -30,7 +30,7 @@ class LineFeaturesExtractionController(object):
         self.verbosity = verbosity
 
     def extract(self):
-        with open(self.input_file, 'rt', encoding="utf-8") as in_file:
+        with open(self.input_file, 'rt', encoding="utf-8", errors="ignore") as in_file:
             reader = csv.DictReader(in_file, delimiter=self.sep, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
             with open(self.output_file, 'w', newline='', encoding="utf-8") as out_file:
                 writer = csv.DictWriter(out_file, fieldnames=self.feature_names,
@@ -118,6 +118,20 @@ class WholeLineCommentFeatureExtraction(object):
 
     def extract(self, text):
         pattern = re.compile("^(\\s)*//.*$")
+        feature = 0 if pattern.search(text) is None else 1
+        return {'whole_line_comment': feature}
+
+class PythonWholeLineCommentFeatureExtraction(object):
+    """
+       Extracts number of comments in the text
+       """
+
+    def __init__(self):
+        self.logger = logging.getLogger('pyccflex.common.configuration.PythonCommentFeatureExtraction')
+        self.feature_names = ['whole_line_comment']
+
+    def extract(self, text):
+        pattern = re.compile("^(\\s)*#.*$")
         feature = 0 if pattern.search(text) is None else 1
         return {'whole_line_comment': feature}
 
