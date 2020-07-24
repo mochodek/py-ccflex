@@ -15,7 +15,7 @@ class BaseCaseExtractor(abc.ABC):
     """
 
     def __init__(self, code_location, output_file_path, decision_classes, sep=",",
-                 quotechar="\"", remove_duplicates=False, verbosity=100):
+                 quotechar="\"", remove_duplicates=False, verbosity=100, max_line_length=1000):
         self.logger = logging.getLogger('pyccflex.common.configuration.BaseCaseExtractor')
         self.code_location = code_location
         self.locations = code_location.get("locations", [])
@@ -26,6 +26,7 @@ class BaseCaseExtractor(abc.ABC):
         self.quotechar = quotechar
         self.verbosity = verbosity
         self.remove_duplicates = remove_duplicates
+        self.max_line_length = max_line_length
 
     def extract(self):
         with open(self.output_file_path, "w", newline='', encoding="utf-8") as output_file:
@@ -108,7 +109,7 @@ class LinesCaseExtractor(BaseCaseExtractor):
                     line = input_file.readline()
                     if not line:
                         break
-
+                    line = line if len(line) < self.max_line_length else line[:self.max_line_length]
                     if self.remove_duplicates and len(line.strip()) > 0:
                         hashValue = hashlib.md5(line.encode('utf-8')).hexdigest()
                         if hashValue not in completed_lines_hash:

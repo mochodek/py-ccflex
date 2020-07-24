@@ -45,6 +45,8 @@ if __name__ == '__main__':
                         type=int, required=False, default=1)
     parser.add_argument("--chunk_size", help="Number of lines to process in a batch",
                         type=int, required=False, default=10 ** 3)
+    parser.add_argument("--max_line_length", help="Maximum line length; if exceeded it will be truncated.",
+                        type=int, required=False, default=1000)
 
     args = vars(parser.parse_args())
     logger.info("Run parameters: {}".format(str(args)))
@@ -52,6 +54,7 @@ if __name__ == '__main__':
     locations_file_path = args['locations_config']
     files_format_file_path = args['files_format_config']
     chunk_size = args['chunk_size']
+    max_line_length = max_line_length['max_line_length']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)
@@ -133,7 +136,7 @@ if __name__ == '__main__':
 
     for lines_data in lines_data_chunks:
         lines_data.contents = lines_data.contents.fillna("")
-        contents = list(lines_data.contents)
+        contents = [line if len(line) < max_line_length else line[:max_line_length] for line in lines_data.contents]
         count_vect.fit_transform(contents)
         break
 

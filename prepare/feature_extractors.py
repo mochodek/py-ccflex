@@ -1,16 +1,27 @@
 import logging
 import csv
 import re
+import sys
 
 module_logger = logging.getLogger('pyccflex.prepare')
 
+max_int = sys.maxsize
+while True:
+    # decrease the max_int value by factor 10 
+    # as long as the OverflowError occurs.
+    try:
+        csv.field_size_limit(max_int)
+        break
+    except OverflowError:
+        max_int = int(max_int/10)
+module_logger.debug(f"Setting csv field size to {max_int}")
 
 class LineFeaturesExtractionController(object):
     """
     Reads a csv file with lines and manages features extraction for each line.
     """
 
-    def __init__(self, extractors, input_file, output_path, sep=",",
+    def __init__(self, extractors, input_file, output_path, sep=",", max_line_length=1000,
                  add_decision_class=False, add_contents=False, verbosity=100000):
         self.logger = logging.getLogger('pyccflex.common.configuration.LineFeaturesExtractionController')
         self.extractors = extractors
@@ -20,6 +31,7 @@ class LineFeaturesExtractionController(object):
         self.feature_names = ["id"]
         self.add_decision_class = add_decision_class
         self.add_contents = add_contents
+        self.max_line_length = max_line_length
         for extractor in extractors:
             self.feature_names.extend(extractor.feature_names)
         if add_decision_class:
@@ -40,6 +52,7 @@ class LineFeaturesExtractionController(object):
                     if self.verbosity == 0 or i % self.verbosity == 0:
                         self.logger.info("Extracting features from {}".format(row['id']))
                     features = {"id": row['id']}
+                    row['contents'] = row['contents'] if len(row['contents']) < self.max_line_length else row['contents'][:self.max_line_length]
                     if self.add_contents:
                         features["contents"] = row['contents']
                     for extractor in self.extractors:
@@ -49,6 +62,7 @@ class LineFeaturesExtractionController(object):
                         features["class_name"] = row['class_name']
                         features["class_value"] = row['class_value']
                     writer.writerow(features)
+
 
 
 class SubstringCountingFeatureExtraction(object):
@@ -93,6 +107,28 @@ class WholeWordCountingFeatureExtraction(object):
                 features[feature['name']] += len(feature_re.findall(text))
         return features
 
+class RegexpCountingFeatureExtraction(object):
+    """
+    Extracts features by counting number of occurrences of regexp in the line.
+    """
+
+    def __init__(self, features_desc):
+        self.logger = logging.getLogger('pyccflex.common.configuration.RegexpCountingFeatureExtraction')
+        self.feature_desc = features_desc
+        for feature in features_desc:
+            feature['re'] = []
+            for feature_string in feature['string']:
+                feature['re'].append(re.compile(feature_string))
+
+        self.feature_names = [f['name'] for f in features_desc]
+
+    def extract(self, text):
+        features = {}
+        for feature in self.feature_desc:
+            features[feature['name']] = 0
+            for feature_re in feature['re']:
+                features[feature['name']] += len(feature_re.findall(text))
+        return features
 
 class CommentFeatureExtraction(object):
     """

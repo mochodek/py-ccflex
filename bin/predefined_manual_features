@@ -8,7 +8,8 @@ from common.configuration import ConfigurationHandler
 from common.workspace import WorkspaceHandler
 from prepare.feature_extractors import SubstringCountingFeatureExtraction, WholeWordCountingFeatureExtraction, \
     LineFeaturesExtractionController, CommentFeatureExtraction, WordCountFeatureExtraction, CharCountFeatureExtraction, \
-    WholeLineCommentFeatureExtraction, BlankLineFeatureExtraction, PythonWholeLineCommentFeatureExtraction
+    WholeLineCommentFeatureExtraction, BlankLineFeatureExtraction, PythonWholeLineCommentFeatureExtraction, \
+    RegexpCountingFeatureExtraction
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -17,7 +18,7 @@ ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
 default_extractors = ["PatternSubstringExctractor", "PatternWordExtractor", "BlankLineFeatureExtraction",
-                        "CommentStringExtractor", "NoWordsExtractor", "NoCharsExtractor"]
+                        "CommentStringExtractor", "NoWordsExtractor", "NoCharsExtractor", "RegexpCountingFeatureExtraction"]
 
 if __name__ == '__main__':
 
@@ -85,6 +86,7 @@ if __name__ == '__main__':
 
     manual_string_counting_features = manual_features_config.get('manual_string_counting_features', [])
     manual_whole_word_counting_features = manual_features_config.get('manual_whole_word_counting_features', [])
+    regexp_counting_features = manual_features_config.get('regexp_counting_features', [])
 
     logger.info(">>> Preparing feature extractors")
 
@@ -100,6 +102,11 @@ if __name__ == '__main__':
         extractors.append(manual_whole_word_counting_exractor)
         logger.info(">>> Using {}".format("PatternWordExtractor"))
 
+    if "RegexpCountingFeatureExtraction" in extractors_to_use:
+        regexp_counting_exractor = RegexpCountingFeatureExtraction(regexp_counting_features)
+        extractors.append(regexp_counting_exractor)
+        logger.info(">>> Using {}".format("RegexpCountingFeatureExtraction"))
+        
     if "CommentStringExtractor" in extractors_to_use:
         comment_extractor = CommentFeatureExtraction()
         extractors.append(comment_extractor)
