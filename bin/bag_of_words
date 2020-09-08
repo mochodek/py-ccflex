@@ -54,7 +54,7 @@ if __name__ == '__main__':
     locations_file_path = args['locations_config']
     files_format_file_path = args['files_format_config']
     chunk_size = args['chunk_size']
-    max_line_length = max_line_length['max_line_length']
+    max_line_length = args['max_line_length']
 
     try:
         locations_config = ConfigurationHandler(locations_file_path)

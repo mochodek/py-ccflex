@@ -9,7 +9,7 @@ from common.workspace import WorkspaceHandler
 from prepare.feature_extractors import SubstringCountingFeatureExtraction, WholeWordCountingFeatureExtraction, \
     LineFeaturesExtractionController, CommentFeatureExtraction, WordCountFeatureExtraction, CharCountFeatureExtraction, \
     WholeLineCommentFeatureExtraction, BlankLineFeatureExtraction, PythonWholeLineCommentFeatureExtraction, \
-    RegexpCountingFeatureExtraction
+    RegexpCountingFeatureExtraction, TokenizedWholeWordCountingFeatureExtraction
 
 logger = logging.getLogger('pyccflex')
 logger.setLevel(logging.DEBUG)
@@ -101,6 +101,11 @@ if __name__ == '__main__':
         manual_whole_word_counting_exractor = WholeWordCountingFeatureExtraction(manual_whole_word_counting_features)
         extractors.append(manual_whole_word_counting_exractor)
         logger.info(">>> Using {}".format("PatternWordExtractor"))
+    
+    if "PatternWordTokenizedExtractor" in extractors_to_use:
+        manual_tokenized_whole_word_counting_exractor = TokenizedWholeWordCountingFeatureExtraction(manual_whole_word_counting_features)
+        extractors.append(manual_tokenized_whole_word_counting_exractor)
+        logger.info(">>> Using {}".format("PatternWordTokenizedExtractor"))
 
     if "RegexpCountingFeatureExtraction" in extractors_to_use:
         regexp_counting_exractor = RegexpCountingFeatureExtraction(regexp_counting_features)
@@ -143,7 +148,8 @@ if __name__ == '__main__':
                                                   input_file_path, output_file_path,
                                                   sep=separator,
                                                   add_decision_class=add_decision_class,
-                                                  add_contents=add_contents)
+                                                  add_contents=add_contents,
+                                                  verbosity=10)
     controller.extract()
 
     logger.info(">>> Features stored in the file {}".format(output_file_path))

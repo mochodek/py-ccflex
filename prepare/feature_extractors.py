@@ -3,6 +3,8 @@ import csv
 import re
 import sys
 
+from prepare.vocabularies import code_stop_words_tokenizer, token_signature
+
 module_logger = logging.getLogger('pyccflex.prepare')
 
 max_int = sys.maxsize
@@ -56,6 +58,14 @@ class LineFeaturesExtractionController(object):
                     if self.add_contents:
                         features["contents"] = row['contents']
                     for extractor in self.extractors:
+                        #try:
+                        #    extracted_features = func_timeout(60, extractor.extract, args=(row['contents']))
+                        #except FunctionTimedOut:
+                        #    self.logger.debug( f"Extracting features from for and {row['contents']} exceeded 60s.")
+                        #    extracted_features = extractor.extract("")
+                        #except Exception as e:
+                            # Handle any exceptions that doit might raise here
+                        #    pass
                         extracted_features = extractor.extract(row['contents'])
                         features.update(extracted_features)
                     if self.add_decision_class:
@@ -89,9 +99,10 @@ class WholeWordCountingFeatureExtraction(object):
     Extracts features by counting number of occurrences of a word not directly surrounded by other words.
     """
 
-    def __init__(self, features_desc):
+    def __init__(self, features_desc, max_line_length=150):
         self.logger = logging.getLogger('pyccflex.common.configuration.WholeWordCountingFeatureExtraction')
         self.feature_desc = features_desc
+        self.max_line_length = max_line_length
         for feature in features_desc:
             feature['re'] = []
             for feature_string in feature['string']:
@@ -101,10 +112,40 @@ class WholeWordCountingFeatureExtraction(object):
 
     def extract(self, text):
         features = {}
+        text = text if len(text) < self.max_line_length else text[:self.max_line_length]
         for feature in self.feature_desc:
             features[feature['name']] = 0
             for feature_re in feature['re']:
+                print(f"{feature['re']} -> {text}")
                 features[feature['name']] += len(feature_re.findall(text))
+        return features
+
+class TokenizedWholeWordCountingFeatureExtraction(object):
+    """
+    Extracts features by counting number of occurrences of a word not directly surrounded by other words.
+    """
+
+    def __init__(self, features_desc, max_line_length=300):
+        self.logger = logging.getLogger('pyccflex.common.configuration.WholeWordCountingFeatureExtraction')
+        self.feature_desc = features_desc
+        self.max_line_length = max_line_length
+        for feature in features_desc:
+            feature['re'] = []
+            for feature_string in feature['string']:
+                feature['re'].append(re.compile("^"+feature_string+"$"))
+
+        self.feature_names = [f['name'] for f in features_desc]
+
+    def extract(self, text):
+        features = {}
+        text = text if len(text) < self.max_line_length else text[:self.max_line_length]
+        tokens = code_stop_words_tokenizer(text)
+        for feature in self.feature_desc:
+            features[feature['name']] = 0
+            for token in tokens:
+                token = token if len(token) < 50 else token[:50]
+                for feature_re in feature['re']:
+                    features[feature['name']] += 1 if feature_re.match(token) is not None else 0
         return features
 
 class RegexpCountingFeatureExtraction(object):
@@ -112,9 +153,10 @@ class RegexpCountingFeatureExtraction(object):
     Extracts features by counting number of occurrences of regexp in the line.
     """
 
-    def __init__(self, features_desc):
+    def __init__(self, features_desc, max_line_length=150):
         self.logger = logging.getLogger('pyccflex.common.configuration.RegexpCountingFeatureExtraction')
         self.feature_desc = features_desc
+        self.max_line_length = max_line_length
         for feature in features_desc:
             feature['re'] = []
             for feature_string in feature['string']:
@@ -124,6 +166,7 @@ class RegexpCountingFeatureExtraction(object):
 
     def extract(self, text):
         features = {}
+        text = text if len(text) < self.max_line_length else text[:self.max_line_length]
         for feature in self.feature_desc:
             features[feature['name']] = 0
             for feature_re in feature['re']:
