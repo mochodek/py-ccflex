@@ -14,7 +14,7 @@ setup(name='pyccflex',
           'scikit-learn',
           'modAL',
           'ggplot',
-          'func_timout'
+          'func_timeout'
       ],
       scripts=[
           'bin/create_workspace',
