@@ -42,6 +42,8 @@ IEEE Workshop on (pp. 14-20). IEEE.
 }
 ```
 
+The tool is currently developed and studied with the support of the [NCN OPUS'21 project "Source-code-representations for machine-learning-based identification of defective code fragments" (2021/41/B/ST6/02510)](https://ml4code.cs.put.poznan.pl/ml4code/).
+
 ## Installation
 
 To install pyccflex, download or clone the repository and run in the root directory:
