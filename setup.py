@@ -13,8 +13,7 @@ setup(name='pyccflex',
           'numpy',
           'scikit-learn',
           'modAL',
-          'ggplot',
-          'func_timout'
+          'ggplot'
       ],
       scripts=[
           'bin/create_workspace',
