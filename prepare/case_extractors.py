@@ -96,9 +96,8 @@ class LinesCaseExtractor(BaseCaseExtractor):
         return ["id", "line", "contents", "class_name", "class_value", "path"]
 
     def extract_cases_from_file(self, file_path, writer):
-
+        
         file_relative_path = os.path.relpath(file_path, self.baseline_dir)
-
         completed_lines_hash = set()
 
         with open(file_path, "r", encoding="utf-8") as input_file:

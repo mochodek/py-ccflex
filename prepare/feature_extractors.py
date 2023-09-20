@@ -116,7 +116,7 @@ class WholeWordCountingFeatureExtraction(object):
         for feature in self.feature_desc:
             features[feature['name']] = 0
             for feature_re in feature['re']:
-                print(f"{feature['re']} -> {text}")
+                #print(f"{feature['re']} -> {text}")
                 features[feature['name']] += len(feature_re.findall(text))
         return features
 
