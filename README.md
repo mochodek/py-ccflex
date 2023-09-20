@@ -9,7 +9,7 @@ producing intermediary files (mostly in the csv format).
 Since this project is modular, we can use R to make some more advanced classifications, which are not available in Python
 by simply calling any script / program available in the operating system.
 
-The idea is described in the following paper:
+The idea is described in the following papers:
 * Ochodek, M., Staron, M., Bargowski, D., Meding, W., & Hebig, R. (2017, February). Using machine learning to 
 design a flexible LOC counter. In Machine Learning Techniques for Software Quality Evaluation (MaLTeSQuE), 
 IEEE Workshop on (pp. 14-20). IEEE.
@@ -26,6 +26,23 @@ IEEE Workshop on (pp. 14-20). IEEE.
   organization={IEEE}
 }
 ``` 
+* Ochodek, M., Hebig, R., Meding, W., Frost, G., & Staron, M. (2020). Recognizing lines of code violating company-specific coding guidelines using machine learning. Empirical Software Engineering, 25(1), 220-265.
+
+* available at: [Springer](https://link.springer.com/article/10.1007/s10664-019-09769-8)
+```bibtex
+@article{ochodek2020recognizing,
+  title={Recognizing lines of code violating company-specific coding guidelines using machine learning},
+  author={Ochodek, Miroslaw and Hebig, Regina and Meding, Wilhelm and Frost, Gert and Staron, Miroslaw},
+  journal={Empirical Software Engineering},
+  volume={25},
+  number={1},
+  pages={220--265},
+  year={2020},
+  publisher={Springer}
+}
+```
+
+The tool is currently developed and studied with the support of the [NCN OPUS'21 project "Source-code-representations for machine-learning-based identification of defective code fragments" (2021/41/B/ST6/02510)](https://ml4code.cs.put.poznan.pl/ml4code/).
 
 ## Installation
 

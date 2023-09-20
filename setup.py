@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from setuptools import setup
 
 setup(name='pyccflex',
